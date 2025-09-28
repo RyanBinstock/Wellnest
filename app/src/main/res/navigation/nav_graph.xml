@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/welcomeFragment">
+
+    <fragment
+        android:id="@+id/welcomeFragment"
+        android:name="com.code.wlu.cp470.wellnest.WelcomeFragment"
+        android:label="Welcome">
+        <action
+            android:id="@+id/action_welcome_to_signUp"
+            app:destination="@id/signUpFragment" />
+        <action
+            android:id="@+id/action_welcome_to_logIn"
+            app:destination="@id/logInFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/signUpFragment"
+        android:name="com.code.wlu.cp470.wellnest.SignUpFragment"
+        android:label="Sign Up">
+        <action
+            android:id="@+id/action_signUp_to_home"
+            app:destination="@id/homeFragment" />
+        <action
+            android:id="@+id/action_signUp_to_logIn"
+            app:destination="@id/logInFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/logInFragment"
+        android:name="com.code.wlu.cp470.wellnest.LogInFragment"
+        android:label="Log In">
+        <action
+            android:id="@+id/action_logIn_to_home"
+            app:destination="@id/homeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.code.wlu.cp470.wellnest.HomeFragment"
+        android:label="Home" />
+</navigation>
