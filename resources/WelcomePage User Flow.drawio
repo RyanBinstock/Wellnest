@@ -1,0 +1,42 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" version="28.2.5">
+  <diagram name="Page-1" id="pDRqvR8C_ONuGjnti2g_">
+    <mxGraphModel dx="1683" dy="650" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="by1Hj1xScfWAxomrNk3V-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="by1Hj1xScfWAxomrNk3V-1" target="by1Hj1xScfWAxomrNk3V-4">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="425" y="150" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-1" value="App Launch" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="365" y="50" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="by1Hj1xScfWAxomrNk3V-4" target="by1Hj1xScfWAxomrNk3V-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="by1Hj1xScfWAxomrNk3V-4" target="by1Hj1xScfWAxomrNk3V-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-4" value="Welcome Fragment" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="365" y="140" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="by1Hj1xScfWAxomrNk3V-6" target="by1Hj1xScfWAxomrNk3V-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-6" value="Swipe throught dialogue" style="rounded=1;whiteSpace=wrap;html=1;glass=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="230" y="200" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-17" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="by1Hj1xScfWAxomrNk3V-8" target="by1Hj1xScfWAxomrNk3V-16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-8" value="Clicks &quot;Get Started&quot;" style="rounded=1;whiteSpace=wrap;html=1;glass=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="365" y="250" width="120" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="by1Hj1xScfWAxomrNk3V-16" value="Launch Login Fragment" style="rounded=1;whiteSpace=wrap;html=1;glass=0;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="365" y="320" width="120" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
