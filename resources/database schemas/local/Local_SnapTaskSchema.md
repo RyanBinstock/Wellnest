@@ -128,9 +128,3 @@ public interface TaskDao {
 4. **Retry policy:** If API fails, update `retries` + `lastAttemptAt`. A foreground service / WorkManager can retry based on backoff, **or** keep the UI blocking until a retry succeeds.
 
 ---
-
-## Migrations (forward-compatible)
-
-* If later you add reasons or audit: add `lastError TEXT` to `TASK_LOCAL`.
-* If you add hard deletes: add `deletedAt INTEGER` soft-delete columns instead of physical deletes.
-* If multi-account arrives: add a `uid TEXT` column to both tables and use composite PKs `(uid, id)` / `(uid, taskId)`.
