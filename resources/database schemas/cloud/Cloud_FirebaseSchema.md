@@ -18,7 +18,8 @@ Holds minimal user profile and **globalPoints** source of truth.
 
 ```jsonc
 users/{uid}: {
-  displayName: string,
+  Name: string,
+  Email: string
   globalPoints: number,     // updated by backend only
   createdAt: timestamp,
   updatedAt: timestamp
