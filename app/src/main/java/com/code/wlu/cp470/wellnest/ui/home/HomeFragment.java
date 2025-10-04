@@ -1,4 +1,4 @@
-package com.code.wlu.cp470.wellnest;
+package com.code.wlu.cp470.wellnest.ui.home;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.code.wlu.cp470.wellnest.R;
 
 public class HomeFragment extends Fragment {
     @Nullable @Override

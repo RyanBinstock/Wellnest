@@ -1,4 +1,4 @@
-package com.code.wlu.cp470.wellnest;
+package com.code.wlu.cp470.wellnest.ui.welcome;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -9,7 +9,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.code.wlu.cp470.wellnest.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +64,17 @@ public class WelcomeFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            // Already signed in → skip Welcome/Auth, go straight to Home
+            Navigation.findNavController(requireView()).navigate(R.id.homeFragment);
+        }
+    }
+
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -72,12 +88,21 @@ public class WelcomeFragment extends Fragment {
         Button btnGetStarted = view.findViewById(R.id.btnGetStarted);
         TextView linkLogin   = view.findViewById(R.id.linkLogin);
 
-        btnGetStarted.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_welcome_to_signUp));
+        // "Get Started" -> Auth in SIGN-UP mode
+        btnGetStarted.setOnClickListener(v -> {
+            WelcomeFragmentDirections.ActionWelcomeToAuth action =
+                    WelcomeFragmentDirections.actionWelcomeToAuth();
+            action.setStartMode("signup");
+            NavHostFragment.findNavController(this).navigate(action);
+        });
 
-        linkLogin.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_welcome_to_logIn));
+        // "Log In" link -> Auth in LOGIN mode
+        linkLogin.setOnClickListener(v -> {
+            WelcomeFragmentDirections.ActionWelcomeToAuth action =
+                    WelcomeFragmentDirections.actionWelcomeToAuth();
+            action.setStartMode("login");
+            NavHostFragment.findNavController(this).navigate(action);
+        });
     }
+
 }
