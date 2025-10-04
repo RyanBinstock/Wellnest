@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Brand -->
-    <color name="wl_primary">#2E8B6C</color>
+    <color name="wl_primary">#30A83E</color>
     <color name="wl_onPrimary">#FFFFFFFF</color>
 
     <!-- Surface & text -->
     <color name="wl_surface">#FFFFFFFF</color>
-    <color name="wl_onSurface">#1A1A1A</color>
+    <color name="wl_onSurface">#3C3C3C</color>
     <color name="wl_onSurfaceSecondary">#7A7A7A</color>
     <color name="wl_inputBg">#EEEEEE</color>
 

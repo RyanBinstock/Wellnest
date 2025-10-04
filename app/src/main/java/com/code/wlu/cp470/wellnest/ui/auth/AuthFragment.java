@@ -37,6 +37,9 @@ public class AuthFragment extends Fragment {
         Button primaryButton   = view.findViewById(R.id.primaryButton);
         TextView switchText    = view.findViewById(R.id.authSwitchText);
         TextView switchLink    = view.findViewById(R.id.authSwitchLink);
+        ImageView birdHouse    = view.findViewById(R.id.birdHouse);
+        ImageView birdFeeder    = view.findViewById(R.id.birdFeeder);
+
 
         // Init ViewModel
         AuthViewModel vm = new ViewModelProvider(this).get(AuthViewModel.class);
