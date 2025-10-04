@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Brand -->
+    <color name="wl_primary">#2E8B6C</color>
+    <color name="wl_onPrimary">#FFFFFFFF</color>
+
+    <!-- Surface & text -->
+    <color name="wl_surface">#FFFFFFFF</color>
+    <color name="wl_onSurface">#1A1A1A</color>
+    <color name="wl_onSurfaceSecondary">#7A7A7A</color>
+    <color name="wl_inputBg">#EEEEEE</color>
+
+    <!-- Background gradient -->
+    <color name="wl_bg_start">#FFD400</color>
+    <color name="wl_bg_end">#00F4FF</color>
+
+    <!-- Shadows (if needed in custom views) -->
+    <color name="wl_shadow">#22000000</color>
 </resources>

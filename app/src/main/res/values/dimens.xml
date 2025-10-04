@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing -->
+    <dimen name="wl_space_xxs">4dp</dimen>
+    <dimen name="wl_space_xs">8dp</dimen>
+    <dimen name="wl_space_s">12dp</dimen>
+    <dimen name="wl_space_m">16dp</dimen>
+    <dimen name="wl_space_l">24dp</dimen>
+    <dimen name="wl_space_xl">32dp</dimen>
+
+    <!-- Radii -->
+    <dimen name="wl_radius_l">24dp</dimen>
+    <dimen name="wl_radius_pill">50dp</dimen>
+
+    <!-- Typography sizes -->
+    <dimen name="wl_text_title">32sp</dimen>
+    <dimen name="wl_text_body">16sp</dimen>
+    <dimen name="wl_text_caption">14sp</dimen>
+    <dimen name="wl_text_primary_button">24sp</dimen>
+
+    <!-- Button height -->
+    <dimen name="wl_button_height">48dp</dimen>
+</resources>

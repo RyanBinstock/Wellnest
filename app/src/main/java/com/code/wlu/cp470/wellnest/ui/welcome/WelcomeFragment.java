@@ -1,4 +1,4 @@
-package com.code.wlu.cp470.wellnest;
+package com.code.wlu.cp470.wellnest.ui.welcome;
 
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.navigation.fragment.NavHostFragment;
+
+import com.code.wlu.cp470.wellnest.R;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -72,12 +74,21 @@ public class WelcomeFragment extends Fragment {
         Button btnGetStarted = view.findViewById(R.id.btnGetStarted);
         TextView linkLogin   = view.findViewById(R.id.linkLogin);
 
-        btnGetStarted.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_welcome_to_signUp));
+        // "Get Started" -> Auth in SIGN-UP mode
+        btnGetStarted.setOnClickListener(v -> {
+            WelcomeFragmentDirections.ActionWelcomeToAuth action =
+                    WelcomeFragmentDirections.actionWelcomeToAuth();
+            action.setStartMode("signup");
+            NavHostFragment.findNavController(this).navigate(action);
+        });
 
-        linkLogin.setOnClickListener(v ->
-                NavHostFragment.findNavController(this)
-                        .navigate(R.id.action_welcome_to_logIn));
+        // "Log In" link -> Auth in LOGIN mode
+        linkLogin.setOnClickListener(v -> {
+            WelcomeFragmentDirections.ActionWelcomeToAuth action =
+                    WelcomeFragmentDirections.actionWelcomeToAuth();
+            action.setStartMode("login");
+            NavHostFragment.findNavController(this).navigate(action);
+        });
     }
+
 }
