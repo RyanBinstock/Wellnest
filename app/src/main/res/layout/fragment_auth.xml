@@ -3,8 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <!-- Background image -->
     <ImageView
@@ -18,6 +17,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+
     <ImageView
         android:id="@+id/leafOverlay"
         android:src="@drawable/leaf_overlay"
@@ -40,8 +40,8 @@
         app:layout_constraintWidth_percent="0.5"
         app:layout_constraintHeight_percent="0.3"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        />
+        app:layout_constraintLeft_toLeftOf="parent"/>
+
     <ImageView
         android:id="@+id/birdFeeder"
         android:src="@drawable/bird_feeder_bird"
@@ -52,19 +52,7 @@
         app:layout_constraintWidth_percent="0.35"
         app:layout_constraintHeight_percent="0.25"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        />
-
-    <!-- Scrim overlay -->
-<!--    <View-->
-<!--        android:id="@+id/bgScrim"-->
-<!--        android:layout_width="0dp"-->
-<!--        android:layout_height="0dp"-->
-<!--        android:background="#3CFFFFFF"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"/>-->
+        app:layout_constraintRight_toRightOf="parent"/>
 
     <!-- Card anchored at bottom, full width -->
     <LinearLayout
@@ -79,11 +67,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-
         <TextView
             android:id="@+id/titleText"
             android:textAppearance="@style/TextAppearance.Wellnest.Title"
-            android:text="Sign Up"
+            android:text="@string/auth_title_sign_up"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/wl_space_l"/>
@@ -94,7 +81,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/wl_space_xxs"
-            android:text="Full Name"/>
+            android:text="@string/auth_label_full_name"/>
+
         <EditText
             android:id="@+id/nameForm"
             android:layout_width="match_parent"
@@ -102,8 +90,7 @@
             style="@style/Widget.Wellnest.Input"
             android:inputType="textPersonName"
             android:layout_marginBottom="@dimen/wl_space_s"
-            android:hint="Enter your full name"
-            />
+            android:hint="@string/auth_hint_full_name"/>
 
         <TextView
             android:id="@+id/emailText"
@@ -111,7 +98,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/wl_space_xxs"
-            android:text="Email"/>
+            android:text="@string/auth_label_email"/>
+
         <EditText
             android:id="@+id/emailForm"
             android:layout_width="match_parent"
@@ -119,8 +107,7 @@
             style="@style/Widget.Wellnest.Input"
             android:inputType="textEmailAddress"
             android:layout_marginBottom="@dimen/wl_space_s"
-            android:hint="Enter your email"
-            />
+            android:hint="@string/auth_hint_email"/>
 
         <TextView
             android:id="@+id/passwordText"
@@ -128,7 +115,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/wl_space_xxs"
-            android:text="Password"/>
+            android:text="@string/auth_label_password"/>
+
         <EditText
             android:id="@+id/passwordForm"
             android:layout_width="match_parent"
@@ -136,8 +124,7 @@
             style="@style/Widget.Wellnest.Input"
             android:layout_marginBottom="@dimen/wl_space_xl"
             android:inputType="textPassword"
-            android:hint="Enter your password"
-            />
+            android:hint="@string/auth_hint_password"/>
 
         <Button
             android:id="@+id/primaryButton"
@@ -145,7 +132,7 @@
             android:layout_height="wrap_content"
             android:paddingVertical="@dimen/wl_space_s"
             style="@style/Widget.Wellnest.Button.Primary"
-            android:text="Sign Up"/>
+            android:text="@string/auth_cta_sign_up"/>
 
         <LinearLayout
             android:orientation="horizontal"
@@ -153,19 +140,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/wl_space_xxs"
             android:gravity="center">
+
             <TextView
                 android:id="@+id/authSwitchText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/TextAppearance.Wellnest.Caption"
-                android:text="Already have an account?"/>
+                android:text="@string/auth_switch_prompt_have_account"/>
+
             <TextView
                 android:id="@+id/authSwitchLink"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/TextAppearance.Wellnest.Link"
                 android:layout_marginLeft="@dimen/wl_space_xs"
-                android:text="Log In"/>
+                android:text="@string/auth_switch_action_log_in"/>
         </LinearLayout>
     </LinearLayout>
 

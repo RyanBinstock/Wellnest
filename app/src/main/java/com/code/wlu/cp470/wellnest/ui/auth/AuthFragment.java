@@ -15,7 +15,8 @@ import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
 public class AuthFragment extends Fragment {
     private boolean signUpMode = true;
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -38,8 +39,7 @@ public class AuthFragment extends Fragment {
         TextView switchText    = view.findViewById(R.id.authSwitchText);
         TextView switchLink    = view.findViewById(R.id.authSwitchLink);
         ImageView birdHouse    = view.findViewById(R.id.birdHouse);
-        ImageView birdFeeder    = view.findViewById(R.id.birdFeeder);
-
+        ImageView birdFeeder   = view.findViewById(R.id.birdFeeder);
 
         // Init ViewModel
         AuthViewModel vm = new ViewModelProvider(this).get(AuthViewModel.class);
@@ -47,8 +47,6 @@ public class AuthFragment extends Fragment {
         // Observe results
         vm.user().observe(getViewLifecycleOwner(), u -> {
             if (u != null) {
-                // Optionally mirror to DataStore here (uid/email/name) for offline UI
-                // new UserProfileStore(requireContext()).saveUserProfile(u.getUid(), u.getEmail(), u.getDisplayName(), System.currentTimeMillis());
                 Navigation.findNavController(view).navigate(R.id.action_auth_to_home);
             }
         });
@@ -65,11 +63,11 @@ public class AuthFragment extends Fragment {
         });
 
         // 1) Initial mode from Safe Args (default "login" in nav_graph)
-        String startMode = "login";
+        String startMode = getString(R.string.auth_mode_login);
         if (getArguments() != null) {
-            startMode = getArguments().getString("startMode", "login");
+            startMode = getArguments().getString("startMode", getString(R.string.auth_mode_login));
         }
-        signUpMode = "signup".equalsIgnoreCase(startMode);
+        signUpMode = getString(R.string.auth_mode_signup).equalsIgnoreCase(startMode);
         applyMode(signUpMode, titleText, nameText, nameForm, primaryButton, switchText, switchLink);
 
         // 2) Toggle
@@ -84,17 +82,17 @@ public class AuthFragment extends Fragment {
             String pass  = passwordForm.getText().toString();
 
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)) {
-                Toast.makeText(requireContext(), "Email and password required", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.auth_error_email_password_required), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (signUpMode) {
                 String name = nameForm.getText().toString().trim();
                 if (TextUtils.isEmpty(name)) {
-                    Toast.makeText(requireContext(), "Name required", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.auth_error_name_required), Toast.LENGTH_SHORT).show();
                     return;
                 }
-                vm.signUp(name, email, pass);   // creates Firebase user + users/{uid} doc
+                vm.signUp(name, email, pass);
             } else {
                 vm.signIn(email, pass);
             }
@@ -109,19 +107,19 @@ public class AuthFragment extends Fragment {
                            TextView switchText,
                            TextView switchLink) {
         if (isSignUp) {
-            titleText.setText("Sign Up");
+            titleText.setText(R.string.auth_title_sign_up);
             nameText.setVisibility(View.VISIBLE);
             nameForm.setVisibility(View.VISIBLE);
-            primaryButton.setText("Sign Up");
-            switchText.setText("Already have an account?");
-            switchLink.setText("Log in");
+            primaryButton.setText(R.string.auth_cta_sign_up);
+            switchText.setText(R.string.auth_switch_prompt_have_account);
+            switchLink.setText(R.string.auth_switch_action_log_in);
         } else {
-            titleText.setText("Log in");
+            titleText.setText(R.string.auth_title_log_in);
             nameText.setVisibility(View.GONE);
             nameForm.setVisibility(View.GONE);
-            primaryButton.setText("Log in");
-            switchText.setText("Don't have an account?");
-            switchLink.setText("Sign up");
+            primaryButton.setText(R.string.auth_cta_log_in);
+            switchText.setText(R.string.auth_switch_prompt_no_account);
+            switchLink.setText(R.string.auth_switch_action_sign_up);
         }
     }
 }

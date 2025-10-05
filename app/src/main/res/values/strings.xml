@@ -1,5 +1,35 @@
 <resources>
     <string name="app_name">Wellnest</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Auth fragment strings -->
+    <string name="auth_title_sign_up">Sign Up</string>
+
+    <string name="auth_label_full_name">Full Name</string>
+    <string name="auth_hint_full_name">Enter your full name</string>
+
+    <string name="auth_label_email">Email</string>
+    <string name="auth_hint_email">Enter your email</string>
+
+    <string name="auth_label_password">Password</string>
+    <string name="auth_hint_password">Enter your password</string>
+
+    <string name="auth_cta_sign_up">Sign Up</string>
+
+    <string name="auth_switch_prompt_have_account">Already have an account?</string>
+    <string name="auth_switch_action_log_in">Log In</string>
+
+    <!-- AuthFragment-specific strings -->
+    <string name="auth_mode_login">login</string>
+    <string name="auth_mode_signup">signup</string>
+
+    <string name="auth_error_email_password_required">Email and password required</string>
+    <string name="auth_error_name_required">Name required</string>
+
+    <string name="auth_title_log_in">Log In</string>
+    <string name="auth_cta_log_in">Log In</string>
+
+    <string name="auth_switch_prompt_no_account">Don\'t have an account?</string>
+    <string name="auth_switch_action_sign_up">Sign Up</string>
+
 </resources>
