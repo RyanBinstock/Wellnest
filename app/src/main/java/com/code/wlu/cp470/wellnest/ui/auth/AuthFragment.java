@@ -12,6 +12,9 @@ import androidx.navigation.Navigation;
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
 
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
+
 public class AuthFragment extends Fragment {
     private boolean signUpMode = true;
 
@@ -77,7 +80,8 @@ public class AuthFragment extends Fragment {
         });
 
         // 3) Primary
-        primaryButton.setOnClickListener(v -> {
+        UiTouchEffects.attachPressScale(primaryButton, 0.96f);
+        UiClickEffects.setOnClickWithPulse(primaryButton, v -> {
             String email = emailForm.getText().toString().trim();
             String pass  = passwordForm.getText().toString();
 

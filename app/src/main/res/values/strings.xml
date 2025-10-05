@@ -40,5 +40,6 @@
     <string name="slide_2_text">Discover quick, simple activities designed to keep you moving forward every day.</string>
     <string name="slide_3_text">Stay motivated with streaks, progress tracking, and rewards that celebrate your wins.</string>
     <string name="slide_4_text">Join a community of people turning small steps into lasting change your adventure starts now.</string>
+    <string name="color_wl_surface">\@color/wl_surface</string>
 
 </resources>
