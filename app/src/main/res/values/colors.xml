@@ -2,6 +2,7 @@
 <resources>
     <!-- Brand -->
     <color name="wl_primary">#30A83E</color>
+    <color name="wl_primary_400">#2A7C36</color>
     <color name="wl_onPrimary">#FFFFFFFF</color>
 
     <!-- Surface & text -->

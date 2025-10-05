@@ -24,6 +24,9 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
+
 import com.code.wlu.cp470.wellnest.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -74,13 +77,14 @@ public class WelcomeFragment extends Fragment {
 
         Button btnGetStarted = view.findViewById(R.id.btnGetStarted);
         if (btnGetStarted != null) {
-            btnGetStarted.setOnClickListener(v -> {
-                WelcomeFragmentDirections.ActionWelcomeToAuth action =
-                        WelcomeFragmentDirections.actionWelcomeToAuth();
+            UiClickEffects.setOnClickWithPulse(btnGetStarted, v -> {
+                var action = WelcomeFragmentDirections.actionWelcomeToAuth();
                 action.setStartMode("signup");
                 NavHostFragment.findNavController(this).navigate(action);
             });
         }
+
+        UiTouchEffects.attachPressScale(btnGetStarted, 0.96f);
 
         // ------- Carousel wiring -------
         carouselImage = view.findViewById(R.id.carouselImage);
