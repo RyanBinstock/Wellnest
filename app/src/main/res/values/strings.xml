@@ -19,7 +19,6 @@
     <string name="auth_switch_prompt_have_account">Already have an account?</string>
     <string name="auth_switch_action_log_in">Log In</string>
 
-    <!-- AuthFragment-specific strings -->
     <string name="auth_mode_login">login</string>
     <string name="auth_mode_signup">signup</string>
 
@@ -31,5 +30,15 @@
 
     <string name="auth_switch_prompt_no_account">Don\'t have an account?</string>
     <string name="auth_switch_action_sign_up">Sign Up</string>
+
+    <!--  Welcome fragment strings  -->
+    <string name="welcome_to">Welcome to</string>
+    <string name="get_started">Get Started</string>
+
+    <!-- Carousel strings -->
+    <string name="slide_1_text">Start your journey today. Build habits, earn points, and have fun while staying on track.</string>
+    <string name="slide_2_text">Discover quick, simple activities designed to keep you moving forward every day.</string>
+    <string name="slide_3_text">Stay motivated with streaks, progress tracking, and rewards that celebrate your wins.</string>
+    <string name="slide_4_text">Join a community of people turning small steps into lasting change your adventure starts now.</string>
 
 </resources>

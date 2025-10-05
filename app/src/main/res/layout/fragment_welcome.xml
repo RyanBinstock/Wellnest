@@ -1,52 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:background="@drawable/blur_welcome_bg">
 
-    <!-- Bird mark -->
-    <ImageView
-        android:id="@+id/imgBird"
-        android:src="@drawable/wellnest_bird"
-        android:contentDescription="@string/app_name"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginBottom="24dp" />
+    <!-- Title block pinned to top -->
+    <LinearLayout
+        android:id="@+id/titleBlock"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/wl_space_l"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="50dp">
 
-    <!-- Headline -->
-    <TextView
-        android:id="@+id/txtTitle"
-        android:text="Welcome to Wellnest"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="40sp"
+            android:textColor="@color/wl_onSurface"
+            android:text="@string/welcome_to"/>
 
-    <!-- Subhead -->
-    <TextView
-        android:id="@+id/txtSubtitle"
-        android:text="Build habits, earn points, and have fun."
-        android:textSize="16sp"
-        android:layout_marginBottom="32dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/gradientWellnest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="40sp"
+            android:text="@string/app_name"/>
+    </LinearLayout>
 
-    <!-- CTA -->
+    <!-- Bottom button pinned to bottom (above system bars via fitsSystemWindows) -->
     <Button
         android:id="@+id/btnGetStarted"
-        android:text="Get Started"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/get_started"
+        android:padding="@dimen/wl_space_s"
+        style="@style/Widget.Wellnest.Button.Primary"
+        android:layout_marginStart="@dimen/wl_space_l"
+        android:layout_marginEnd="@dimen/wl_space_l"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Alt path -->
-    <TextView
-        android:id="@+id/linkLogin"
-        android:text="Already have an account? Log In"
-        android:layout_marginTop="12dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-</LinearLayout>
+        <!-- Carousel fills the space between title and button, centered inside -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/carouselColumn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:paddingHorizontal="@dimen/wl_space_l"
+            app:layout_constraintTop_toBottomOf="@id/titleBlock"
+            app:layout_constraintBottom_toTopOf="@id/btnGetStarted"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginTop="@dimen/wl_space_m"
+            android:layout_marginBottom="@dimen/wl_space_m">
+
+            <!-- Image area -->
+            <FrameLayout
+                android:id="@+id/carouselTouchSurface"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="@dimen/wl_space_m">
+
+                <ImageView
+                    android:id="@+id/carouselImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/welcome_image_1"
+                    android:contentDescription="@null" />
+            </FrameLayout>
+
+            <!-- Pagination dots pinned to bottom of the carousel column -->
+            <LinearLayout
+                android:id="@+id/dotsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginBottom="@dimen/wl_space_s" />
+
+            <!-- Slide text sits between image and dots; grows upward, dots stay put -->
+            <TextView
+                android:id="@+id/carouselText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="@string/slide_1_text"
+                android:textAlignment="center"
+                android:textColor="@color/wl_onSurface"
+                app:layout_constraintTop_toBottomOf="@id/carouselTouchSurface"
+                app:layout_constraintBottom_toTopOf="@id/dotsContainer"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:paddingHorizontal="@dimen/wl_space_xl"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

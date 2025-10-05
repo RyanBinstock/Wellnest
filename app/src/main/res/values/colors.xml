@@ -13,6 +13,8 @@
     <!-- Background gradient -->
     <color name="wl_bg_start">#FFD400</color>
     <color name="wl_bg_end">#00F4FF</color>
+    <color name="welcome_gradient_start">#09450C</color>
+    <color name="welcome_gradient_end">#0C606D</color>
 
     <!-- Shadows (if needed in custom views) -->
     <color name="wl_shadow">#22000000</color>
