@@ -90,7 +90,8 @@
             style="@style/Widget.Wellnest.Input"
             android:inputType="textPersonName"
             android:layout_marginBottom="@dimen/wl_space_s"
-            android:hint="@string/auth_hint_full_name"/>
+            android:hint="@string/auth_hint_full_name"
+            android:autofillHints="name"/>
 
         <TextView
             android:id="@+id/emailText"
@@ -107,7 +108,8 @@
             style="@style/Widget.Wellnest.Input"
             android:inputType="textEmailAddress"
             android:layout_marginBottom="@dimen/wl_space_s"
-            android:hint="@string/auth_hint_email"/>
+            android:hint="@string/auth_hint_email"
+            android:autofillHints="emailAddress"/>
 
         <TextView
             android:id="@+id/passwordText"
@@ -124,7 +126,8 @@
             style="@style/Widget.Wellnest.Input"
             android:layout_marginBottom="@dimen/wl_space_xl"
             android:inputType="textPassword"
-            android:hint="@string/auth_hint_password"/>
+            android:hint="@string/auth_hint_password"
+            android:autofillHints="password"/>
 
         <Button
             android:id="@+id/primaryButton"
