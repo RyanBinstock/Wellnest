@@ -10,13 +10,15 @@
     <color name="wl_onSurface">#3C3C3C</color>
     <color name="wl_onSurfaceSecondary">#7A7A7A</color>
     <color name="wl_inputBg">#EEEEEE</color>
+    <color name="wl_scoreText_gradientStart">#FBF2AB</color>
+    <color name="wl_scoreText_gradientEnd">#FFFFFF</color>
 
     <!-- Background gradient -->
     <color name="wl_bg_start">#FFD400</color>
     <color name="wl_bg_end">#00F4FF</color>
-    <color name="welcome_gradient_start">#09450C</color>
-    <color name="welcome_gradient_end">#0C606D</color>
+    <color name="wl_welcome_gradient_start">#09450C</color>
+    <color name="wl_welcome_gradient_end">#0C606D</color>
 
-    <!-- Shadows (if needed in custom views) -->
-    <color name="wl_shadow">#22000000</color>
+    <!-- Shadows  -->
+    <color name="wl_shadow">#58000000</color>
 </resources>

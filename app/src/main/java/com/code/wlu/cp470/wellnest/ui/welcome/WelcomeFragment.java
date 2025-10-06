@@ -20,12 +20,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTextEffects;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,13 +69,10 @@ public class WelcomeFragment extends Fragment {
 
         // Gradient title
         TextView gradientWellnest = view.findViewById(R.id.gradientWellnest);
-        Shader textShader = new LinearGradient(
-                0, 0, 0, gradientWellnest.getTextSize(),
-                new int[]{Color.parseColor("#09450C"), Color.parseColor("#0C606D")},
-                null,
-                Shader.TileMode.CLAMP
-        );
-        gradientWellnest.getPaint().setShader(textShader);
+        UiTextEffects.applyVerticalGradient(
+                gradientWellnest,
+                R.color.wl_welcome_gradient_start,
+                R.color.wl_welcome_gradient_end);
 
         Button btnGetStarted = view.findViewById(R.id.btnGetStarted);
         if (btnGetStarted != null) {
