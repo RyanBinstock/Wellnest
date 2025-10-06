@@ -1,15 +1,24 @@
 [versions]
 agp = "8.13.0"
-constraintlayoutVersion = "2.1.4"
+constraintlayoutVersion = "2.2.1"
 firebaseBom = "34.3.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
 activity = "1.11.0"
-constraintlayout = "2.2.1"
-navigationFragment = "2.9.5"
-navigationUi = "2.7.7"
+
+# Use the same Navigation version for all artifacts:
+navigation = "2.9.5"
+
+# Room
+room = "2.8.1"   # single source of truth
+
+# Datastore
+datastore = "1.1.7"
+protobufPlugin = "0.9.5"     # Gradle plugin
+protobuf = "3.25.3"
+junitJupiter = "5.8.1"          # protoc + javalite
 
 [libraries]
 constraintlayout-v214 = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
@@ -22,10 +31,23 @@ ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitV
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigationFragment" }
-navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigationUi" }
+
+# Navigation (unify versions)
+navigation-fragment = { module = "androidx.navigation:navigation-fragment", version.ref = "navigation" }
+navigation-ui = { module = "androidx.navigation:navigation-ui", version.ref = "navigation" }
+
+# Room
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+room-rxjava3 = { module = "androidx.room:room-rxjava3", version.ref = "room" }
+
+# Datastore
+datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+datastore-rxjava3 = { module = "androidx.datastore:datastore-rxjava3", version.ref = "datastore" } # Java-friendly
+protobuf-javalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protobuf" }
+junit-jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "junitJupiter" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
