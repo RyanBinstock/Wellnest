@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "com.code.wlu.cp470.wellnest.proto";
+option java_multiple_files = true;
+
+message Streak {
+  int32 current = 1;
+  int32 best = 2;
+  int32 last_yyyymmdd = 3; // e.g., 20251006
+}
