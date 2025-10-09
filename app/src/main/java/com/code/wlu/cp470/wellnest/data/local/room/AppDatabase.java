@@ -54,7 +54,7 @@ import com.code.wlu.cp470.wellnest.data.local.room.entities.CurrentWalkLocal;
                 WalkSessionLocal.class,
                 CurrentWalkLocal.class
         },
-        version = 1,               // bump when schema changes
+        version = 2,               // bump when schema changes
         exportSchema = true
 )
 public abstract class AppDatabase extends RoomDatabase {
@@ -75,11 +75,11 @@ public abstract class AppDatabase extends RoomDatabase {
                                     ctx.getApplicationContext(),
                                     AppDatabase.class,
                                     "wellnest.db"
-                            )
-                            // During active development enable this to skip writing migrations:
-                            // .fallbackToDestructiveMigration()
-                            .fallbackToDestructiveMigrationOnDowngrade()
-                            .build();
+                                     )
+                    // During active development enable this to skip writing migrations:
+                    // .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigrationOnDowngrade()
+                    .build();
                 }
             }
         }

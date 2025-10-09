@@ -1,7 +1,19 @@
 package com.code.wlu.cp470.wellnest.data.local.room.dao;
 
-import androidx.room.*;
-import com.code.wlu.cp470.wellnest.data.local.room.entities.*;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+import androidx.room.Transaction;
+
+import com.code.wlu.cp470.wellnest.data.local.room.entities.ActivityCategory;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.ActivityJar;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.ActivityTag;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.ActivityTagXref;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.Completion;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.CompletionTag;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Dao
@@ -50,19 +62,18 @@ public interface ActivityJarDao {
     @Query("DELETE FROM activity_tag_xref WHERE activityId = :activityId")
     void clearActivityTags(String activityId);
 
-    @Query("""
-        SELECT t.* FROM activity_tag t
-        INNER JOIN activity_tag_xref x ON x.tagId = t.id
-        WHERE x.activityId = :activityId
-        ORDER BY t.name
-    """)
+    @Query("SELECT t.* FROM activity_tag t " +
+            "INNER JOIN activity_tag_xref x ON x.tagId = t.id " +
+            "WHERE x.activityId = :activityId " +
+            "ORDER BY t.name")
     List<ActivityTag> tagsForActivity(String activityId);
 
-    // ---- Completions ----
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertCompletion(Completion c);
+    // ---- Completions (String UUID PKs) ----
+    // Completion.id is a String (UUID). Do NOT rely on returned rowIds.
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    void insertCompletion(Completion c);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     void insertCompletionTags(List<CompletionTag> cts);
 
     @Query("SELECT * FROM completion ORDER BY completedAt DESC")
@@ -70,12 +81,14 @@ public interface ActivityJarDao {
 
     @Transaction
     default void insertCompletionWithTags(Completion c, List<Integer> tagIds) {
-        long cid = insertCompletion(c);
+        // Expect c.id to already be a UUID string
+        insertCompletion(c);
         if (tagIds == null || tagIds.isEmpty()) return;
-        java.util.ArrayList<CompletionTag> list = new java.util.ArrayList<>();
+
+        ArrayList<CompletionTag> list = new ArrayList<>(tagIds.size());
         for (int tagId : tagIds) {
             CompletionTag ct = new CompletionTag();
-            ct.completionId = (int) cid;
+            ct.completionId = c.id;   // String FK to Completion.id
             ct.tagId = tagId;
             list.add(ct);
         }

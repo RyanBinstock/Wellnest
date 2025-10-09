@@ -1,7 +1,13 @@
 package com.code.wlu.cp470.wellnest.data.local.room.dao;
 
-import androidx.room.*;
-import com.code.wlu.cp470.wellnest.data.local.room.entities.*;
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
+import androidx.room.Query;
+
+import com.code.wlu.cp470.wellnest.data.local.room.entities.PendingVerify;
+import com.code.wlu.cp470.wellnest.data.local.room.entities.TaskLocal;
+
 import java.util.List;
 
 @Dao
@@ -12,15 +18,16 @@ public interface SnapTaskDao {
     void upsertTasks(List<TaskLocal> tasks);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long upsertTask(TaskLocal t);
+    void upsertTask(TaskLocal t);
 
-    @Query("UPDATE task_local SET status = :status, points = :points, updatedAt = :ts WHERE id = :taskId")
-    void setResult(int taskId, String status, int points, long ts);
+    // Update task result after verification succeeds
+    @Query("UPDATE task_local SET status = :status, pointsAwarded = :points, createdAt = :ts WHERE id = :taskId")
+    void setResult(String taskId, String status, Integer points, long ts);
 
-    @Query("SELECT * FROM task_local WHERE status = :status ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM task_local WHERE status = :status ORDER BY createdAt DESC")
     List<TaskLocal> listByStatus(String status);
 
-    @Query("SELECT * FROM task_local ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM task_local ORDER BY createdAt DESC")
     List<TaskLocal> listAll();
 
     @Query("DELETE FROM task_local")
@@ -28,11 +35,11 @@ public interface SnapTaskDao {
 
     // ---- Pending Verify ----
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    long insertPending(PendingVerify p);
+    void insertPending(PendingVerify p);
 
     @Query("DELETE FROM pending_verify WHERE taskId = :taskId")
-    void clearPendingForTask(int taskId);
+    void clearPendingForTask(String taskId);
 
-    @Query("SELECT * FROM pending_verify ORDER BY submittedAt DESC")
+    @Query("SELECT * FROM pending_verify ORDER BY lastAttemptAt DESC")
     List<PendingVerify> listPending();
 }
