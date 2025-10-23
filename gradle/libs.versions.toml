@@ -11,6 +11,9 @@ firebaseBom = "34.3.0"
 # Navigation
 navigation = "2.9.5"
 
+# Material3
+material = "1.13.0"
+
 # Room
 room = "2.8.1"
 
@@ -38,6 +41,8 @@ roomTesting = "2.6.1"
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }

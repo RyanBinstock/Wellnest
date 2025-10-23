@@ -36,7 +36,7 @@
     <!-- ========= WIDGETS ========= -->
     <style name="Widget"/>
     <style name="Widget.Wellnest"/>
-    <!-- Input: pill background from your drawable -->
+    <!-- Input: pill background from drawable -->
     <style name="Widget.Wellnest.Input">
         <item name="android:background">@drawable/shape_input</item>
         <item name="android:fontFamily">@font/poppins_regular</item>
