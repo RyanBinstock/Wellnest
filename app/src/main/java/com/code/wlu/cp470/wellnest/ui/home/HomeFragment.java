@@ -54,14 +54,14 @@ public class HomeFragment extends Fragment {
         addCard(container,
                 getChildFragmentManager(),
                 MicroAppCardFragment.newInstance(
-                        "ActivityJar", "Ideas for today",
+                        "ActivityJar", "Zippy",
                         R.drawable.microappcard_activityjar,
                         "wellnest://activityjar"));
 
         addCard(container,
                 getChildFragmentManager(),
                 MicroAppCardFragment.newInstance(
-                        "Roamio", "Take a scenic walk",
+                        "Roamio", "Rico",
                         R.drawable.microappcard_roamio,
                         "wellnest://roamio"));
 

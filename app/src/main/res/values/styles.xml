@@ -33,6 +33,18 @@
         <item name="android:textColor">@color/wl_primary</item>
     </style>
 
+    <style name="TextAppearance.Wellnest.MicroAppCard">
+        <item name="android:fontFamily">@font/poppins_bold</item>
+    </style>
+    <style name="TextAppearance.Wellnest.MicroAppCard.Title">
+        <item name="android:textSize">@dimen/wl_text_title</item>
+        <item name="android:textColor">@color/wl_surface</item>
+    </style>
+    <style name="TextAppearance.Wellnest.MicroAppCard.Subtitle">
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:textColor">@color/wl_surfaceTranslucent</item>
+    </style>
+
     <!-- ========= WIDGETS ========= -->
     <style name="Widget"/>
     <style name="Widget.Wellnest"/>
