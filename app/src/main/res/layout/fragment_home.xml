@@ -5,10 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@color/wl_surface"
+    android:fitsSystemWindows="false"
+    android:paddingTop="25dp"
     android:clipChildren="false"
     android:clipToPadding="false">
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@drawable/home_bg"
+        android:scaleType="centerCrop"/>
 
     <!-- Guidelines split the screen into three zones -->
 
@@ -106,7 +116,7 @@
             app:layout_constraintRight_toRightOf="@id/guide_right"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="-20sp"
+            android:layout_marginBottom="-30sp"
             android:gravity="center">
 
             <TextView
@@ -114,7 +124,7 @@
                 android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="50sp"
+                android:textSize="55sp"
                 android:fontFamily="@font/poppins_bold"
                 android:textColor="#FFFFFF"
                 android:shadowColor="@color/wl_shadow"
@@ -132,217 +142,21 @@
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!--  Container for micro app cards  -->
+    <LinearLayout
         android:id="@+id/cardsContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/guide_scoreboard_bottom"
-        app:layout_constraintBottom_toTopOf="@id/bottomBar"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingStart="@dimen/wl_space_m"
-        android:paddingEnd="@dimen/wl_space_m">
+        app:layout_constraintBottom_toTopOf="@+id/bottomBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="50dp"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="16dp">
 
-        <!-- SnapTask -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardSnapTask"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="0dp"
-            app:cardCornerRadius="22dp"
-            app:cardUseCompatPadding="false"
-            app:cardElevation="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/cardActivityJar"
-            app:layout_constraintVertical_chainStyle="packed"
-            app:layout_constraintDimensionRatio="W,300:100">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/bgSnapTask"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:src="@drawable/microappcard_snaptask"
-                android:scaleType="fitXY"
-                android:importantForAccessibility="no"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/titleSnapTask"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="SnapTask"
-                android:textColor="@color/wl_text_on_card"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:fontFamily="@font/poppins_bold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/subtitleSnapTask"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Snappy"
-                android:textColor="@color/wl_text_on_card_faint"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleSnapTask"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- ActivityJar -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardActivityJar"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        app:cardCornerRadius="22dp"
-        app:cardUseCompatPadding="false"
-        app:cardElevation="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardSnapTask"
-        app:layout_constraintBottom_toTopOf="@id/cardRoamio"
-        app:layout_constraintDimensionRatio="W,300:100">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/bgActivityJar"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:src="@drawable/microappcard_activityjar"
-                android:scaleType="fitXY"
-                android:importantForAccessibility="no"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/titleActivityJar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="ActivityJar"
-                android:textColor="@color/wl_text_on_card"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:fontFamily="@font/poppins_bold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/subtitleActivityJar"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Zippy"
-                android:textColor="@color/wl_text_on_card_faint"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleActivityJar"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Roamio -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardRoamio"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="0dp"
-        app:cardCornerRadius="22dp"
-        app:cardUseCompatPadding="false"
-        app:cardElevation="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardActivityJar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintDimensionRatio="W,300:100">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/bgRoamio"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:src="@drawable/microappcard_roamio"
-                android:scaleType="fitXY"
-                android:importantForAccessibility="no"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/titleRoamio"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Roamio"
-                android:textColor="@color/wl_text_on_card"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:fontFamily="@font/poppins_bold"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
-            <TextView
-                android:id="@+id/subtitleRoamio"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="Rico"
-                android:textColor="@color/wl_text_on_card_faint"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="2dp"
-                android:layout_marginEnd="96dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/titleRoamio"/>
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
     <!-- Bottom bar container (transparent, sits above background/grass) -->
     <com.google.android.material.card.MaterialCardView
@@ -381,8 +195,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:padding="10dp"
-                    android:src="@drawable/ic_bottom_friends"
-                    android:contentDescription="@string/friends" />
+                    android:src="@drawable/ic_bottom_friends" />
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Center: Home (larger, with label) -->
@@ -454,8 +267,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:padding="10dp"
-                    android:src="@drawable/ic_bottom_profile"
-                    android:contentDescription="@string/profile" />
+                    android:src="@drawable/ic_bottom_profile" />
             </com.google.android.material.card.MaterialCardView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

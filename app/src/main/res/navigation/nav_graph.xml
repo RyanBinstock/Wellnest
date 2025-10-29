@@ -48,4 +48,32 @@
         android:id="@+id/homeFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.home.HomeFragment"
         android:label="Home" />
+
+    <!--  Navigation for micro app cards in home fragment  -->
+    <fragment
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/snapTaskFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskFragment"
+        android:label="SnapTask">
+        <deepLink app:uri="wellnest://snaptask" />
+    </fragment>
+
+    <fragment
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/activityJarFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarFragment"
+        android:label="ActivityJar">
+        <deepLink app:uri="wellnest://activityjar" />
+    </fragment>
+
+    <fragment
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:id="@+id/roamioFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.roamio.RoamioFragment"
+        android:label="Roamio">
+        <deepLink app:uri="wellnest://roamio" />
+    </fragment>
 </navigation>
