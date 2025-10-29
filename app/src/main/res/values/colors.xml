@@ -9,6 +9,7 @@
     <color name="wl_surface">#FFFFFFFF</color>
     <color name="wl_onSurface">#3C3C3C</color>
     <color name="wl_onSurfaceSecondary">#7A7A7A</color>
+    <color name="wl_surfaceTranslucent">#80FFFFFF</color>
     <color name="wl_inputBg">#EEEEEE</color>
     <color name="wl_scoreText_gradientStart">#FBF2AB</color>
     <color name="wl_scoreText_gradientEnd">#FFFFFF</color>
@@ -21,4 +22,21 @@
 
     <!-- Shadows  -->
     <color name="wl_shadow">#58000000</color>
+
+    <!-- Card fills -->
+    <color name="wl_card_purple">#7F69C9</color>
+    <color name="wl_card_yellow">#F6C657</color>
+    <color name="wl_card_orange">#E97863</color>
+
+    <!-- Bottom “HOME” pill -->
+    <color name="wl_pill_green">@color/wl_primary</color>
+    <color name="wl_pill_green_dark">@color/wl_primary_400</color>
+
+    <!-- Text on colored cards -->
+    <color name="wl_text_on_card">#FFFFFFFF</color>
+    <color name="wl_text_on_card_faint">#88FFFFFF</color>
+
+    <!-- Home background gradient (top sky → bottom grass) -->
+    <color name="wl_home_bg_top">#C9F1FF</color>
+    <color name="wl_home_bg_bottom">#E9FFE6</color>
 </resources>

@@ -14,6 +14,7 @@
 
     <!-- Typography sizes -->
     <dimen name="wl_text_title">32sp</dimen>
+    <dimen name="wl_text_subtitle">24sp</dimen>
     <dimen name="wl_text_body">16sp</dimen>
     <dimen name="wl_text_caption">14sp</dimen>
     <dimen name="wl_text_primary_button">24sp</dimen>

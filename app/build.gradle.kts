@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.appcompat)
     implementation(libs.constraintlayout)
+    implementation(libs.material)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
