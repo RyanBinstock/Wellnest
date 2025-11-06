@@ -1,16 +1,25 @@
 package com.code.wlu.cp470.wellnest.data.auth;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 import com.google.firebase.auth.*;
 import com.google.firebase.firestore.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class AuthRepository {
-    private final FirebaseAuth auth = FirebaseAuth.getInstance();
+    private final FirebaseAuth auth;
+    private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
     public interface Callback<T> { void onResult(T value, Exception e); }
 
+    public AuthRepository(Context context) {
+        this.auth = FirebaseAuth.getInstance();
+        this.context = context.getApplicationContext();
+    }
     private String mapAuthError(Exception e) {
         if (e instanceof com.google.firebase.auth.FirebaseAuthException) {
             String code = ((com.google.firebase.auth.FirebaseAuthException) e).getErrorCode();
@@ -53,6 +62,10 @@ public class AuthRepository {
                 }
             })
             .addOnFailureListener(e -> cb.onResult(null, new Exception(mapAuthError(e))));
+            WellnestDatabaseHelper dbHelper = new WellnestDatabaseHelper(context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            UserManager userManager = new UserManager(db);
+            userManager.upsertUserProfile(u.getUid(), u.getDisplayName(), u.getEmail());
         });
     }
 
@@ -76,10 +89,13 @@ public class AuthRepository {
                 if (e != null) cb.onResult(null, new Exception(mapAuthError(e)));
                 else cb.onResult(user, null);
             });
+
+            WellnestDatabaseHelper dbHelper = new WellnestDatabaseHelper(context);
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            UserManager userManager = new UserManager(db);
+            userManager.upsertUserProfile(user.getUid(), name, user.getEmail());
         });
     }
-
-
 
     private void bootstrapUserDocument(String uid, String displayName, String email, Callback<Void> cb) {
         Map<String, Object> doc = new HashMap<>();

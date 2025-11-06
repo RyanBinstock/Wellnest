@@ -45,7 +45,9 @@ public class AuthFragment extends Fragment {
         ImageView birdFeeder   = view.findViewById(R.id.birdFeeder);
 
         // Init ViewModel
-        AuthViewModel vm = new ViewModelProvider(this).get(AuthViewModel.class);
+        ViewModelProvider.Factory factory =
+                ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().getApplication());
+        AuthViewModel vm = new ViewModelProvider(this, factory).get(AuthViewModel.class);
 
         // Observe results
         vm.user().observe(getViewLifecycleOwner(), u -> {

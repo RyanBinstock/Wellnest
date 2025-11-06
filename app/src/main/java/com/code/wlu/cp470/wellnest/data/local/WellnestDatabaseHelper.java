@@ -29,9 +29,20 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // for development, just wipe the data
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + UserContract.Badges.TABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + UserContract.Friends.TABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + UserContract.Streak.TABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + UserContract.GlobalScore.TABLE);
+            db.execSQL("DROP TABLE IF EXISTS " + UserContract.UserProfile.TABLE);
 
-
+            onCreate(db); // recreate tables
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
-
 }
