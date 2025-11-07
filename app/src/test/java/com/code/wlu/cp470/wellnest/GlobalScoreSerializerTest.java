@@ -1,5 +1,9 @@
 package com.code.wlu.cp470.wellnest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import com.code.wlu.cp470.wellnest.data.local.datastore.GlobalScoreSerializer;
 import com.code.wlu.cp470.wellnest.proto.GlobalScore;
 
@@ -14,30 +18,23 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
-import static org.junit.Assert.*;
-
 /**
  * Simple, minimal tests for GlobalScoreSerializer.
- *
+ * <p>
  * What this proves:
- *  1) We can write a GlobalScore to bytes and read it back exactly (round trip).
- *  2) getDefaultValue() is sane (proto3 defaults → ints/longs are 0).
- *  3) EMPTY bytes are treated by protobuf as a valid default message (no exception).
- *  4) Truly corrupt bytes cause a parse error (wrapped as RuntimeException by the serializer).
- *
+ * 1) We can write a GlobalScore to bytes and read it back exactly (round trip).
+ * 2) getDefaultValue() is sane (proto3 defaults → ints/longs are 0).
+ * 3) EMPTY bytes are treated by protobuf as a valid default message (no exception).
+ * 4) Truly corrupt bytes cause a parse error (wrapped as RuntimeException by the serializer).
+ * <p>
  * Notes for teammates:
- *  - In the real app, DataStore calls readFrom()/writeTo() for us.
- *  - Here we call them directly using in-memory streams to verify behavior.
+ * - In the real app, DataStore calls readFrom()/writeTo() for us.
+ * - Here we call them directly using in-memory streams to verify behavior.
  */
 public class GlobalScoreSerializerTest {
 
-    // --- Tiny no-op Continuation (required by the interface; we don't use it in assertions) ---
-    private static final class NoopContinuation<T> implements Continuation<T> {
-        @Override public CoroutineContext getContext() { return EmptyCoroutineContext.INSTANCE; }
-        @Override public void resumeWith(Object result) { /* no-op */ }
-    }
     private static final Continuation<GlobalScore> CONT_SCORE = new NoopContinuation<>();
-    private static final Continuation<Unit>        CONT_UNIT  = new NoopContinuation<>();
+    private static final Continuation<Unit> CONT_UNIT = new NoopContinuation<>();
 
     // Helper to build a sample GlobalScore matching YOUR proto fields
     private static GlobalScore sampleScore() {
@@ -47,7 +44,9 @@ public class GlobalScoreSerializerTest {
                 .build();
     }
 
-    /** Happy path: write → read should preserve the message exactly. */
+    /**
+     * Happy path: write → read should preserve the message exactly.
+     */
     @Test
     public void writeThenRead_roundTripsSuccessfully() {
         GlobalScoreSerializer serializer = new GlobalScoreSerializer();
@@ -101,13 +100,15 @@ public class GlobalScoreSerializerTest {
         GlobalScoreSerializer serializer = new GlobalScoreSerializer();
 
         // Invalid varint pattern → guarantees parse failure
-        byte[] corrupt = new byte[] {(byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, 0x0F};
+        byte[] corrupt = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F};
         InputStream in = new ByteArrayInputStream(corrupt);
 
         serializer.readFrom(in, CONT_SCORE); // should throw
     }
 
-    /** Sanity check for defaults returned by getDefaultValue(). */
+    /**
+     * Sanity check for defaults returned by getDefaultValue().
+     */
     @Test
     public void getDefaultValue_returnsZeros() {
         GlobalScoreSerializer serializer = new GlobalScoreSerializer();
@@ -115,5 +116,16 @@ public class GlobalScoreSerializerTest {
 
         assertEquals(0, def.getTotalPoints());
         assertEquals(0L, def.getUpdatedAtMs());
+    }
+
+    // --- Tiny no-op Continuation (required by the interface; we don't use it in assertions) ---
+    private static final class NoopContinuation<T> implements Continuation<T> {
+        @Override
+        public CoroutineContext getContext() {
+            return EmptyCoroutineContext.INSTANCE;
+        }
+
+        @Override
+        public void resumeWith(Object result) { /* no-op */ }
     }
 }

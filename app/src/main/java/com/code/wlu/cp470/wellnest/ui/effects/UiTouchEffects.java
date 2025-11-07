@@ -7,9 +7,12 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
 public final class UiTouchEffects {
-    private UiTouchEffects() {}
+    private UiTouchEffects() {
+    }
 
-    /** Adds press-in/out scaling that plays on ACTION_DOWN/UP; returns the listener so you can remove it. */
+    /**
+     * Adds press-in/out scaling that plays on ACTION_DOWN/UP; returns the listener so you can remove it.
+     */
     @SuppressLint("ClickableViewAccessibility")
     public static View.OnTouchListener attachPressScale(View v, float pressedScale) {
         View.OnTouchListener l = (view, e) -> {

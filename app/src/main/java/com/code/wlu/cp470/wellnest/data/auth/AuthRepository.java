@@ -5,8 +5,12 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
-import com.google.firebase.auth.*;
-import com.google.firebase.firestore.*;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +19,6 @@ public class AuthRepository {
     private final FirebaseAuth auth;
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-    public interface Callback<T> {
-        void onResult(T value, Exception e);
-    }
 
     public AuthRepository(Context context) {
         this.auth = FirebaseAuth.getInstance();
@@ -127,5 +127,9 @@ public class AuthRepository {
 
     public void signOut() {
         auth.signOut();
+    }
+
+    public interface Callback<T> {
+        void onResult(T value, Exception e);
     }
 }

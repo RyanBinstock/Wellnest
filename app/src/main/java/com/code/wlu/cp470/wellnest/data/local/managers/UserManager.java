@@ -317,34 +317,6 @@ public final class UserManager {
     // ----------------------------------------------------------------------
 
     /**
-     * Class representing a friend for convenient use in lists or recyclerViews
-     */
-    public class Friend {
-        private final String uid;
-        private final String name;
-        private final String status;
-
-        public Friend(String uid, String name, String status) {
-            this.uid = uid;
-            this.name = name;
-            this.status = status;
-        }
-
-        public String getUid() {
-            return uid;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-    }
-
-
-    /**
      * Upsert a friend by their Firebase UID.
      */
     public boolean upsertFriend(String friendUid, String friendName) {
@@ -469,11 +441,6 @@ public final class UserManager {
         return friends;
     }
 
-
-    // ----------------------------------------------------------------------
-    // badges
-    // ----------------------------------------------------------------------
-
     /**
      * Adds a badge id (no-op if already present). Returns true if inserted.
      */
@@ -489,6 +456,11 @@ public final class UserManager {
         );
         return id != -1L;
     }
+
+
+    // ----------------------------------------------------------------------
+    // badges
+    // ----------------------------------------------------------------------
 
     /**
      * Removes a badge.
@@ -534,10 +506,6 @@ public final class UserManager {
         );
     }
 
-    // ----------------------------------------------------------------------
-    // Small internal helpers
-    // ----------------------------------------------------------------------
-
     private Integer queryInt(String table, String col, String where, String[] args) {
         Cursor c = null;
         try {
@@ -550,6 +518,10 @@ public final class UserManager {
         }
     }
 
+    // ----------------------------------------------------------------------
+    // Small internal helpers
+    // ----------------------------------------------------------------------
+
     private String queryString(String table, String col, String where, String[] args) {
         Cursor c = null;
         try {
@@ -558,6 +530,33 @@ public final class UserManager {
             return c.getString(0);
         } finally {
             if (c != null) c.close();
+        }
+    }
+
+    /**
+     * Class representing a friend for convenient use in lists or recyclerViews
+     */
+    public class Friend {
+        private final String uid;
+        private final String name;
+        private final String status;
+
+        public Friend(String uid, String name, String status) {
+            this.uid = uid;
+            this.name = name;
+            this.status = status;
+        }
+
+        public String getUid() {
+            return uid;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getStatus() {
+            return status;
         }
     }
 }

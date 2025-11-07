@@ -2,8 +2,14 @@ package com.code.wlu.cp470.wellnest.ui.auth;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,10 +18,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.code.wlu.cp470.wellnest.R;
-import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
-
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
+import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
 
 public class AuthFragment extends Fragment {
     private boolean signUpMode = true;

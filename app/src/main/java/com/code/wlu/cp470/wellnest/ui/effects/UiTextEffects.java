@@ -19,9 +19,9 @@ public final class UiTextEffects {
     /**
      * Applies a vertical gradient (top → bottom) to a single TextView.
      *
-     * @param tv             The TextView to apply the gradient to.
-     * @param startColorRes  Resource ID of the start color (top).
-     * @param endColorRes    Resource ID of the end color (bottom).
+     * @param tv            The TextView to apply the gradient to.
+     * @param startColorRes Resource ID of the start color (top).
+     * @param endColorRes   Resource ID of the end color (bottom).
      */
     public static void applyVerticalGradient(TextView tv,
                                              @ColorRes int startColorRes,
@@ -30,7 +30,7 @@ public final class UiTextEffects {
 
         Context context = tv.getContext();
         int startColor = ContextCompat.getColor(context, startColorRes);
-        int endColor   = ContextCompat.getColor(context, endColorRes);
+        int endColor = ContextCompat.getColor(context, endColorRes);
 
         Shader shader = new LinearGradient(
                 0f, 0f, 0f, tv.getTextSize(),
@@ -53,7 +53,7 @@ public final class UiTextEffects {
 
         Context context = tv.getContext();
         int startColor = ContextCompat.getColor(context, startColorRes);
-        int endColor   = ContextCompat.getColor(context, endColorRes);
+        int endColor = ContextCompat.getColor(context, endColorRes);
 
         float textWidth = tv.getPaint().measureText(tv.getText().toString());
         Shader shader = new LinearGradient(
@@ -77,7 +77,7 @@ public final class UiTextEffects {
 
         Context context = tv.getContext();
         int startColor = ContextCompat.getColor(context, startColorRes);
-        int endColor   = ContextCompat.getColor(context, endColorRes);
+        int endColor = ContextCompat.getColor(context, endColorRes);
 
         float textWidth = tv.getPaint().measureText(tv.getText().toString());
         float textHeight = tv.getTextSize();

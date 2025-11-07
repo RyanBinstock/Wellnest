@@ -1,5 +1,10 @@
 package com.code.wlu.cp470.wellnest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import com.code.wlu.cp470.wellnest.data.local.datastore.UserProfileSerializer;
 import com.code.wlu.cp470.wellnest.proto.UserProfile;
 
@@ -14,30 +19,23 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
-import static org.junit.Assert.*;
-
 /**
  * Simple, minimal tests for UserProfileSerializer.
- *
+ * <p>
  * What we test:
- *  1) Can we write a UserProfile to bytes and read it back? (round-trip)
- *  2) Does getDefaultValue() return sane defaults (empty strings, false, 0)?
- *  3) EMPTY bytes -> valid default message (no exception).
- *  4) Corrupt bytes -> RuntimeException (wrapped CorruptionException).
- *
+ * 1) Can we write a UserProfile to bytes and read it back? (round-trip)
+ * 2) Does getDefaultValue() return sane defaults (empty strings, false, 0)?
+ * 3) EMPTY bytes -> valid default message (no exception).
+ * 4) Corrupt bytes -> RuntimeException (wrapped CorruptionException).
+ * <p>
  * Notes for teammates:
- *  - In the real app, DataStore handles all of this automatically.
- *  - These tests just prove that our read/write logic works as expected.
+ * - In the real app, DataStore handles all of this automatically.
+ * - These tests just prove that our read/write logic works as expected.
  */
 public class UserProfileSerializerTest {
 
-    // --- Simple no-op Continuations (required by the interface; unused in tests) ---
-    private static final class NoopContinuation<T> implements Continuation<T> {
-        @Override public CoroutineContext getContext() { return EmptyCoroutineContext.INSTANCE; }
-        @Override public void resumeWith(Object result) { /* no-op */ }
-    }
     private static final Continuation<UserProfile> CONT_PROFILE = new NoopContinuation<>();
-    private static final Continuation<Unit>        CONT_UNIT    = new NoopContinuation<>();
+    private static final Continuation<Unit> CONT_UNIT = new NoopContinuation<>();
 
     // --- Helper: Build a sample UserProfile with test data ---
     private static UserProfile sampleProfile() {
@@ -51,7 +49,9 @@ public class UserProfileSerializerTest {
                 .build();
     }
 
-    /** Test that writing and then reading returns the exact same UserProfile. */
+    /**
+     * Test that writing and then reading returns the exact same UserProfile.
+     */
     @Test
     public void writeThenRead_roundTripsSuccessfully() {
         UserProfileSerializer serializer = new UserProfileSerializer();
@@ -80,7 +80,9 @@ public class UserProfileSerializerTest {
         assertEquals(1_690_000_000_000L, restored.getUpdatedAtMs());
     }
 
-    /** Empty bytes -> protobuf returns default message (no exception). */
+    /**
+     * Empty bytes -> protobuf returns default message (no exception).
+     */
     @Test
     public void readFrom_withEmptyBytes_returnsDefault() {
         UserProfileSerializer serializer = new UserProfileSerializer();
@@ -102,19 +104,23 @@ public class UserProfileSerializerTest {
         assertEquals(0L, def.getUpdatedAtMs());
     }
 
-    /** Corrupt bytes (invalid varint pattern) should throw RuntimeException. */
+    /**
+     * Corrupt bytes (invalid varint pattern) should throw RuntimeException.
+     */
     @Test(expected = RuntimeException.class)
     public void readFrom_withCorruptBytes_throwsRuntimeException() {
         UserProfileSerializer serializer = new UserProfileSerializer();
 
         // Invalid byte pattern guaranteed to break protobuf parsing
-        byte[] corrupt = new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F};
+        byte[] corrupt = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, 0x0F};
         InputStream in = new ByteArrayInputStream(corrupt);
 
         serializer.readFrom(in, CONT_PROFILE); // expect RuntimeException(CorruptionException)
     }
 
-    /** Check that getDefaultValue() returns a "blank" UserProfile. */
+    /**
+     * Check that getDefaultValue() returns a "blank" UserProfile.
+     */
     @Test
     public void getDefaultValue_returnsBlankProfile() {
         UserProfileSerializer serializer = new UserProfileSerializer();
@@ -126,5 +132,16 @@ public class UserProfileSerializerTest {
         assertEquals("", def.getPhotoUrl());
         assertFalse(def.getOnboardingComplete());
         assertEquals(0L, def.getUpdatedAtMs());
+    }
+
+    // --- Simple no-op Continuations (required by the interface; unused in tests) ---
+    private static final class NoopContinuation<T> implements Continuation<T> {
+        @Override
+        public CoroutineContext getContext() {
+            return EmptyCoroutineContext.INSTANCE;
+        }
+
+        @Override
+        public void resumeWith(Object result) { /* no-op */ }
     }
 }
