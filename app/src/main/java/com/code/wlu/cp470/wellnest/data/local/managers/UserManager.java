@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
 
 import java.util.ArrayList;
@@ -14,26 +15,25 @@ import java.util.List;
  * UserManager wraps reads/writes for:
  * - user_profile (singleton-by-usage, PK = Firebase UID)
  * - global_score (true singleton row with id=1)
- * - streak       (true singleton row with id=1)
- * - friends      (friend_uid -> friend_name)
- * - badges       (badge_id)
+ * - streak (true singleton row with id=1)
+ * - friends (many)
+ * - badges (many)
  * <p>
- * Notes:
- * - Call ensureSingletonRows() at least once after DB creation (constructor already does this).
- * - All read methods return primitives/Strings or a Cursor you must close.
+ * This version implements UserInterface with normalized return shapes.
  */
-public final class UserManager {
+public final class UserManager implements UserInterface {
     private final SQLiteDatabase db;
 
     public UserManager(SQLiteDatabase db) {
+        if (db == null) throw new IllegalArgumentException("db cannot be null");
         this.db = db;
-        ensureSingletonRows();
+        ensureSingletons();
     }
 
-    // ----------------------------------------------------------------------
-    // Bootstrap: make sure global_score(id=1) and streak(id=1) exist
-    // ----------------------------------------------------------------------
-    private void ensureSingletonRows() {
+    /**
+     * Ensure singleton rows exist for global_score and streak.
+     */
+    private void ensureSingletons() {
         db.beginTransaction();
         try {
             // global_score -> id=1 default 0
@@ -72,30 +72,20 @@ public final class UserManager {
      * Upsert by Firebase UID. Returns true if insert or update affected a row.
      */
     public boolean upsertUserProfile(String uid, String name, String email) {
-        if (uid == null) throw new IllegalArgumentException("uid cannot be null");
-
+        if (uid == null || uid.isEmpty())
+            throw new IllegalArgumentException("uid cannot be null/empty");
         ContentValues cv = new ContentValues();
         cv.put(UserContract.UserProfile.Col.UID, uid);
         cv.put(UserContract.UserProfile.Col.NAME, name);
         cv.put(UserContract.UserProfile.Col.EMAIL, email);
 
-        // Try update first (keeps WITHOUT ROWID PK intact)
-        int rows = db.update(
+        long id = db.insertWithOnConflict(
                 UserContract.UserProfile.TABLE,
+                null,
                 cv,
-                UserContract.UserProfile.Col.UID + "=?",
-                new String[]{uid}
+                SQLiteDatabase.CONFLICT_REPLACE
         );
-        if (rows == 0) {
-            long id = db.insertWithOnConflict(
-                    UserContract.UserProfile.TABLE,
-                    null,
-                    cv,
-                    SQLiteDatabase.CONFLICT_ABORT
-            );
-            return id != -1L;
-        }
-        return true;
+        return id != -1L;
     }
 
     /**
@@ -103,32 +93,25 @@ public final class UserManager {
      * If both uid and email are provided, uid is prioritized.
      */
     public boolean hasUserProfile(String uid, String email) {
+        String where;
+        String[] args;
+
+        if (uid != null && !uid.isEmpty()) {
+            where = UserContract.UserProfile.Col.UID + "=?";
+            args = new String[]{uid};
+        } else if (email != null && !email.isEmpty()) {
+            where = UserContract.UserProfile.Col.EMAIL + "=?";
+            args = new String[]{email};
+        } else {
+            return false;
+        }
+
         Cursor c = null;
         try {
-            String selection = null;
-            String[] selectionArgs = null;
-            String column = null;
-
-            // Priority: UID > Email
-            if (uid != null && !uid.isEmpty()) {
-                column = UserContract.UserProfile.Col.UID;
-                selection = column + "=?";
-                selectionArgs = new String[]{uid};
-            } else if (email != null && !email.isEmpty()) {
-                column = UserContract.UserProfile.Col.EMAIL;
-                selection = column + "=?";
-                selectionArgs = new String[]{email};
-            } else {
-                // Neither provided
-                return false;
-            }
-
             c = db.query(
                     UserContract.UserProfile.TABLE,
-                    new String[]{column},
-                    selection,
-                    selectionArgs,
-                    null, null, null
+                    new String[]{UserContract.UserProfile.Col.UID},
+                    where, args, null, null, null
             );
             return c.moveToFirst();
         } finally {
@@ -137,9 +120,10 @@ public final class UserManager {
     }
 
     /**
-     * Get one column quickly (null if not found).
+     * Returns display name or null.
      */
     public String getUserName(String uid) {
+        if (uid == null || uid.isEmpty()) return null;
         return queryString(
                 UserContract.UserProfile.TABLE,
                 UserContract.UserProfile.Col.NAME,
@@ -152,6 +136,7 @@ public final class UserManager {
      * Returns email or null.
      */
     public String getUserEmail(String uid) {
+        if (uid == null || uid.isEmpty()) return null;
         return queryString(
                 UserContract.UserProfile.TABLE,
                 UserContract.UserProfile.Col.EMAIL,
@@ -161,10 +146,10 @@ public final class UserManager {
     }
 
     /**
-     * Convenience: load {uid, name, email} as a 3-element array or null if missing.
+     * Convenience: load {uid, name, email} as a structured object or null if missing.
      * If both uid and email are provided, uid is prioritized.
      */
-    public String[] getUserProfile(String uid, String email) {
+    public UserInterface.UserProfile getUserProfile(String uid, String email) {
         Cursor c = null;
         try {
             String selection = null;
@@ -193,33 +178,31 @@ public final class UserManager {
                     selectionArgs,
                     null, null, null
             );
-
             if (!c.moveToFirst()) return null;
 
-            return new String[]{
+            return new UserInterface.UserProfile(
                     c.getString(0), // uid
                     c.getString(1), // name
                     c.getString(2)  // email (may be null)
-            };
+            );
 
         } finally {
             if (c != null) c.close();
         }
     }
 
-
     // ----------------------------------------------------------------------
     // global_score (id = 1)
     // ----------------------------------------------------------------------
 
     public int getGlobalScore() {
-        Integer value = queryInt(
+        Integer val = queryInt(
                 UserContract.GlobalScore.TABLE,
                 UserContract.GlobalScore.Col.SCORE,
-                UserContract.GlobalScore.Col.ID + "=1",
-                null
+                UserContract.GlobalScore.Col.ID + "=?",
+                new String[]{"1"}
         );
-        return value == null ? 0 : value;
+        return val != null ? val : 0;
     }
 
     /**
@@ -231,8 +214,8 @@ public final class UserManager {
         int rows = db.update(
                 UserContract.GlobalScore.TABLE,
                 cv,
-                UserContract.GlobalScore.Col.ID + "=1",
-                null
+                UserContract.GlobalScore.Col.ID + "=?",
+                new String[]{"1"}
         );
         return rows > 0;
     }
@@ -245,9 +228,16 @@ public final class UserManager {
         try {
             int current = getGlobalScore();
             int updated = current + delta;
-            if (!setGlobalScore(updated)) {
-                throw new SQLException("Failed to update global_score");
-            }
+
+            ContentValues cv = new ContentValues();
+            cv.put(UserContract.GlobalScore.Col.SCORE, updated);
+            int rows = db.update(
+                    UserContract.GlobalScore.TABLE,
+                    cv,
+                    UserContract.GlobalScore.Col.ID + "=?",
+                    new String[]{"1"}
+            );
+            if (rows == 0) throw new SQLException("Failed to update global score");
             db.setTransactionSuccessful();
             return updated;
         } finally {
@@ -260,13 +250,13 @@ public final class UserManager {
     // ----------------------------------------------------------------------
 
     public int getStreakCount() {
-        Integer v = queryInt(
+        Integer val = queryInt(
                 UserContract.Streak.TABLE,
                 UserContract.Streak.Col.COUNT,
-                UserContract.Streak.Col.ID + "=1",
-                null
+                UserContract.Streak.Col.ID + "=?",
+                new String[]{"1"}
         );
-        return v == null ? 0 : v;
+        return val != null ? val : 0;
     }
 
     /**
@@ -278,8 +268,8 @@ public final class UserManager {
         int rows = db.update(
                 UserContract.Streak.TABLE,
                 cv,
-                UserContract.Streak.Col.ID + "=1",
-                null
+                UserContract.Streak.Col.ID + "=?",
+                new String[]{"1"}
         );
         return rows > 0;
     }
@@ -292,9 +282,16 @@ public final class UserManager {
         try {
             int current = getStreakCount();
             int updated = current + 1;
-            if (!setStreakCount(updated)) {
-                throw new SQLException("Failed to update streak");
-            }
+
+            ContentValues cv = new ContentValues();
+            cv.put(UserContract.Streak.Col.COUNT, updated);
+            int rows = db.update(
+                    UserContract.Streak.TABLE,
+                    cv,
+                    UserContract.Streak.Col.ID + "=?",
+                    new String[]{"1"}
+            );
+            if (rows == 0) throw new SQLException("Failed to update streak");
             db.setTransactionSuccessful();
             return updated;
         } finally {
@@ -309,9 +306,6 @@ public final class UserManager {
         return setStreakCount(0);
     }
 
-    // NOTE: If you want automatic day-based logic (reset if missed a day),
-    // add a "last_open_yyyyMMdd" INTEGER column to the streak table and compare to today's key.
-
     // ----------------------------------------------------------------------
     // friends
     // ----------------------------------------------------------------------
@@ -320,35 +314,26 @@ public final class UserManager {
      * Upsert a friend by their Firebase UID.
      */
     public boolean upsertFriend(String friendUid, String friendName) {
-        if (friendUid == null) throw new IllegalArgumentException("friendUid cannot be null");
+        if (friendUid == null || friendUid.isEmpty())
+            throw new IllegalArgumentException("friendUid cannot be null/empty");
         ContentValues cv = new ContentValues();
         cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
         cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "accepted"); // normalized status
 
-        // Try update first
-        int rows = db.update(
+        long id = db.insertWithOnConflict(
                 UserContract.Friends.TABLE,
+                null,
                 cv,
-                UserContract.Friends.Col.FRIEND_UID + "=?",
-                new String[]{friendUid}
+                SQLiteDatabase.CONFLICT_REPLACE
         );
-        if (rows == 0) {
-            long id = db.insertWithOnConflict(
-                    UserContract.Friends.TABLE,
-                    null,
-                    cv,
-                    SQLiteDatabase.CONFLICT_ABORT
-            );
-            return id != -1L;
-        }
-        return true;
+        return id != -1L;
     }
 
     /**
      * Remove a friend by UID. Returns true if a row was deleted.
      */
     public boolean removeFriend(String friendUid) {
-        if (friendUid == null) throw new IllegalArgumentException("friendUid cannot be null");
         int rows = db.delete(
                 UserContract.Friends.TABLE,
                 UserContract.Friends.Col.FRIEND_UID + "=?",
@@ -358,36 +343,33 @@ public final class UserManager {
     }
 
     /**
-     * Accept a friend by their Firebase UID. Returns true if insert or update affected a row.
+     * Accept a friend by UID.
      */
     public boolean acceptFriend(String friendUid) {
-        if (friendUid == null) throw new IllegalArgumentException("friendUid cannot be null");
         ContentValues cv = new ContentValues();
         cv.put(UserContract.Friends.Col.FRIEND_STATUS, "accepted");
-
         int rows = db.update(
                 UserContract.Friends.TABLE,
                 cv,
                 UserContract.Friends.Col.FRIEND_UID + "=?",
                 new String[]{friendUid}
         );
-        if (rows == 0) {
-            long id = db.insertWithOnConflict(
-                    UserContract.Friends.TABLE,
-                    null,
-                    cv,
-                    SQLiteDatabase.CONFLICT_ABORT
-            );
-            return id != -1L;
-        }
-        return true;
+        return rows > 0;
     }
 
     /**
-     * Deny a friend by their Firebase UID. Returns true if insert or update affected a row.
+     * Deny a friend by UID.
      */
     public boolean denyFriend(String friendUid) {
-        return removeFriend(friendUid);
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "denied");
+        int rows = db.update(
+                UserContract.Friends.TABLE,
+                cv,
+                UserContract.Friends.Col.FRIEND_UID + "=?",
+                new String[]{friendUid}
+        );
+        return rows > 0;
     }
 
     /**
@@ -410,10 +392,10 @@ public final class UserManager {
     }
 
     /**
-     * Returns a list containing all the users friends
+     * Returns a list containing all the user's friends.
      */
-    public List<Friend> getFriends() {
-        List<Friend> friends = new ArrayList<>();
+    public List<UserInterface.Friend> getFriends() {
+        List<UserInterface.Friend> friends = new ArrayList<>();
         Cursor c = null;
         try {
             c = db.query(
@@ -433,13 +415,17 @@ public final class UserManager {
                         c.getColumnIndexOrThrow(UserContract.Friends.Col.FRIEND_NAME));
                 String status = c.getString(
                         c.getColumnIndexOrThrow(UserContract.Friends.Col.FRIEND_STATUS));
-                friends.add(new Friend(uid, name, status));
+                friends.add(new UserInterface.Friend(uid, name, status));
             }
         } finally {
             if (c != null) c.close();
         }
         return friends;
     }
+
+    // ----------------------------------------------------------------------
+    // badges
+    // ----------------------------------------------------------------------
 
     /**
      * Adds a badge id (no-op if already present). Returns true if inserted.
@@ -452,15 +438,10 @@ public final class UserManager {
                 UserContract.Badges.TABLE,
                 null,
                 cv,
-                SQLiteDatabase.CONFLICT_IGNORE  // ignore duplicates
+                SQLiteDatabase.CONFLICT_IGNORE
         );
         return id != -1L;
     }
-
-
-    // ----------------------------------------------------------------------
-    // badges
-    // ----------------------------------------------------------------------
 
     /**
      * Removes a badge.
@@ -494,17 +475,31 @@ public final class UserManager {
     }
 
     /**
-     * List all badges. Caller must close the returned Cursor.
-     * Columns: BADGE_ID
+     * Lists all badge IDs (normalized; no Cursor exposed).
      */
-    public Cursor listBadges() {
-        return db.query(
-                UserContract.Badges.TABLE,
-                new String[]{UserContract.Badges.Col.BADGE_ID},
-                null, null, null, null,
-                UserContract.Badges.Col.BADGE_ID + " ASC"
-        );
+    public List<String> listBadges() {
+        List<String> badges = new ArrayList<>();
+        Cursor c = null;
+        try {
+            c = db.query(
+                    UserContract.Badges.TABLE,
+                    new String[]{UserContract.Badges.Col.BADGE_ID},
+                    null, null, null, null,
+                    UserContract.Badges.Col.BADGE_ID + " ASC"
+            );
+            while (c.moveToNext()) {
+                String id = c.getString(c.getColumnIndexOrThrow(UserContract.Badges.Col.BADGE_ID));
+                badges.add(id);
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+        return badges;
     }
+
+    // ----------------------------------------------------------------------
+    // helpers
+    // ----------------------------------------------------------------------
 
     private Integer queryInt(String table, String col, String where, String[] args) {
         Cursor c = null;
@@ -518,10 +513,6 @@ public final class UserManager {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Small internal helpers
-    // ----------------------------------------------------------------------
-
     private String queryString(String table, String col, String where, String[] args) {
         Cursor c = null;
         try {
@@ -530,33 +521,6 @@ public final class UserManager {
             return c.getString(0);
         } finally {
             if (c != null) c.close();
-        }
-    }
-
-    /**
-     * Class representing a friend for convenient use in lists or recyclerViews
-     */
-    public class Friend {
-        private final String uid;
-        private final String name;
-        private final String status;
-
-        public Friend(String uid, String name, String status) {
-            this.uid = uid;
-            this.name = name;
-            this.status = status;
-        }
-
-        public String getUid() {
-            return uid;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getStatus() {
-            return status;
         }
     }
 }
