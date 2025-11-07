@@ -61,8 +61,6 @@ All course deliverables and SE artifacts live in **`documentation`**:
 * Reports and appendices
 * Meeting notes & decisions log
 
-> Tip: keep a `/docs/` folder on that branch with a simple index so TAs/teammates can browse easily.
-
 
 ## 3) Project Structure (where things live)
 
@@ -82,12 +80,9 @@ app/
    │  │  ├─ data/                             # Data layer
    │  │  │  ├─ auth/                          # AuthRepository, sign-in/out, etc.
    │  │  │  └─ local/
-   │  │  │     ├─ datastore/                  # RxDataStore serializers
-   │  │  │     ├─ room/                       # Room database setup
-   │  │  │     │  ├─ AppDatabase.java
-   │  │  │     │  ├─ dao/                     # DAOs: ActivityJarDao, SnapTaskDao, RoamioDao, UserLocalDao
-   │  │  │     │  └─ entities/                # Entities: TaskLocal, BadgeLocal, WalkSessionLocal, etc.
-   │  │  │     └─ WellnestApp.java            # Application class; DataStore singletons
+   │  │  │     ├─ contracts/                  # Contracts for the User and Micro App entity groups
+   │  │  │     ├─ managers/                   # Managers for the User and Micro App entity groups 
+   │  │  │     └─ WellnestApp.java            # Application class;
    │  │  ├─ ui/                               # **All visual Fragments & UI components**
    │  │  │  ├─ home/                          # HomeFragment, MicroAppCardFragment
    │  │  │  ├─ auth/                          # AuthFragment (login/register)
@@ -117,9 +112,8 @@ app/
 * **New screens / components** → `ui/<feature>/` as a `Fragment` + XML layout.
 * **Shared UI helpers** → `ui/effects/` or create a `ui/components/` package for reusable views.
 * **Navigation** → add destinations/actions in `res/navigation/nav_graph.xml`.
-* **Local persistence** → Room entities/DAOs under `data/local/room/` (update `AppDatabase`).
-* **Key‑value & profile data** → add fields to the relevant `.proto` and access via `WellnestApp` DataStores.
-* **Auth / remote** → `data/auth/` or create `data/remote/` if you add APIs later.
+* **Database** → add schemas and sql queries to `data/local/contracts/{relavent contract class}`  and create data manipulation methods in `data/local/managers/{relavent manager class}`.
+* **Auth / remote** → SignIn and SignUp logic is in `data/auth/AuthRepository.java`.
 * **ViewModels** → `viewmodel/` (one per screen or feature).
 * **Resources** → images in `drawable/`, strings in `values/strings.xml`, style tokens in `values/styles.xml` & `themes.xml`.
 
@@ -155,12 +149,6 @@ app/
 * Unit tests → `app/src/test/java/...`
 * Instrumented (Espresso/Room) → `app/src/androidTest/java/...`
 
-**Room migrations**
-
-* Update `version` in `AppDatabase` when schema changes.
-* Add a `Migration` and write/extend tests in `androidTest`.
-* Verify schema JSON under `app/schemas/` is updated in your PR.
-
 ## 6) Code Quality Standards
 
 ### Must‑do items
@@ -190,7 +178,7 @@ app/
 
 ## 8) Security & Config
 
-* Do **not** commit real API keys or secrets. `google-services.json` for class demos is fine, but rotate keys for public builds.
+* Do **not** commit real API keys or secrets. `google-services.json` for class demo is fine, but rotate keys for public builds.
 * Keep any future secrets in `local.properties` or an untracked `.env`.
 
 ## 9) Release Checklist
@@ -203,14 +191,32 @@ app/
 ## 10) FAQs
 
 * **Where do I add a new micro‑app?**
-
   * Create a fragment under `ui/<microapp>/`, add nav entry, add a card in `HomeFragment` if needed.
-* **Where do I store user profile or small counters?**
 
-  * Add fields to the `.proto` in `src/main/proto/` and use the DataStore instances from `WellnestApp`.
 * **Where are the database tables?**
+  * SQLite database schemas and SQL queries are under `data/local/contracts/`.
+ 
+*  **How do I query the database?**
+   *  Instead of writing SQL queries on the frontend, data handelling has been abstracted into backend contracts and managers.
 
-  * `data/local/room/entities/` + DAOs under `data/local/room/dao/`. Don’t forget migrations and tests.
+For the majority of your data handelling needs, there already exists a method in the manager classes to do so. Here is an example of how you may use these methods.
+```java
+// First you must instantiate the database helper object and open a database session
+WellnestDatabaseHelper dbHelper = new WellnestDatabaseHelper(context);
+SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+// Now instantiate the manager associated with your task.
+// For example if you want to get all the users friends,
+//     you should use the UserManager since what you're querying for relates to the User.
+
+// You can also check the ER and Class Diagram documentation to see a list of all the methods each manager contains.
+UserManager userManager = new UserManager(db); // <--- instantiating the UserManager class
+
+// Now you can run any queries by simply calling the relavent method
+List<Friend> friends = userManager.getFriends();
+```
+If the query you need does not already exist in any manager class, then you should create it!
+To do so you should write the query in the relavent manager class, and then follow the steps laid out in the above code block to use it.
 
 ### Maintainers
 
