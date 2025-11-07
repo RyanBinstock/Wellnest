@@ -28,26 +28,27 @@ public final class UserContract {
     }
 
     // =========================
-    //  global_score  (singleton row)
-    // =========================
+//  global_score
+// =========================
     public static final class GlobalScore {
         public static final String TABLE = "global_score";
-        // CHECK(id=1) enforces single row; default score = 0
+
+        // Each row stores a UID and that user's global score (self or friend)
         public static final String SQL_CREATE =
                 "CREATE TABLE " + TABLE + " (" +
-                        Col.ID + " INTEGER PRIMARY KEY CHECK(" + Col.ID + "=1), " +
+                        Col.UID + " TEXT PRIMARY KEY, " +      // UID from Firebase
                         Col.SCORE + " INTEGER NOT NULL DEFAULT 0" +
-                        ")";
-        public static final String SQL_INDEXES = ""; // none needed
+                        ") WITHOUT ROWID";
 
         private GlobalScore() {
         }
 
         public static final class Col {
-            public static final String ID = "id";           // INTEGER PK, forced to 1
-            public static final String SCORE = "score";        // INTEGER
+            public static final String UID = "uid";     // TEXT UID matching Firebase UID
+            public static final String SCORE = "score"; // INTEGER
         }
     }
+
 
     // =========================
     //  streak  (singleton row)
