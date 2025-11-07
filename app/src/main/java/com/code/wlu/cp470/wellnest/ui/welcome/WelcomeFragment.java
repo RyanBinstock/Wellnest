@@ -1,16 +1,13 @@
 package com.code.wlu.cp470.wellnest.ui.welcome;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Shader;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewPropertyAnimator;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -20,16 +17,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
-import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
-import com.code.wlu.cp470.wellnest.ui.effects.UiTextEffects;
-
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTextEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -46,7 +41,8 @@ public class WelcomeFragment extends Fragment {
     private LinearLayout dotsContainer;
     private View touchSurface; // large swipe area (carouselColumn)
 
-    public WelcomeFragment() { }
+    public WelcomeFragment() {
+    }
 
     @Override
     public void onStart() {
@@ -87,10 +83,10 @@ public class WelcomeFragment extends Fragment {
 
         // ------- Carousel wiring -------
         carouselImage = view.findViewById(R.id.carouselImage);
-        carouselText  = view.findViewById(R.id.carouselText);
+        carouselText = view.findViewById(R.id.carouselText);
         dotsContainer = view.findViewById(R.id.dotsContainer);
         // BIG swipe area = the whole carousel column (image + text + dots)
-        touchSurface  = view.findViewById(R.id.carouselColumn);
+        touchSurface = view.findViewById(R.id.carouselColumn);
 
         // 4 slides (adjust drawables/strings to your assets)
         slides = Arrays.asList(
@@ -216,7 +212,8 @@ public class WelcomeFragment extends Fragment {
                 .translationX(0f).alpha(1f)
                 .setDuration(180)
                 .setInterpolator(new DecelerateInterpolator());
-        a1.start(); a2.start();
+        a1.start();
+        a2.start();
     }
 
     private void animateOffAndSwap(boolean toNext, float width) {
@@ -235,7 +232,8 @@ public class WelcomeFragment extends Fragment {
                 .setInterpolator(new AccelerateDecelerateInterpolator())
                 .withEndAction(() -> {
                     // update index + content
-                    if (toNext) next(); else prev();
+                    if (toNext) next();
+                    else prev();
 
                     // place new content just off-screen on the other side
                     float startPos = -off;
@@ -263,6 +261,7 @@ public class WelcomeFragment extends Fragment {
     private static class Slide {
         final int imageRes;
         final int textRes;
+
         Slide(int imageRes, int textRes) {
             this.imageRes = imageRes;
             this.textRes = textRes;

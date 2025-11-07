@@ -2,7 +2,10 @@ package com.code.wlu.cp470.wellnest.viewmodel;
 
 import android.app.Application;
 
-import androidx.lifecycle.*;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.code.wlu.cp470.wellnest.data.auth.AuthRepository;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -12,14 +15,23 @@ public class AuthViewModel extends AndroidViewModel {
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
 
-    public LiveData<FirebaseUser> user() { return user; }
-    public LiveData<String> error() { return error; }
-    public LiveData<Boolean> loading() { return loading; }
-
     public AuthViewModel(Application app) {
         super(app);
         repo = new AuthRepository(app.getApplicationContext());
     }
+
+    public LiveData<FirebaseUser> user() {
+        return user;
+    }
+
+    public LiveData<String> error() {
+        return error;
+    }
+
+    public LiveData<Boolean> loading() {
+        return loading;
+    }
+
     public void signIn(String email, String password) {
         loading.setValue(true);
         repo.signIn(email, password, (u, e) -> {

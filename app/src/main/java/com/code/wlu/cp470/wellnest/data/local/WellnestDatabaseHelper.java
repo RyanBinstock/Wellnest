@@ -13,6 +13,7 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
     public WellnestDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
     @Override
     public void onConfigure(SQLiteDatabase db) {
         db.setForeignKeyConstraintsEnabled(true);
@@ -44,5 +45,25 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * This is a method used for testing to wipe the database of all tables
+     *
+     * @param db
+     */
+    public void cleanDatabase(SQLiteDatabase db) {
+        db.beginTransaction();
+        try (android.database.Cursor c = db.rawQuery(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'android_%' AND name NOT LIKE 'sqlite_%'", null)) {
+            while (c.moveToNext()) {
+                String table = c.getString(0);
+                db.execSQL("DROP TABLE IF EXISTS " + table);
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        onCreate(db);
     }
 }

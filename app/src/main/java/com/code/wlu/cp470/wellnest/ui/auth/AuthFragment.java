@@ -2,18 +2,25 @@ package com.code.wlu.cp470.wellnest.ui.auth;
 
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
-import com.code.wlu.cp470.wellnest.R;
-import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
 
+import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
+import com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel;
 
 public class AuthFragment extends Fragment {
     private boolean signUpMode = true;
@@ -31,18 +38,18 @@ public class AuthFragment extends Fragment {
                               @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TextView titleText     = view.findViewById(R.id.titleText);
-        TextView nameText      = view.findViewById(R.id.nameText);
-        EditText nameForm      = view.findViewById(R.id.nameForm);
-        TextView emailText     = view.findViewById(R.id.emailText);
-        EditText emailForm     = view.findViewById(R.id.emailForm);
-        TextView passwordText  = view.findViewById(R.id.passwordText);
-        EditText passwordForm  = view.findViewById(R.id.passwordForm);
-        Button primaryButton   = view.findViewById(R.id.primaryButton);
-        TextView switchText    = view.findViewById(R.id.authSwitchText);
-        TextView switchLink    = view.findViewById(R.id.authSwitchLink);
-        ImageView birdHouse    = view.findViewById(R.id.birdHouse);
-        ImageView birdFeeder   = view.findViewById(R.id.birdFeeder);
+        TextView titleText = view.findViewById(R.id.titleText);
+        TextView nameText = view.findViewById(R.id.nameText);
+        EditText nameForm = view.findViewById(R.id.nameForm);
+        TextView emailText = view.findViewById(R.id.emailText);
+        EditText emailForm = view.findViewById(R.id.emailForm);
+        TextView passwordText = view.findViewById(R.id.passwordText);
+        EditText passwordForm = view.findViewById(R.id.passwordForm);
+        Button primaryButton = view.findViewById(R.id.primaryButton);
+        TextView switchText = view.findViewById(R.id.authSwitchText);
+        TextView switchLink = view.findViewById(R.id.authSwitchLink);
+        ImageView birdHouse = view.findViewById(R.id.birdHouse);
+        ImageView birdFeeder = view.findViewById(R.id.birdFeeder);
 
         // Init ViewModel
         ViewModelProvider.Factory factory =
@@ -85,7 +92,7 @@ public class AuthFragment extends Fragment {
         UiTouchEffects.attachPressScale(primaryButton, 0.96f);
         UiClickEffects.setOnClickWithPulse(primaryButton, v -> {
             String email = emailForm.getText().toString().trim();
-            String pass  = passwordForm.getText().toString();
+            String pass = passwordForm.getText().toString();
 
             if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass)) {
                 Toast.makeText(requireContext(), getString(R.string.auth_error_email_password_required), Toast.LENGTH_SHORT).show();
