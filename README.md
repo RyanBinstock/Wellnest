@@ -68,43 +68,40 @@ All course deliverables and SE artifacts live in **`documentation`**:
 
 ```
 app/
-├─ build.gradle.kts            # Android app module config (AGP, Navigation SafeArgs, Protobuf)
-├─ google-services.json        # Firebase config (use your own for forks)
-├─ schemas/                    # Room schema snapshots (migrations gate)
-│  └─ com.code...AppDatabase/  # Versioned JSON schema files
+├─ build.gradle.kts            # Android app module config
+├─ google-services.json        # Firebase config
 └─ src/
    ├─ main/
    │  ├─ AndroidManifest.xml
    │  ├─ java/com/code/wlu/cp470/wellnest/
-   │  │  ├─ MainActivity.java                 # Single-activity entry point
-   │  │  ├─ data/                             # Data layer
-   │  │  │  ├─ auth/                          # AuthRepository, sign-in/out, etc.
-   │  │  │  └─ local/
-   │  │  │     ├─ contracts/                  # Contracts for the User and Micro App entity groups
-   │  │  │     ├─ managers/                   # Managers for the User and Micro App entity groups 
-   │  │  │     └─ WellnestApp.java            # Application class;
-   │  │  ├─ ui/                               # **All visual Fragments & UI components**
-   │  │  │  ├─ home/                          # HomeFragment, MicroAppCardFragment
-   │  │  │  ├─ auth/                          # AuthFragment (login/register)
-   │  │  │  ├─ welcome/                       # Welcome/onboarding screens
-   │  │  │  ├─ snaptask/                      # SnapTaskFragment (micro‑app)
-   │  │  │  ├─ activityjar/                   # ActivityJarFragment (micro‑app)
-   │  │  │  ├─ roamio/                        # RoamioFragment (micro‑app)
-   │  │  │  └─ effects/                       # UI helper effects (touch, text, shake, click)
-   │  │  └─ viewmodel/                        # ViewModels (e.g., AuthViewModel)
-   │  ├─ proto/                               # Protobuf models for DataStore
-   │  │  ├─ user_profile.proto
-   │  │  ├─ global_score.proto
-   │  │  └─ streak.proto
+   │  │  ├─ MainActivity.java                    # Single-activity entry point
+   │  │  ├─ data/                                # Data layer
+   │  │  │  ├─ auth/                             # AuthRepository, sign-in/out, etc.
+   │  │  │  ├─ local/
+   │  │  │  |  ├─ contracts/                     # Contracts for the User and Micro App entity groups
+   │  │  │  |  ├─ managers/                      # Managers for the User and Micro App entity groups
+   │  │  │  |  └─ WellnestDatabaseHelper.java    # SQLite database helper file;
+   │  │  │  ├─ <interfaces>                      # Interfaces for managers goes in `data/`
+   │  │  │  ├─ <repositories>                    # Repositories for managers goes in `data/`
+   │  │  │  └─ WellnestApp.java                  # Application class;
+   │  │  ├─ ui/                                  # **All visual Fragments & UI components**
+   │  │  │  ├─ home/                             # HomeFragment, MicroAppCardFragment
+   │  │  │  ├─ auth/                             # AuthFragment (login/register)
+   │  │  │  ├─ welcome/                          # Welcome/onboarding screens
+   │  │  │  ├─ snaptask/                         # SnapTaskFragment (micro‑app)
+   │  │  │  ├─ activityjar/                      # ActivityJarFragment (micro‑app)
+   │  │  │  ├─ roamio/                           # RoamioFragment (micro‑app)
+   │  │  │  └─ effects/                          # UI helper effects (touch, text, shake, click)
+   │  │  └─ viewmodel/                           # ViewModels
    │  └─ res/
-   │     ├─ layout/                           # XML layouts (activity_main, fragment_*.xml)
-   │     ├─ navigation/nav_graph.xml          # Navigation graph (destinations & actions)
-   │     ├─ values/                           # colors.xml, dimens.xml, strings.xml, styles.xml, themes.xml
-   │     ├─ drawable/                         # Shapes, icons, backgrounds
-   │     ├─ font/                             # Typeface resources
-   │     └─ xml/                              # backup_rules.xml, data_extraction_rules.xml
-   ├─ test/java/...                            # Unit tests (JVM)
-   └─ androidTest/java/...                     # Instrumented tests (Espresso, Room, etc.)
+   │     ├─ layout/                              # XML layouts (activity_main, fragment_*.xml)
+   │     ├─ navigation/nav_graph.xml             # Navigation graph (destinations & actions)
+   │     ├─ values/                              # colors.xml, dimens.xml, strings.xml, styles.xml, themes.xml
+   │     ├─ drawable/                            # Shapes, icons, backgrounds
+   │     ├─ font/                                # Typeface resources
+   │     └─ xml/                                 # backup_rules.xml, data_extraction_rules.xml
+   ├─ test/java/...                              # Unit tests (JVM)
+   └─ androidTest/java/...                       # Instrumented tests (Espresso, SQLite, etc.)
 ```
 
 ### Where to put new code
@@ -117,8 +114,37 @@ app/
 * **ViewModels** → `viewmodel/` (one per screen or feature).
 * **Resources** → images in `drawable/`, strings in `values/strings.xml`, style tokens in `values/styles.xml` & `themes.xml`.
 
+## 4) Backend Architecture
 
-## 4) Build & Run
+The **Wellnest** backend is built on a **two-tiered architecture** consisting of:
+- A **local SQLite database** for offline persistence.
+- A **remote Firestore database** for cloud synchronization and cross-device access.
+
+To simplify backend complexity for the frontend layer, we use **Manager classes** that handle all query logic and expose clean, high-level methods for data access and manipulation. This allows UI components to interact with data through a consistent, well-defined interface rather than dealing directly with database APIs.
+
+### Local Layer
+Our **local database schemas** are defined in dedicated **Contract classes**, which serve as the single source of truth for table and column definitions. These contracts ensure consistency across DAOs, helpers, and repositories.
+
+### Local ↔ Remote Integration
+To ensure seamless operation between the local and remote data layers, two key challenges must be addressed:
+
+1. **Standardization:** Manager classes for local and remote data must share the same method signatures and return types.
+2. **Synchronization:** Data changes must propagate safely between local and remote databases to keep the app state consistent.
+
+We address these challenges through the following design patterns:
+
+1. **Interfaces**  
+   Each data domain (e.g., `User`, `SnapTask`, `ActivityJar`) defines an interface that prescribes the available methods and their return shapes.  
+   - Local and remote Manager classes implement the same interface.  
+   - The frontend can therefore consume the data agnostically without needing to know whether it’s sourced from SQLite or Firestore.
+
+2. **Repositories**  
+   Repositories act as synchronization coordinators between local and remote sources. They:  
+   - Reconcile updates in both directions.  
+   - Decide when to prioritize local vs. remote data.  
+   - Handle network availability gracefully.
+
+## 5) Build & Run
 
 **Requirements**
 
@@ -138,7 +164,7 @@ app/
 * Instrumented tests: `./gradlew connectedDebugAndroidTest`
 * Lint: `./gradlew lint`  (treat warnings as warnings; fix critical issues before merge)
 
-## 5) Testing Policy
+## 6) Testing Policy
 
 * **Before merging to `development`**: your feature should have passing tests or a clear note why it’s temporarily exempt.
 * **Allowed rare exception**: Non‑critical, time‑sensitive fixes may merge **untested** if you ran the code on an emulator/device and verified behavior. Follow up with tests ASAP.
@@ -149,7 +175,7 @@ app/
 * Unit tests → `app/src/test/java/...`
 * Instrumented (Espresso/Room) → `app/src/androidTest/java/...`
 
-## 6) Code Quality Standards
+## 7) Code Quality Standards
 
 ### Must‑do items
 
@@ -170,25 +196,25 @@ app/
 * Keep ViewModels UI‑only; data work goes in repositories/DAOs.
 * One responsibility per class/file; keep files readable (<300–400 lines is a good heuristic).
 
-## 7) Lint, Style & Formatting
+## 8) Lint, Style & Formatting
 
 * Use Android Studio’s **Code Cleanup** and **Reformat** before committing.
 * Enable “Optimize imports on the fly”.
 * No trailing `TODO`s in merged code.
 
-## 8) Security & Config
+## 9) Security & Config
 
 * Do **not** commit real API keys or secrets. `google-services.json` for class demo is fine, but rotate keys for public builds.
 * Keep any future secrets in `local.properties` or an untracked `.env`.
 
-## 9) Release Checklist
+## 10) Release Checklist
 
 * Version bump in `build.gradle.kts` (versionCode/versionName).
 * Changelog update in PR description.
 * All tests green and manual smoke on emulator.
 * Merge `development` → `master`, create tag `vX.Y.Z`.
 
-## 10) FAQs
+## 11) FAQs
 
 * **Where do I add a new micro‑app?**
   * Create a fragment under `ui/<microapp>/`, add nav entry, add a card in `HomeFragment` if needed.
@@ -215,8 +241,9 @@ UserManager userManager = new UserManager(db); // <--- instantiating the UserMan
 // Now you can run any queries by simply calling the relavent method
 List<Friend> friends = userManager.getFriends();
 ```
-If the query you need does not already exist in any manager class, then you should create it!
-To do so you should write the query in the relavent manager class, and then follow the steps laid out in the above code block to use it.
+If the query you need does not already exist in any manager class, you should create it!
+To do so you should update the relavent interface by adding the new method, then implement it in the manager.
+Now you can use your query by following the steps laid out in the code block above.
 
 ### Maintainers
 
