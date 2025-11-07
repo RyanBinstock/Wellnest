@@ -319,7 +319,7 @@ public final class UserManager implements UserInterface {
         ContentValues cv = new ContentValues();
         cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
         cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
-        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "accepted"); // normalized status
+        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "pending"); // normalized status
 
         long id = db.insertWithOnConflict(
                 UserContract.Friends.TABLE,
@@ -361,15 +361,7 @@ public final class UserManager implements UserInterface {
      * Deny a friend by UID.
      */
     public boolean denyFriend(String friendUid) {
-        ContentValues cv = new ContentValues();
-        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "denied");
-        int rows = db.update(
-                UserContract.Friends.TABLE,
-                cv,
-                UserContract.Friends.Col.FRIEND_UID + "=?",
-                new String[]{friendUid}
-        );
-        return rows > 0;
+        return removeFriend(friendUid);
     }
 
     /**
@@ -402,7 +394,8 @@ public final class UserManager implements UserInterface {
                     UserContract.Friends.TABLE,
                     new String[]{
                             UserContract.Friends.Col.FRIEND_UID,
-                            UserContract.Friends.Col.FRIEND_NAME
+                            UserContract.Friends.Col.FRIEND_NAME,
+                            UserContract.Friends.Col.FRIEND_STATUS
                     },
                     null, null, null, null,
                     UserContract.Friends.Col.FRIEND_NAME + " COLLATE NOCASE ASC"
