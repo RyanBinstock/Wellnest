@@ -13,6 +13,7 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
     public WellnestDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
     @Override
     public void onConfigure(SQLiteDatabase db) {
         db.setForeignKeyConstraintsEnabled(true);
