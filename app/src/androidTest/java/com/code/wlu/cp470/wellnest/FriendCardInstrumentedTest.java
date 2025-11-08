@@ -93,4 +93,5 @@ public class FriendCardInstrumentedTest {
         List<UserInterface.Friend> friends = userManager.getFriends();
         assertEquals(0, friends.size());
     }
+    
 }
