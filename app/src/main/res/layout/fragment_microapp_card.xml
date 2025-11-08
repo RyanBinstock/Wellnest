@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardRoot"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@android:color/transparent"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="22dp"
+    app:cardElevation="0dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/bgImage"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/microappcard_snaptask"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/title"
+            style="@style/TextAppearance.Wellnest.MicroAppCard.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="10dp"
+            android:text="SnapTask"
+            app:layout_constraintEnd_toEndOf="@id/bgImage"
+            app:layout_constraintStart_toStartOf="@id/bgImage"
+            app:layout_constraintTop_toTopOf="@id/bgImage" />
+
+        <TextView
+            android:id="@+id/subtitle"
+            style="@style/TextAppearance.Wellnest.MicroAppCard.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="-10dp"
+            android:text="Snappy"
+            app:layout_constraintEnd_toEndOf="@id/bgImage"
+            app:layout_constraintStart_toStartOf="@+id/title"
+            app:layout_constraintTop_toBottomOf="@id/title" />
+
+        <!-- Add bottom padding so text isn't flush with image edge -->
+        <Space
+            android:layout_width="1dp"
+            android:layout_height="12dp"
+            app:layout_constraintBottom_toBottomOf="@id/bgImage"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/subtitle" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>

@@ -1,76 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:background="@color/wl_surface"
     android:clipChildren="false"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:fitsSystemWindows="false"
+    android:paddingTop="25dp">
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/home_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Guidelines split the screen into three zones -->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_scoreboard_bottom"
-        android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintGuide_percent="0.1"
-        />
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.1" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:paddingTop="@dimen/wl_space_m"
+        android:clipChildren="false"
+        android:clipToPadding="false"
         android:paddingHorizontal="@dimen/wl_space_m"
+        android:paddingTop="@dimen/wl_space_m"
         android:paddingBottom="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/guide_scoreboard_bottom"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/guide_scoreboard_bottom"
-        android:clipChildren="false"
-        android:clipToPadding="false">
+        app:layout_constraintTop_toTopOf="parent">
 
 
         <ImageView
             android:id="@+id/bgOval"
             android:layout_width="0dp"
             android:layout_height="300dp"
-            android:src="@drawable/scoreboard_bg"
-            android:scaleType="fitXY"
-
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-
             android:layout_marginStart="-100dp"
-            android:layout_marginEnd="-100dp"
             android:layout_marginTop="-150dp"
-            />
+            android:layout_marginEnd="-100dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/scoreboard_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_left"
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintGuide_percent="0.25" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_right"
-            android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             app:layout_constraintGuide_percent="0.75" />
 
         <!--   Streak Counter    -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:paddingVertical="@dimen/wl_space_s"
             android:paddingHorizontal="@dimen/wl_space_s"
+            android:paddingVertical="@dimen/wl_space_s"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="@id/guide_left">
 
             <ImageView
@@ -87,53 +92,181 @@
                 android:id="@+id/streakCounter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="6sp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="1"
                 android:textColor="@color/wl_surface"
                 android:textSize="@dimen/wl_text_title"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView"
                 app:layout_constraintEnd_toEndOf="@+id/imageView"
-                android:layout_marginBottom="6sp"
                 app:layout_constraintTop_toTopOf="@+id/imageView" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!--   Score     -->
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginBottom="-30sp"
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="@id/guide_left"
             app:layout_constraintRight_toRightOf="@id/guide_right"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginBottom="-20sp"
-            android:gravity="center">
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/scoreText"
-                android:textAlignment="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="50sp"
+                android:layout_marginBottom="-15sp"
                 android:fontFamily="@font/poppins_bold"
-                android:textColor="#FFFFFF"
                 android:shadowColor="@color/wl_shadow"
                 android:shadowDx="0"
                 android:shadowDy="10"
                 android:shadowRadius="3"
-                android:layout_marginBottom="-15sp"
-                android:text="88,165" />
+                android:text="88,165"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="55sp" />
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/icon_chevron"/>
+                android:src="@drawable/icon_chevron" />
 
         </LinearLayout>
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!--  Container for micro app cards  -->
+    <LinearLayout
+        android:id="@+id/cardsContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/bottomBar"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/guide_scoreboard_bottom">
+
+    </LinearLayout>
+
+    <!-- Bottom bar container (transparent, sits above background/grass) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/bottomBar"
+        android:layout_width="0dp"
+        android:layout_height="96dp"
+        android:layout_marginStart="@dimen/wl_space_m"
+        android:layout_marginEnd="@dimen/wl_space_m"
+        android:layout_marginBottom="@dimen/wl_space_m"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="0dp"
+        app:cardUseCompatPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- Left: Friends -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnFriends"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_bottom_friends" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Center: Home (larger, with label) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnHome"
+                android:layout_width="0dp"
+                android:layout_height="84dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:cardCornerRadius="26dp"
+                app:cardElevation="6dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnProfile"
+                app:layout_constraintStart_toEndOf="@id/btnFriends"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ImageView
+                        android:id="@+id/homeIcon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="6dp"
+                        android:contentDescription="@string/home"
+                        android:src="@drawable/ic_bottom_home"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/homeLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_bold"
+                        android:shadowColor="@color/wl_shadow"
+                        android:shadowDx="0"
+                        android:shadowDy="3"
+                        android:shadowRadius="2"
+                        android:text="@string/home"
+                        android:textAllCaps="true"
+                        android:textColor="@color/wl_onPrimary"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/homeIcon" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Right: Profile -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnProfile"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_bottom_profile" />
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

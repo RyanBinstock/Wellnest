@@ -1,5 +1,9 @@
 package com.code.wlu.cp470.wellnest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import com.code.wlu.cp470.wellnest.data.local.datastore.StreakSerializer;
 import com.code.wlu.cp470.wellnest.proto.Streak;
 
@@ -14,29 +18,22 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 
-import static org.junit.Assert.*;
-
 /**
  * Simple, easy-to-understand tests for StreakSerializer.
- *
+ * <p>
  * What this proves:
- *  1) We can write a Streak to bytes and read it back exactly (round trip).
- *  2) The default value is sane (all zeros for int fields).
- *  3) Corrupt/empty bytes currently throw a RuntimeException (as per the serializer).
- *
+ * 1) We can write a Streak to bytes and read it back exactly (round trip).
+ * 2) The default value is sane (all zeros for int fields).
+ * 3) Corrupt/empty bytes currently throw a RuntimeException (as per the serializer).
+ * <p>
  * Notes for teammates (no DataStore knowledge needed):
- *  - In the *real app*, DataStore calls readFrom()/writeTo() for us.
- *  - Here we call them directly so we can verify their behavior.
+ * - In the *real app*, DataStore calls readFrom()/writeTo() for us.
+ * - Here we call them directly so we can verify their behavior.
  */
 public class StreakSerializerTest {
 
-    // --- Tiny no-op Continuation stubs (required by the interface; unused in these tests) ---
-    private static final class NoopContinuation<T> implements Continuation<T> {
-        @Override public CoroutineContext getContext() { return EmptyCoroutineContext.INSTANCE; }
-        @Override public void resumeWith(Object result) { /* no-op */ }
-    }
     private static final Continuation<Streak> CONT_STREAK = new NoopContinuation<>();
-    private static final Continuation<Unit>   CONT_UNIT   = new NoopContinuation<>();
+    private static final Continuation<Unit> CONT_UNIT = new NoopContinuation<>();
 
     // Helper factory for a sample Streak that matches YOUR proto fields
     private static Streak sampleStreak() {
@@ -97,7 +94,7 @@ public class StreakSerializerTest {
      * Current behavior in your serializer:
      * - readFrom() wraps parse errors as RuntimeException(CorruptionException).
      * This test simulates a corrupt/empty file.
-     *
+     * <p>
      * If you later decide to "return default on parse error", change this test to
      * assert a default value instead of expecting an exception.
      */
@@ -110,5 +107,16 @@ public class StreakSerializerTest {
         InputStream in = new ByteArrayInputStream(corrupt);
 
         serializer.readFrom(in, CONT_STREAK); // should throw
+    }
+
+    // --- Tiny no-op Continuation stubs (required by the interface; unused in these tests) ---
+    private static final class NoopContinuation<T> implements Continuation<T> {
+        @Override
+        public CoroutineContext getContext() {
+            return EmptyCoroutineContext.INSTANCE;
+        }
+
+        @Override
+        public void resumeWith(Object result) { /* no-op */ }
     }
 }

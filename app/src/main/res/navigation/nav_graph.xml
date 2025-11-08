@@ -37,8 +37,8 @@
         <!-- default: signup; can be "login" -->
         <argument
             android:name="startMode"
-            app:argType="string"
-            android:defaultValue="signup" />
+            android:defaultValue="signup"
+            app:argType="string" />
         <action
             android:id="@+id/action_auth_to_home"
             app:destination="@id/homeFragment" />
@@ -48,4 +48,32 @@
         android:id="@+id/homeFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.home.HomeFragment"
         android:label="Home" />
+
+    <!--  Navigation for micro app cards in home fragment  -->
+    <fragment
+        android:id="@+id/snapTaskFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:label="SnapTask">
+        <deepLink app:uri="wellnest://snaptask" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/activityJarFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:label="ActivityJar">
+        <deepLink app:uri="wellnest://activityjar" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/roamioFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.roamio.RoamioFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:label="Roamio">
+        <deepLink app:uri="wellnest://roamio" />
+    </fragment>
 </navigation>
