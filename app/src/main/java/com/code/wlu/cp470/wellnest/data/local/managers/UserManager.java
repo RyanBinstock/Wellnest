@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
@@ -520,6 +521,7 @@ public final class UserManager implements UserInterface {
      * Remove a friend by UID. Returns true if a row was deleted.
      */
     public boolean removeFriend(String friendUid) {
+        Log.d("UserManager", "removeFriend(" + friendUid + ")");
         int rows = db.delete(
                 UserContract.Friends.TABLE,
                 UserContract.Friends.Col.FRIEND_UID + "=?",
