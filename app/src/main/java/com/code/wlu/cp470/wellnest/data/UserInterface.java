@@ -42,27 +42,103 @@ public interface UserInterface {
      */
     UserProfile getUserProfile(String uid, String email);
 
-    // ----------------------------------------------------------------------
-    // global_score  (from UserManager: getGlobalScore, setGlobalScore, addToGlobalScore)
+// ----------------------------------------------------------------------
+    // Global Score (user + friends), keyed by Firebase UID
     // ----------------------------------------------------------------------
 
+    // ---- READ ----
+
+    /**
+     * Current user’s global score; returns 0 if missing (treat as not yet created).
+     */
     int getGlobalScore();
 
     /**
-     * Sets global score to an absolute value (>= 0 suggested).
+     * Single user’s score by UID; returns null if no row exists.
+     */
+    Integer getGlobalScore(String uid);
+
+    /**
+     * Bulk read by UID; missing UIDs are omitted from the map.
+     */
+    java.util.Map<String, Integer> getGlobalScores(java.util.Collection<String> uids);
+
+    /**
+     * List all rows known locally. Useful for scoreboard UIs and syncing.
+     */
+    java.util.List<ScoreEntry> listAllGlobalScores();
+
+
+    // ---- CREATE ----
+
+    /**
+     * Insert current user with initial score (fails if row exists).
+     */
+    boolean createGlobalScore(int initialScore);
+
+    /**
+     * Insert friend/user with initial score (fails if row exists).
+     */
+    boolean createGlobalScore(String uid, int initialScore);
+
+    /**
+     * Ensure a row exists with default 0 (no-op if present).
+     */
+    boolean ensureGlobalScore(String uid);
+
+
+    // ---- UPDATE ----
+
+    /**
+     * Set current user’s score to an absolute value (>=0 suggested).
+     * Returns true on success.
      */
     boolean setGlobalScore(int newScore);
 
     /**
-     * Adds delta (can be negative). Returns the new score.
+     * Set specific user’s score to an absolute value (creates row if missing).
+     * Returns true on success.
+     */
+    boolean setGlobalScore(String uid, int newScore);
+
+    /**
+     * Add delta to current user’s score (delta may be negative). Returns the new score.
+     * Creates row if missing (starting from 0).
      */
     int addToGlobalScore(int delta);
+
+    /**
+     * Add delta to a user’s score (delta may be negative). Returns the new score.
+     * Creates row if missing (starting from 0).
+     */
+    int addToGlobalScore(String uid, int delta);
+
+
+    // ---- DELETE ----
+
+    /**
+     * Delete current user’s score row (returns true if a row was removed).
+     */
+    boolean deleteGlobalScore();
+
+    /**
+     * Delete a specific user’s score row (returns true if a row was removed).
+     */
+    boolean deleteGlobalScore(String uid);
+
+    /**
+     * Delete many rows by UID; returns number of rows removed.
+     */
+    int deleteGlobalScores(java.util.Collection<String> uids);
+
+
+    // ---- Helper DTO ----
+
+    int getStreakCount();
 
     // ----------------------------------------------------------------------
     // streak  (from UserManager: getStreakCount, setStreakCount, incrementStreak, resetStreak)
     // ----------------------------------------------------------------------
-
-    int getStreakCount();
 
     /**
      * Sets streak to an absolute value (e.g., 0 to reset).
@@ -79,14 +155,14 @@ public interface UserInterface {
      */
     boolean resetStreak();
 
-    // ----------------------------------------------------------------------
-    // friends  (from UserManager: upsertFriend, removeFriend, acceptFriend, denyFriend, isFriend, getFriends)
-    // ----------------------------------------------------------------------
-
     /**
      * Upsert a friend by their Firebase UID.
      */
     boolean upsertFriend(String friendUid, String friendName);
+
+    // ----------------------------------------------------------------------
+    // friends  (from UserManager: upsertFriend, removeFriend, acceptFriend, denyFriend, isFriend, getFriends)
+    // ----------------------------------------------------------------------
 
     /**
      * Remove a friend by UID. Returns true if a row was deleted.
@@ -113,14 +189,14 @@ public interface UserInterface {
      */
     List<Friend> getFriends();
 
-    // ----------------------------------------------------------------------
-    // badges  (from UserManager: addBadge, removeBadge, hasBadge, listBadges)
-    // ----------------------------------------------------------------------
-
     /**
      * Adds a badge id (no-op if already present). Returns true if inserted.
      */
     boolean addBadge(String badgeId);
+
+    // ----------------------------------------------------------------------
+    // badges  (from UserManager: addBadge, removeBadge, hasBadge, listBadges)
+    // ----------------------------------------------------------------------
 
     /**
      * Removes a badge.
@@ -136,6 +212,16 @@ public interface UserInterface {
      * Lists all badge IDs (normalized from Cursor).
      */
     List<String> listBadges();
+
+    final class ScoreEntry {
+        public final String uid;
+        public final int score;
+
+        public ScoreEntry(String uid, int score) {
+            this.uid = uid;
+            this.score = score;
+        }
+    }
 
     // ----------------------------------------------------------------------
     // Normalized data models

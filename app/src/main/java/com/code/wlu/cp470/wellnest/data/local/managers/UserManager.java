@@ -36,17 +36,6 @@ public final class UserManager implements UserInterface {
     private void ensureSingletons() {
         db.beginTransaction();
         try {
-            // global_score -> id=1 default 0
-            ContentValues gs = new ContentValues();
-            gs.put(UserContract.GlobalScore.Col.ID, 1);
-            gs.put(UserContract.GlobalScore.Col.SCORE, 0);
-            db.insertWithOnConflict(
-                    UserContract.GlobalScore.TABLE,
-                    null,
-                    gs,
-                    SQLiteDatabase.CONFLICT_IGNORE
-            );
-
             // streak -> id=1 default 0
             ContentValues st = new ContentValues();
             st.put(UserContract.Streak.Col.ID, 1);
@@ -86,6 +75,22 @@ public final class UserManager implements UserInterface {
                 SQLiteDatabase.CONFLICT_REPLACE
         );
         return id != -1L;
+    }
+
+    /**
+     * Returns current user’s UID.
+     */
+    private String currentUid() {
+        try (Cursor cursor = db.query(
+                UserContract.UserProfile.TABLE,
+                new String[]{UserContract.UserProfile.Col.UID},
+                null, null, null, null, null
+        )) {
+            if (cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+            return null;
+        }
     }
 
     /**
@@ -192,57 +197,207 @@ public final class UserManager implements UserInterface {
     }
 
     // ----------------------------------------------------------------------
-    // global_score (id = 1)
+    // global_score (multiple rows keyed by uid)
     // ----------------------------------------------------------------------
 
-    public int getGlobalScore() {
-        Integer val = queryInt(
+    private Integer queryScoreByUid(String uid) {
+        return queryInt(
                 UserContract.GlobalScore.TABLE,
                 UserContract.GlobalScore.Col.SCORE,
-                UserContract.GlobalScore.Col.ID + "=?",
-                new String[]{"1"}
+                UserContract.GlobalScore.Col.UID + "=?",
+                new String[]{uid}
         );
+    }
+
+    private boolean upsertScore(String uid, int score) {
+        // Try UPDATE first; if no row, INSERT.
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.GlobalScore.Col.SCORE, score);
+        int rows = db.update(
+                UserContract.GlobalScore.TABLE,
+                cv,
+                UserContract.GlobalScore.Col.UID + "=?",
+                new String[]{uid}
+        );
+        if (rows > 0) return true;
+
+        cv.put(UserContract.GlobalScore.Col.UID, uid);
+        long id = db.insert(UserContract.GlobalScore.TABLE, null, cv);
+        return id != -1;
+    }
+
+    // --- READ (current user) ---
+    public int getGlobalScore() {
+        Integer val = queryScoreByUid(currentUid());
         return val != null ? val : 0;
     }
+
+    // --- READ (by uid) ---
+    public Integer getGlobalScore(String uid) {
+        return queryScoreByUid(uid);
+    }
+
+    // --- CREATE (current user) ---
+    public boolean createGlobalScore(int initialScore) {
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.GlobalScore.Col.UID, currentUid());
+        cv.put(UserContract.GlobalScore.Col.SCORE, initialScore);
+        long id = db.insert(UserContract.GlobalScore.TABLE, null, cv);
+        return id != -1;
+    }
+
+    // --- CREATE (by uid) ---
+    public boolean createGlobalScore(String uid, int initialScore) {
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.GlobalScore.Col.UID, uid);
+        cv.put(UserContract.GlobalScore.Col.SCORE, initialScore);
+        long id = db.insert(UserContract.GlobalScore.TABLE, null, cv);
+        return id != -1;
+    }
+
+    // --- ENSURE ---
+    public boolean ensureGlobalScore(String uid) {
+        // create with 0 if missing
+        if (queryScoreByUid(uid) != null) return false;
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.GlobalScore.Col.UID, uid);
+        cv.put(UserContract.GlobalScore.Col.SCORE, 0);
+        return db.insert(UserContract.GlobalScore.TABLE, null, cv) != -1;
+    }
+
+// --- UPDATE (current user) ---
 
     /**
      * Sets global score to an absolute value (>= 0 suggested).
      */
     public boolean setGlobalScore(int newScore) {
-        ContentValues cv = new ContentValues();
-        cv.put(UserContract.GlobalScore.Col.SCORE, newScore);
-        int rows = db.update(
-                UserContract.GlobalScore.TABLE,
-                cv,
-                UserContract.GlobalScore.Col.ID + "=?",
-                new String[]{"1"}
-        );
-        return rows > 0;
+        return upsertScore(currentUid(), newScore);
     }
+
+    // --- UPDATE (by uid) ---
+    public boolean setGlobalScore(String uid, int newScore) {
+        return upsertScore(uid, newScore);
+    }
+
+// --- ADD (current user) ---
 
     /**
      * Adds delta (can be negative). Returns the new score.
      */
     public int addToGlobalScore(int delta) {
+        return addToGlobalScore(currentUid(), delta);
+    }
+
+// --- ADD (by uid) ---
+
+    /**
+     * Adds delta (can be negative). Returns the new score.
+     */
+    public int addToGlobalScore(String uid, int delta) {
         db.beginTransaction();
         try {
-            int current = getGlobalScore();
+            int current = 0;
+            Integer got = queryScoreByUid(uid);
+            if (got != null) current = got;
             int updated = current + delta;
-
-            ContentValues cv = new ContentValues();
-            cv.put(UserContract.GlobalScore.Col.SCORE, updated);
-            int rows = db.update(
-                    UserContract.GlobalScore.TABLE,
-                    cv,
-                    UserContract.GlobalScore.Col.ID + "=?",
-                    new String[]{"1"}
-            );
-            if (rows == 0) throw new SQLException("Failed to update global score");
+            if (!upsertScore(uid, updated)) {
+                throw new SQLException("Failed to upsert global score for uid=" + uid);
+            }
             db.setTransactionSuccessful();
             return updated;
         } finally {
             db.endTransaction();
         }
+    }
+
+    // --- DELETE (current user) ---
+    public boolean deleteGlobalScore() {
+        int rows = db.delete(
+                UserContract.GlobalScore.TABLE,
+                UserContract.GlobalScore.Col.UID + "=?",
+                new String[]{currentUid()}
+        );
+        return rows > 0;
+    }
+
+    // --- DELETE (by uid) ---
+    public boolean deleteGlobalScore(String uid) {
+        int rows = db.delete(
+                UserContract.GlobalScore.TABLE,
+                UserContract.GlobalScore.Col.UID + "=?",
+                new String[]{uid}
+        );
+        return rows > 0;
+    }
+
+    // --- BULK READ (uids) ---
+    public java.util.Map<String, Integer> getGlobalScores(java.util.Collection<String> uids) {
+        java.util.Map<String, Integer> out = new java.util.HashMap<>();
+        if (uids == null || uids.isEmpty()) return out;
+
+        // Build IN (?, ?, ...)
+        StringBuilder sb = new StringBuilder();
+        sb.append(UserContract.GlobalScore.Col.UID).append(" IN (");
+        String[] args = new String[uids.size()];
+        int i = 0;
+        for (String uid : uids) {
+            if (i > 0) sb.append(',');
+            sb.append('?');
+            args[i++] = uid;
+        }
+        sb.append(')');
+
+        Cursor c = null;
+        try {
+            c = db.query(
+                    UserContract.GlobalScore.TABLE,
+                    new String[]{UserContract.GlobalScore.Col.UID, UserContract.GlobalScore.Col.SCORE},
+                    sb.toString(),
+                    args, null, null, null
+            );
+            while (c.moveToNext()) {
+                out.put(c.getString(0), c.getInt(1));
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+        return out;
+    }
+
+    // --- LIST ALL ---
+    public java.util.List<UserInterface.ScoreEntry> listAllGlobalScores() {
+        java.util.List<UserInterface.ScoreEntry> list = new java.util.ArrayList<>();
+        Cursor c = null;
+        try {
+            c = db.query(
+                    UserContract.GlobalScore.TABLE,
+                    new String[]{UserContract.GlobalScore.Col.UID, UserContract.GlobalScore.Col.SCORE},
+                    null, null, null, null,
+                    UserContract.GlobalScore.Col.SCORE + " DESC"
+            );
+            while (c.moveToNext()) {
+                list.add(new UserInterface.ScoreEntry(c.getString(0), c.getInt(1)));
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+        return list;
+    }
+
+    // --- BULK DELETE ---
+    public int deleteGlobalScores(java.util.Collection<String> uids) {
+        if (uids == null || uids.isEmpty()) return 0;
+        StringBuilder sb = new StringBuilder();
+        sb.append(UserContract.GlobalScore.Col.UID).append(" IN (");
+        String[] args = new String[uids.size()];
+        int i = 0;
+        for (String uid : uids) {
+            if (i > 0) sb.append(',');
+            sb.append('?');
+            args[i++] = uid;
+        }
+        sb.append(')');
+        return db.delete(UserContract.GlobalScore.TABLE, sb.toString(), args);
     }
 
     // ----------------------------------------------------------------------
@@ -314,21 +469,52 @@ public final class UserManager implements UserInterface {
      * Upsert a friend by their Firebase UID.
      */
     public boolean upsertFriend(String friendUid, String friendName) {
-        if (friendUid == null || friendUid.isEmpty())
-            throw new IllegalArgumentException("friendUid cannot be null/empty");
-        ContentValues cv = new ContentValues();
-        cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
-        cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
-        cv.put(UserContract.Friends.Col.FRIEND_STATUS, "pending"); // normalized status
+        if (friendUid == null || friendUid.isEmpty()) {
+            throw new IllegalArgumentException("friendUid is empty");
+        }
+        if (friendName == null) friendName = "";
 
-        long id = db.insertWithOnConflict(
-                UserContract.Friends.TABLE,
-                null,
-                cv,
-                SQLiteDatabase.CONFLICT_REPLACE
-        );
-        return id != -1L;
+        Cursor c = null;
+        db.beginTransaction();
+        try {
+            // Does the friend already exist?
+            c = db.query(
+                    UserContract.Friends.TABLE,
+                    new String[]{UserContract.Friends.Col.FRIEND_STATUS},
+                    UserContract.Friends.Col.FRIEND_UID + "=?",
+                    new String[]{friendUid},
+                    null, null, null
+            );
+
+            if (c.moveToFirst()) {
+                // Row exists -> update ONLY the name; keep prior status (accepted/pending)
+                ContentValues cv = new ContentValues();
+                cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+                int rows = db.update(
+                        UserContract.Friends.TABLE,
+                        cv,
+                        UserContract.Friends.Col.FRIEND_UID + "=?",
+                        new String[]{friendUid}
+                );
+                if (rows <= 0) return false;
+            } else {
+                // New row -> insert with default status = "pending"
+                ContentValues cv = new ContentValues();
+                cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
+                cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+                cv.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
+                long id = db.insert(UserContract.Friends.TABLE, null, cv);
+                if (id == -1) return false;
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            if (c != null) c.close();
+            db.endTransaction();
+        }
     }
+
 
     /**
      * Remove a friend by UID. Returns true if a row was deleted.
