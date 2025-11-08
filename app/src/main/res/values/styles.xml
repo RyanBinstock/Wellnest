@@ -47,6 +47,22 @@
         <item name="android:textColor">@color/wl_surfaceTranslucent</item>
     </style>
 
+    <style name="TextAppearance.Wellnest.OutlinedMedium">
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:textColor">#B19371</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.FriendScore">
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:textColor">#F0C24B</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <!-- ========= WIDGETS ========= -->
     <style name="Widget" />
 

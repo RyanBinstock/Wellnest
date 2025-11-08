@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:background="@drawable/friend_card_bg"
+    android:paddingHorizontal="@dimen/wl_space_m"
+    android:paddingVertical="@dimen/wl_space_m">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guide2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.8" />
+
+    <TextView
+        android:id="@+id/name"
+        style="@style/TextAppearance.Wellnest.OutlinedMedium"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Username"
+        app:layout_constraintLeft_toLeftOf="parent" />
+
+    <TextView
+        android:id="@+id/score"
+        style="@style/TextAppearance.Wellnest.FriendScore"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="1287"
+        app:layout_constraintLeft_toLeftOf="@id/guide1" />
+
+    <ImageButton
+        android:id="@+id/remove_friend_button"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/remove_friend_icon"
+        app:layout_constraintRight_toRightOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
