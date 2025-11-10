@@ -14,7 +14,6 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * AuthRepository:
@@ -78,14 +77,14 @@ public class AuthRepository {
                     }
                     // Ensure Firestore doc exists (no-op if present)
                     String uid = u.getUid();
-                    try {
-                        userRepo.firebaseHasUserProfile(uid, email);
-                    } catch (ExecutionException | InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    persistLocalUser(uid, u.getDisplayName(), email);
-                    userRepo.ensureGlobalScore(uid);
-                    cb.onResult(u, null);
+
+                    // Make sure the doc exists without blocking the UI thread
+                    bootstrapUserDocument(uid, u.getDisplayName(), email, (v, e2) -> {
+                        // even if this fails, keep the user signed in; you can retry later
+                        persistLocalUser(uid, u.getDisplayName(), email);
+                        userRepo.ensureGlobalScore(uid);
+                        cb.onResult(u, null);
+                    });
                 });
     }
 
