@@ -51,9 +51,9 @@ public class SnapTaskContract {
                         Col.NAME + " TEXT NOT NULL, " +
                         Col.POINTS + " INTEGER NOT NULL, " +
                         Col.DESCRIPTION + " TEXT DEFAULT '', " +
-                        Col.COMPLETED + " BOOLEAN NOT NULL DEFAULT 0" + //0 -> FALSE, 1 -> TRUE
+                        Col.COMPLETED + " BOOLEAN NOT NULL DEFAULT 0" + //0 = FALSE, 1 = TRUE
                         ")";
 
-        public static final String SQL_INDEXES = ""; // none needed for the moments
+        public static final String SQL_INDEXES = ""; // none needed for the moment
     }
 }
