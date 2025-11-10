@@ -2,7 +2,6 @@ package com.code.wlu.cp470.wellnest.ui.friends;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.code.wlu.cp470.wellnest.R;
-import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel;
 
 import java.util.List;
@@ -53,19 +52,20 @@ public class FriendsFragment extends Fragment {
         EditText searchEditText = view.findViewById(R.id.friendSearchEditText);
         ImageButton searchSendButton = view.findViewById(R.id.friendSearchSendButton);
 
-//        UiClickEffects.setOnClickWithPulse(searchSendButton, v ->  {
-//            String email = searchEditText.getText().toString();
-//            String uid = viewModel.getFriendUidByEmail(email);
-//            viewModel.
-//        });
 
         viewModel = new FriendViewModel(requireActivity().getApplication());
-        List<Friend> acceptedFriends = viewModel.getAcceptedFriends();
-        FriendAdapter adapter = new FriendAdapter(context, acceptedFriends, "accepted", viewModel);
-        for (Friend f : acceptedFriends) {
-            Log.d("FriendsFragment", "Friend: " + f.getName() + ", Score: " + f.getScore());
-        }
+        FriendAdapter adapter = new FriendAdapter(context, List.of(), "accepted", viewModel);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         recyclerView.setAdapter(adapter);
+
+        viewModel.getAcceptedFriends().observe(getViewLifecycleOwner(), adapter::updateData);
+
+        UiClickEffects.setOnClickWithPulse(searchSendButton, v -> {
+            String email = searchEditText.getText().toString();
+            viewModel.addFriend(email);
+
+            searchEditText.setText("");
+        });
+
     }
 }

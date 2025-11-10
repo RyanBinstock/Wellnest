@@ -1,15 +1,21 @@
 package com.code.wlu.cp470.wellnest;
 
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.contrib.RecyclerViewActions.scrollTo;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.hasSibling;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -20,10 +26,13 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
+import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
 import com.code.wlu.cp470.wellnest.ui.friends.FriendsFragment;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -40,7 +49,7 @@ public class FriendsFragmentInstrumentedTest {
     String[] uids = {"uid1", "uid2", "uid3", "uid4", "uid5", "uid6", "uid7", "uid8", "uid9", "uid10"};
     String[] names = {"Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack"};
     int[] scores = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-    List<UserInterface.Friend> testFriends = new ArrayList<>();
+    List<Friend> testFriends = new ArrayList<>();
     private Context context;
     private FragmentScenario<FriendsFragment> scenario;
     private WellnestDatabaseHelper helper;
@@ -69,6 +78,11 @@ public class FriendsFragmentInstrumentedTest {
     public void setUp() {
         // 1) Get a valid Context
         context = androidx.test.core.app.ApplicationProvider.getApplicationContext();
+
+        FirebaseAuth.getInstance().signInAnonymously()
+                .addOnSuccessListener(r -> Log.d("Auth", "anon ok"))
+                .addOnFailureListener(e -> Log.e("Auth", "anon failed", e));
+
 
         // 2) Open DB + seed
         helper = new WellnestDatabaseHelper(context);
@@ -122,6 +136,47 @@ public class FriendsFragmentInstrumentedTest {
             onView(withId(R.id.friendsListRecyclerView))
                     .check(matches(hasDescendant(withText((score)))));
         }
-
     }
+
+    @Test
+    public void testFriendRemoval() {
+        int positionToRemove = 0;
+        String uidToRemove = uids[positionToRemove];
+        String nameToRemove = names[positionToRemove];
+
+        onView(withId(R.id.friendsListRecyclerView))
+                .check(matches(hasDescendant(withText(nameToRemove)))); // ensure present before
+
+        onView(allOf(withId(R.id.remove_friend_button),
+                hasSibling(withText(nameToRemove))))
+                .perform(click());
+
+        onView(isRoot()).perform(waitFor(200));
+        onView(withText(nameToRemove)).check(doesNotExist());
+
+        // if you really need the DB assertion:
+        assert !userManager.isFriend(uidToRemove);
+    }
+
+    @Test
+    public void testAddFriend() {
+        String newFriendEmail = "randomemail@domain.com";
+        String newFriendUid = "NewUID";
+        String newFriendName = "NewFriend";
+
+        FirebaseUserManager firebaseUserManager = new FirebaseUserManager();
+        firebaseUserManager.upsertUserProfile(newFriendUid, newFriendName, newFriendEmail);
+
+        onView(withId(R.id.friendSearchEditText)).perform(typeText(newFriendEmail));
+        onView(withId(R.id.friendSearchSendButton)).perform(click());
+        onView(isRoot()).perform(waitFor(1500));
+
+        assert userManager.isFriend(newFriendUid);
+
+        // ---------- CLEANUP ----------
+        // Delete the test user document (and its subcollections if you like)
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(newFriendUid).delete();
+    }
+
 }
