@@ -12,7 +12,9 @@ import android.database.sqlite.SQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
+import com.code.wlu.cp470.wellnest.data.UserModels.Score;
+import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 
@@ -35,16 +37,16 @@ public class UserManagerInstrumentedTest {
     private SQLiteDatabase db;
     private UserManager userManager;
 
-    private static boolean containsFriendWith(List<UserInterface.Friend> friends, String uid, String name) {
-        for (UserInterface.Friend f : friends) {
-            if (uid.equals(f.uid) && name.equals(f.name)) return true;
+    private static boolean containsFriendWith(List<Friend> friends, String uid, String name) {
+        for (Friend f : friends) {
+            if (uid.equals(f.getUid()) && name.equals(f.getName())) return true;
         }
         return false;
     }
 
-    private static UserInterface.Friend findFriendByUid(List<UserInterface.Friend> friends, String uid) {
-        for (UserInterface.Friend f : friends) {
-            if (uid.equals(f.uid)) return f;
+    private static Friend findFriendByUid(List<Friend> friends, String uid) {
+        for (Friend f : friends) {
+            if (uid.equals(f.getUid())) return f;
         }
         return null;
     }
@@ -93,21 +95,21 @@ public class UserManagerInstrumentedTest {
         assertTrue(userManager.hasUserProfile(uid, "wrong@other.com")); // UID prioritized
 
         // Structured getUserProfile: supports (uid) OR (email), prioritizes uid when both given
-        UserInterface.UserProfile p1 = userManager.getUserProfile(uid, null);
+        UserProfile p1 = userManager.getUserProfile(uid, null);
         assertNotNull(p1);
-        assertEquals(uid, p1.uid);
-        assertEquals(name, p1.name);
-        assertEquals(email, p1.email);
+        assertEquals(uid, p1.getUid());
+        assertEquals(name, p1.getName());
+        assertEquals(email, p1.getEmail());
 
-        UserInterface.UserProfile p2 = userManager.getUserProfile(null, email);
+        UserProfile p2 = userManager.getUserProfile(null, email);
         assertNotNull(p2);
-        assertEquals(uid, p2.uid);
-        assertEquals(name, p2.name);
-        assertEquals(email, p2.email);
+        assertEquals(uid, p2.getUid());
+        assertEquals(name, p2.getName());
+        assertEquals(email, p2.getEmail());
 
-        UserInterface.UserProfile p3 = userManager.getUserProfile(uid, "wrong@other.com");
+        UserProfile p3 = userManager.getUserProfile(uid, "wrong@other.com");
         assertNotNull(p3);
-        assertEquals(uid, p3.uid);
+        assertEquals(uid, p3.getUid());
     }
 
     @Test
@@ -185,9 +187,9 @@ public class UserManagerInstrumentedTest {
         assertEquals(Integer.valueOf(7), m.get(f3));
 
         // List all (should include all friend rows we created, possibly also self if created)
-        List<UserInterface.ScoreEntry> all = userManager.listAllGlobalScores();
+        List<Score> all = userManager.listAllGlobalScores();
         Set<String> seen = new HashSet<>();
-        for (UserInterface.ScoreEntry e : all) seen.add(e.uid);
+        for (Score e : all) seen.add(e.getUid());
         assertTrue(seen.contains(f1));
         assertTrue(seen.contains(f2));
         assertTrue(seen.contains(f3));
@@ -250,9 +252,13 @@ public class UserManagerInstrumentedTest {
         assertTrue(userManager.isFriend(f1));
         assertTrue(userManager.isFriend(f2));
         assertTrue(userManager.isFriend(f3));
+        userManager.setGlobalScore(f1, 0);
+        userManager.setGlobalScore(f2, 0);
+        userManager.setGlobalScore(f3, 0);
+
 
         // List
-        List<UserInterface.Friend> friends = userManager.getFriends();
+        List<Friend> friends = userManager.getFriends();
         assertEquals(3, friends.size());
         assertTrue(containsFriendWith(friends, f1, "Alice"));
         assertTrue(containsFriendWith(friends, f2, "Bobby"));   // updated name
@@ -260,16 +266,16 @@ public class UserManagerInstrumentedTest {
 
         // Deny removes
         assertTrue(userManager.denyFriend(f1));
-        List<UserInterface.Friend> friends2 = userManager.getFriends();
+        List<Friend> friends2 = userManager.getFriends();
         assertNull(findFriendByUid(friends2, f1));
 
         // Status checks
-        UserInterface.Friend bob = findFriendByUid(friends2, f2);
-        UserInterface.Friend charlie = findFriendByUid(friends2, f3);
+        Friend bob = findFriendByUid(friends2, f2);
+        Friend charlie = findFriendByUid(friends2, f3);
         assertNotNull(bob);
         assertNotNull(charlie);
-        assertEquals("accepted", bob.status);
-        assertEquals("pending", charlie.status);
+        assertEquals("accepted", bob.getStatus());
+        assertEquals("pending", charlie.getStatus());
 
         // Remove
         assertTrue(userManager.removeFriend(f2));

@@ -213,6 +213,9 @@ public interface UserInterface {
      */
     List<String> listBadges();
 
+    // ----------------------------------------------------------------------
+    // Normalized data models
+    // ----------------------------------------------------------------------
     final class ScoreEntry {
         public final String uid;
         public final int score;
@@ -222,10 +225,6 @@ public interface UserInterface {
             this.score = score;
         }
     }
-
-    // ----------------------------------------------------------------------
-    // Normalized data models
-    // ----------------------------------------------------------------------
 
     /**
      * Normalized user profile shape.
@@ -248,12 +247,14 @@ public interface UserInterface {
     final class Friend {
         public final String uid;
         public final String name;
-        public final String status; // e.g., "accepted"
+        public final String status; // "pending" | "accepted"
+        public int score;           // not final so we can set it during inner joins
 
-        public Friend(String uid, String name, String status) {
+        public Friend(String uid, String name, String status, int score) {
             this.uid = uid;
             this.name = name;
             this.status = status;
+            this.score = score;
         }
     }
 }

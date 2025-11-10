@@ -42,4 +42,8 @@
     <string name="slide_4_text">Join a community of people turning small steps into lasting change your adventure starts now.</string>
 
     <string name="home">Home</string>
+    <string name="friends">Friends</string>
+    <string name="enter_friends_email_hint">Enter Friends Email</string>
+    <string name="remove_friend">Remove Friend</string>
+    <string name="accept_friend">Accept Friend</string>
 </resources>

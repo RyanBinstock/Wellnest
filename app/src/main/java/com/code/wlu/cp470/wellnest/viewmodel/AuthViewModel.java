@@ -8,7 +8,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.UserRepository;
 import com.code.wlu.cp470.wellnest.data.auth.AuthRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
@@ -34,8 +33,8 @@ public class AuthViewModel extends AndroidViewModel {
         this.dbHelper = new WellnestDatabaseHelper(context);
         this.db = dbHelper.getWritableDatabase();
 
-        UserInterface local = new UserManager(db);
-        UserInterface remote = new FirebaseUserManager();
+        UserManager local = new UserManager(db);
+        FirebaseUserManager remote = new FirebaseUserManager();
 
         UserRepository userRepo = new UserRepository(context, local, remote);
 

@@ -1,3 +1,8 @@
+configurations.all {
+    exclude(group = "com.google.protobuf", module = "protobuf-lite")
+}
+
+
 plugins {
     id("com.android.application")
     id("androidx.navigation.safeargs")
@@ -50,6 +55,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    implementation(libs.androidx.espresso.contrib)
 
     // Unit tests
     testImplementation(libs.junit4)
@@ -67,4 +73,5 @@ dependencies {
     androidTestImplementation(libs.androidx.test.rules)       // 1.5.0
     androidTestImplementation(libs.androidx.test.ext.junit)   // 1.1.5
     androidTestImplementation(libs.espresso.core)             // 3.5.1
+    implementation("com.google.protobuf:protobuf-javalite:3.25.5")
 }

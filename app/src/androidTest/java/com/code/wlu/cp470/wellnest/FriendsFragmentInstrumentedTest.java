@@ -1,12 +1,12 @@
 package com.code.wlu.cp470.wellnest;
 
 import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.RecyclerViewActions.scrollTo;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -23,7 +23,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
-import com.code.wlu.cp470.wellnest.ui.friends.PendingFriendCardFragment;
+import com.code.wlu.cp470.wellnest.ui.friends.FriendsFragment;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -31,16 +31,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class PendingFriendCardInstrumentedTest {
-    String uid = "random-Uid";
-    String name = "Alice";
-    int score = 100;
+public class FriendsFragmentInstrumentedTest {
     UserManager userManager;
+    String[] uids = {"uid1", "uid2", "uid3", "uid4", "uid5", "uid6", "uid7", "uid8", "uid9", "uid10"};
+    String[] names = {"Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Hank", "Ivy", "Jack"};
+    int[] scores = {100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+    List<UserInterface.Friend> testFriends = new ArrayList<>();
     private Context context;
-    private FragmentScenario<PendingFriendCardFragment> scenario;
+    private FragmentScenario<FriendsFragment> scenario;
     private WellnestDatabaseHelper helper;
     private SQLiteDatabase db;
 
@@ -72,23 +74,28 @@ public class PendingFriendCardInstrumentedTest {
         helper = new WellnestDatabaseHelper(context);
         db = helper.getWritableDatabase();
         userManager = new UserManager(db);
-        userManager.upsertFriend(uid, name);
-        userManager.setGlobalScore(uid, score);
-
+        for (int i = 0; i < uids.length; i++) {
+            String uid = uids[i];
+            String name = names[i];
+            int score = scores[i];
+            userManager.upsertFriend(uid, name);
+            userManager.setGlobalScore(uid, score);
+            userManager.acceptFriend(uid);
+        }
         // 3) Launch the fragment
         FragmentFactory factory = new FragmentFactory() {
             @NonNull
             @Override
             public Fragment instantiate(@NonNull ClassLoader cl, @NonNull String className) {
-                if (className.equals(PendingFriendCardFragment.class.getName())) {
-                    return new PendingFriendCardFragment(uid, name, score);
+                if (className.equals(FriendsFragment.class.getName())) {
+                    return new FriendsFragment();
                 }
                 return super.instantiate(cl, className);
             }
         };
 
         scenario = FragmentScenario.launchInContainer(
-                PendingFriendCardFragment.class,
+                FriendsFragment.class,
                 /* args */ null,
                 R.style.Theme_Wellnest,
                 factory
@@ -104,27 +111,17 @@ public class PendingFriendCardInstrumentedTest {
     }
 
     @Test
-    public void testInflateWithData() {
-        onView(withId(R.id.name)).check(matches(withText(name)));
-        onView(withId(R.id.score)).check(matches(withText(String.valueOf(score))));
-    }
-
-    @Test
-    public void testRemoveFriendSuccess() {
-        onView(withId(R.id.remove_friend_button)).perform(click());
-        onView(isRoot()).perform(waitFor(400));
-        List<UserInterface.Friend> friends = userManager.getFriends();
-        assertEquals(0, friends.size());
-    }
-
-    @Test
-    public void testAcceptFriendSuccess() {
-        onView(withId(R.id.accept_friend_button)).perform(click());
-        onView(isRoot()).perform(waitFor(400));
-        List<UserInterface.Friend> friends = userManager.getFriends();
-        assertEquals(1, friends.size());
-        assertEquals("accepted", friends.get(0).status);
+    public void testLayoutInflatesWithAllFriends() {
+        for (int i = 0; i < uids.length; i++) {
+            String name = names[i];
+            String score = String.valueOf(scores[i]);
+            onView(withId(R.id.friendsListRecyclerView))
+                    .perform(scrollTo(hasDescendant(withText(name))));
+            onView(withId(R.id.friendsListRecyclerView))
+                    .check(matches(hasDescendant(withText(name))));
+            onView(withId(R.id.friendsListRecyclerView))
+                    .check(matches(hasDescendant(withText((score)))));
+        }
 
     }
-
 }
