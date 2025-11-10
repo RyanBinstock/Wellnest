@@ -1,8 +1,13 @@
 package com.code.wlu.cp470.wellnest.data;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+import android.widget.Toast;
 
+import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
 import com.code.wlu.cp470.wellnest.data.UserModels.Score;
 import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
@@ -186,6 +191,20 @@ public final class UserRepository {
 
     public boolean upsertFriend(String friendUid, String friendName) {
         return local.upsertFriend(friendUid, friendName);
+    }
+
+    public boolean addFriend(String email) throws ExecutionException, InterruptedException {
+        UserProfile Friend = remote.getUser(null, email);
+        if (Friend == null) {
+            Toast.makeText(getApplicationContext(), R.string.friend_not_found, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        String friendUid = Friend.getUid();
+        String friendName = Friend.getName();
+        boolean localSuccess = local.upsertFriend(friendUid, friendName);
+        boolean remoteSuccess = remote.addFriendRequest(local.currentUid(), friendUid, friendName);
+        Log.d("UserRepository", "addFriend: localSuccess=" + localSuccess + ", remoteSuccess=" + remoteSuccess);
+        return localSuccess && remoteSuccess;
     }
 
 

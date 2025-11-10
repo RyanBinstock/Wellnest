@@ -46,4 +46,6 @@
     <string name="enter_friends_email_hint">Enter Friends Email</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="accept_friend">Accept Friend</string>
+    <string name="friend_not_found">Friend not found</string>
+    <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
 </resources>
