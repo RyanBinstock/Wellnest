@@ -6,11 +6,14 @@ import android.database.sqlite.SQLiteDatabase;
 
 import androidx.lifecycle.AndroidViewModel;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
 import com.code.wlu.cp470.wellnest.data.UserRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FriendViewModel extends AndroidViewModel {
     private final UserRepository repo;
@@ -24,8 +27,8 @@ public class FriendViewModel extends AndroidViewModel {
         this.dbHelper = new WellnestDatabaseHelper(context);
         this.db = dbHelper.getWritableDatabase();
 
-        UserInterface local = new UserManager(db);
-        UserInterface remote = new FirebaseUserManager();
+        UserManager local = new UserManager(db);
+        FirebaseUserManager remote = new FirebaseUserManager();
 
         this.repo = new UserRepository(context, local, remote);
     }
@@ -45,6 +48,37 @@ public class FriendViewModel extends AndroidViewModel {
     public boolean denyFriend(String uid) {
         return repo.denyFriend(uid);
     }
+
+    public List<Friend> getFriends() {
+        return repo.getFriends();
+    }
+
+    public int getFriendScore(String uid) {
+        return repo.getGlobalScore(uid);
+    }
+
+    public List<Friend> getPendingFriends() {
+        List<Friend> allFriends = getFriends();
+        List<Friend> pendingFriends = new ArrayList<>();
+        for (Friend friend : allFriends) {
+            if (friend.getStatus().equals("pending")) {
+                pendingFriends.add(friend);
+            }
+        }
+        return pendingFriends;
+    }
+
+    public List<Friend> getAcceptedFriends() {
+        List<Friend> allFriends = getFriends();
+        List<Friend> acceptedFriends = new ArrayList<>();
+        for (Friend friend : allFriends) {
+            if (friend.getStatus().equals("accepted")) {
+                acceptedFriends.add(friend);
+            }
+        }
+        return acceptedFriends;
+    }
+
 
     @Override
     protected void onCleared() {

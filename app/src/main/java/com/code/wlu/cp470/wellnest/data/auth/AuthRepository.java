@@ -2,8 +2,9 @@ package com.code.wlu.cp470.wellnest.data.auth;
 
 import android.content.Context;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.UserRepository;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
+import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -13,6 +14,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * AuthRepository:
@@ -42,7 +44,7 @@ public class AuthRepository {
      * Convenience overload if you only have managers here.
      * Pass your concrete implementations that implement UserInterface (e.g., UserManager, FirebaseUserManager).
      */
-    public AuthRepository(Context context, UserInterface localManager, UserInterface remoteManager) {
+    public AuthRepository(Context context, UserManager localManager, FirebaseUserManager remoteManager) {
         this(context, new UserRepository(context.getApplicationContext(), localManager, remoteManager));
     }
 
@@ -76,7 +78,11 @@ public class AuthRepository {
                     }
                     // Ensure Firestore doc exists (no-op if present)
                     String uid = u.getUid();
-                    userRepo.firebaseHasUserProfile(uid, email);
+                    try {
+                        userRepo.firebaseHasUserProfile(uid, email);
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                     persistLocalUser(uid, u.getDisplayName(), email);
                     userRepo.ensureGlobalScore(uid);
                     cb.onResult(u, null);
