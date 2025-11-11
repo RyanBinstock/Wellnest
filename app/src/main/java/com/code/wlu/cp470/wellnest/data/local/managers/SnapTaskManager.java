@@ -2,6 +2,7 @@ package com.code.wlu.cp470.wellnest.data.local.managers;
 
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels.Task;
@@ -142,7 +143,7 @@ public class SnapTaskManager {
         }
     }
 
-    public boolean upsertScore(String uid, int score) {
+    public boolean upsertSnapTaskScore(String uid, int score) {
         // Try to UPDATE first. If no row exists, then INSERT
         ContentValues cv = new ContentValues();
         cv.put(SnapTaskContract.SnapTask_Score.Col.SCORE, score);
@@ -157,5 +158,22 @@ public class SnapTaskManager {
         cv.put(SnapTaskContract.SnapTask_Score.Col.UID, uid);
         long id = db.insert(SnapTaskContract.SnapTask_Score.TABLE, null, cv);
         return id != -1;
+    }
+
+    public int addToSnapTaskScore(String uid, int delta) {
+        db.beginTransaction();
+        try {
+            int current = 0;
+            Integer got = getSnapTaskScore(uid);
+            if (got != null) current = got;
+            int updated = current + delta;
+            if (!upsertSnapTaskScore(uid, updated)) {
+                throw new SQLException("Failed to upsert global score for uid=" + uid);
+            }
+            db.setTransactionSuccessful();
+            return updated;
+        } finally {
+            db.endTransaction();
+        }
     }
 }
