@@ -36,18 +36,45 @@
     <style name="TextAppearance.Wellnest.MicroAppCard">
         <item name="android:fontFamily">@font/poppins_bold</item>
     </style>
+
     <style name="TextAppearance.Wellnest.MicroAppCard.Title">
         <item name="android:textSize">@dimen/wl_text_title</item>
         <item name="android:textColor">@color/wl_surface</item>
     </style>
+
     <style name="TextAppearance.Wellnest.MicroAppCard.Subtitle">
         <item name="android:textSize">@dimen/wl_text_subtitle</item>
         <item name="android:textColor">@color/wl_surfaceTranslucent</item>
     </style>
 
+    <style name="TextAppearance.Wellnest.OutlinedMedium">
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:textColor">#B19371</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.FriendScore">
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:textColor">#E7D095</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.PendingFriendNotificationCount">
+        <item name="android:fontFamily">@font/poppins_black</item>
+        <item name="android:textColor">#2259FF</item>
+        <item name="android:textSize">@dimen/wl_text_title</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <!-- ========= WIDGETS ========= -->
-    <style name="Widget"/>
-    <style name="Widget.Wellnest"/>
+    <style name="Widget" />
+
+    <style name="Widget.Wellnest" />
     <!-- Input: pill background from drawable -->
     <style name="Widget.Wellnest.Input">
         <item name="android:background">@drawable/shape_input</item>

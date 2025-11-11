@@ -1,9 +1,12 @@
+configurations.all {
+    exclude(group = "com.google.protobuf", module = "protobuf-lite")
+}
+
+
 plugins {
     id("com.android.application")
     id("androidx.navigation.safeargs")
     id("com.google.gms.google-services")
-
-    alias(libs.plugins.protobuf)
 }
 
 android {
@@ -40,6 +43,7 @@ android {
 }
 
 dependencies {
+    // AndroidX UI
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
     implementation(libs.appcompat)
@@ -51,36 +55,23 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
-
-    // Room Backend
-    implementation(libs.room.runtime)
-    testImplementation(libs.junit.jupiter)
-    annotationProcessor(libs.room.compiler)
-
-    // --- DataStore (Proto) for Java via Rx wrappers ---
-    implementation(libs.datastore)
-    implementation(libs.datastore.rxjava3)
-    implementation(libs.protobuf.javalite)
+    implementation(libs.androidx.espresso.contrib)
 
     // Unit tests
     testImplementation(libs.junit4)
     testImplementation(libs.mockito.core)
     testImplementation(libs.hamcrest)
     testImplementation(libs.robolectric)
+    testImplementation(libs.junit.jupiter)
 
-    // Instrumented tests
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.test.rules)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(libs.room.testing)
-}
+    // FragmentScenario (debug only)
+    debugImplementation(libs.androidx.fragment.testing)
 
-protobuf {
-    protoc { artifact = "com.google.protobuf:protoc:${libs.versions.protobuf.get()}" }
-    generateProtoTasks {
-        all().forEach { task ->
-            task.builtins.create("java") { option("lite") }
-        }
-    }
+    // Instrumented tests — aligned to Espresso 3.5.x matrix
+    androidTestImplementation(libs.androidx.test.core)        // 1.5.0
+    androidTestImplementation(libs.androidx.test.runner)      // 1.5.2
+    androidTestImplementation(libs.androidx.test.rules)       // 1.5.0
+    androidTestImplementation(libs.androidx.test.ext.junit)   // 1.1.5
+    androidTestImplementation(libs.espresso.core)             // 3.5.1
+    implementation("com.google.protobuf:protobuf-javalite:3.25.5")
 }

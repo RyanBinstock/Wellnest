@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "com.code.wlu.cp470.wellnest.proto";
-option java_multiple_files = true;
-
-message GlobalScore {
-  int32 total_points = 1;
-  int64 updated_at_ms = 2;
-}

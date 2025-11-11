@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/wl_inputBg"/>
-    <corners android:radius="@dimen/wl_radius_pill"/>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/wl_inputBg" />
+    <corners android:radius="@dimen/wl_radius_pill" />
 </shape>
 

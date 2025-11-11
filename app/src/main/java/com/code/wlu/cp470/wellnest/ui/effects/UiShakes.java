@@ -5,9 +5,12 @@ import android.view.View;
 import android.view.animation.CycleInterpolator;
 
 public final class UiShakes {
-    private UiShakes() {}
+    private UiShakes() {
+    }
 
-    /** Quick horizontal shake (e.g., form error). */
+    /**
+     * Quick horizontal shake (e.g., form error).
+     */
     public static void shakeX(View v) {
         ObjectAnimator a = ObjectAnimator.ofFloat(v, "translationX", 0, 12, -12, 8, -8, 4, -4, 0);
         a.setDuration(320);

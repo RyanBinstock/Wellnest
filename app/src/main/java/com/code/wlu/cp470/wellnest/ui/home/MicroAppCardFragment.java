@@ -24,8 +24,8 @@ public class MicroAppCardFragment extends Fragment {
     private static final String ARG_DEEPLINK = "arg_deeplink";
 
     public static MicroAppCardFragment newInstance(String title, String subtitle,
-                                               @DrawableRes int backgroundResId,
-                                               String deepLinkUri) {
+                                                   @DrawableRes int backgroundResId,
+                                                   String deepLinkUri) {
         MicroAppCardFragment f = new MicroAppCardFragment();
         Bundle b = new Bundle();
         b.putString(ARG_TITLE, title);
@@ -37,7 +37,8 @@ public class MicroAppCardFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_microapp_card, container, false);
     }
