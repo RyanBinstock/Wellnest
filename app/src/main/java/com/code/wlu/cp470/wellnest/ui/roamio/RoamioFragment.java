@@ -36,7 +36,7 @@ public class RoamioFragment extends Fragment {
 
         Button home = view.findViewById(R.id.btnHome);
         home.setOnClickListener(v ->
-                Navigation.findNavController(v).popBackStack(R.id.homeFragment, false)
+                Navigation.findNavController(v).navigate(R.id.homeFragment)
         );
     }
 }
