@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels.Task;
 import com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract;
+import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
 
 public class SnapTaskManager {
     private final SQLiteDatabase db;
@@ -22,7 +23,7 @@ public class SnapTaskManager {
         try {
             // snapTask_score -> id=1 default 0
             ContentValues sts = new ContentValues();
-            sts.put(SnapTaskContract.SnapTask_Score.Col.ID, 1);
+            sts.put(SnapTaskContract.SnapTask_Score.Col.UID, 1);
             sts.put(SnapTaskContract.SnapTask_Score.Col.SCORE, 0);
             db.insertWithOnConflict(
                     SnapTaskContract.SnapTask_Score.TABLE,
@@ -124,5 +125,37 @@ public class SnapTaskManager {
     // ----------------------------------------------------------------------
     // snapTask_score
     // ----------------------------------------------------------------------
+    public Integer getSnapTaskScore(String uid) {
+        Cursor c = null;
+        try {
+            c = db.query(
+                    SnapTaskContract.SnapTask_Score.TABLE,
+                    new String[]{SnapTaskContract.SnapTask_Score.Col.SCORE},
+                    SnapTaskContract.SnapTask_Score.Col.UID + "=?",
+                    new String[]{uid},
+                    null, null, null);
+            if (!c.moveToFirst()) return null;
+            if (c.isNull(0)) return null;
+            return c.getInt(0);
+        } finally {
+            if (c != null) c.close();
+        }
+    }
 
+    public boolean upsertScore(String uid, int score) {
+        // Try to UPDATE first. If no row exists, then INSERT
+        ContentValues cv = new ContentValues();
+        cv.put(SnapTaskContract.SnapTask_Score.Col.SCORE, score);
+        int rows = db.update(
+                SnapTaskContract.SnapTask_Score.TABLE,
+                cv,
+                SnapTaskContract.SnapTask_Score.Col.UID + "=?",
+                new String[]{uid}
+        );
+        if (rows > 0) return true;
+
+        cv.put(SnapTaskContract.SnapTask_Score.Col.UID, uid);
+        long id = db.insert(SnapTaskContract.SnapTask_Score.TABLE, null, cv);
+        return id != -1;
+    }
 }
