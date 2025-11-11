@@ -67,7 +67,7 @@
         android:label="ActivityJar">
         <deepLink app:uri="wellnest://activityjar" />
     </fragment>
-
+    <!-- Roamio Fragments -->
     <fragment
         android:id="@+id/roamioFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.roamio.RoamioFragment"
@@ -75,5 +75,27 @@
         android:layout_height="0dp"
         android:label="Roamio">
         <deepLink app:uri="wellnest://roamio" />
+        <action
+            android:id="@+id/action_roamioHome_to_roamioWalk"
+            app:destination="@id/roamioWalkFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/roamioWalkFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.roamio.RoamioWalkFragment"
+        android:label="Roamio Walk">
+        <action
+            android:id="@+id/action_roamioWalk_to_roamioComplete"
+            app:destination="@id/roamioCompleteFragment" />
+        <action
+            android:id="@+id/action_roamioWalk_to_roamioHome"
+            app:destination="@id/roamioFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/roamioCompleteFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.roamio.RoamioCompleteFragment"
+        android:label="Roamio Complete">
+        <action
+            android:id="@+id/action_roamioComplete_to_home"
+            app:destination="@id/homeFragment" />
     </fragment>
 </navigation>

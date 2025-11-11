@@ -39,4 +39,13 @@
     <!-- Home background gradient (top sky → bottom grass) -->
     <color name="wl_home_bg_top">#C9F1FF</color>
     <color name="wl_home_bg_bottom">#E9FFE6</color>
+
+    <!-- Roamio -->
+    <color name="ro_green_dark">#2F5C33</color>
+    <color name="ro_green">#6DAA58</color>
+    <color name="ro_green_fill">#53A84C</color>
+    <color name="ro_text_muted">#6B6F73</color>
+    <color name="card_stroke">#DDE7E2</color>
+    <color name="ro_value_orange">#D4A574</color>
+
 </resources>
