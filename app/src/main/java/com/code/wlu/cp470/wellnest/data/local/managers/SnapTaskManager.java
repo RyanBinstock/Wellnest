@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteStatement;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels.Task;
 import com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SnapTaskManager {
     private static final int SCORE_ROW_ID = 1; // singleton row key
     private final SQLiteDatabase db;
@@ -110,6 +113,36 @@ public class SnapTaskManager {
                     c.getString(3),
                     c.getInt(4) != 0
             );
+        } finally {
+            if (c != null) c.close();
+        }
+    }
+
+    public List<Task> getSnapTasks() {
+        List<Task> tasks = new ArrayList<>();
+        Cursor c = null;
+        try {
+            c = db.query(
+                    SnapTaskContract.Tasks.TABLE,
+                    new String[]{
+                            SnapTaskContract.Tasks.Col.UID,
+                            SnapTaskContract.Tasks.Col.NAME,
+                            SnapTaskContract.Tasks.Col.POINTS,
+                            SnapTaskContract.Tasks.Col.DESCRIPTION,
+                            SnapTaskContract.Tasks.Col.COMPLETED
+                    },
+                    null, null, null, null, null
+            );
+            while (c.moveToNext()) {
+                tasks.add(new Task(
+                        c.getString(0),
+                        c.getString(1),
+                        c.getInt(2),
+                        c.getString(3),
+                        c.getInt(4) != 0
+                ));
+            }
+            return tasks;
         } finally {
             if (c != null) c.close();
         }
