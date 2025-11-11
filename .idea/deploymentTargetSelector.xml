@@ -22,6 +22,9 @@
       <SelectionState runConfigName="getTasks_returnsAll()">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="FirebaseSnapTaskManagerInstrumentedTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
