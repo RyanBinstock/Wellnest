@@ -8,8 +8,8 @@ public class SnapTaskModels {
         private String description;
         private Boolean completed;
 
-        public Task(String uid, String name, int  points,
-                        String description, Boolean completed) {
+        public Task(String uid, String name, int points,
+                    String description, Boolean completed) {
             this.uid = uid;
             this.name = name;
             this.points = points;
@@ -49,7 +49,7 @@ public class SnapTaskModels {
             this.description = description;
         }
 
-        public Boolean isCompleted() {
+        public Boolean getCompleted() {
             return completed;
         }
 
@@ -58,11 +58,11 @@ public class SnapTaskModels {
         }
     }
 
-    public static final class Score {
+    public static final class SnapTaskScore {
         private String uid;
         private int score;
 
-        public Score(String uid, int score) {
+        public SnapTaskScore(String uid, int score) {
             this.uid = uid;
             this.score = score;
         }
