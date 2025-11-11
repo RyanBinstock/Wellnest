@@ -154,8 +154,8 @@ public class SnapTaskManagerInstrumentedTest {
             mgr.upsertTask(t.getUid(), t.getName(), t.getPoints(), t.getDescription(), t.getCompleted());
         }
 
-        assertEquals(4, mgr.getSnapTasks().size());
-        List<Task> retrievedTasks = mgr.getSnapTasks();
+        assertEquals(4, mgr.getTasks().size());
+        List<Task> retrievedTasks = mgr.getTasks();
         for (int i = 0; i < tasks.size(); i++) {
             assertEquals(tasks.get(i).getUid(), retrievedTasks.get(i).getUid());
             assertEquals(tasks.get(i).getName(), retrievedTasks.get(i).getName());

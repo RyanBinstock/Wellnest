@@ -118,7 +118,7 @@ public class SnapTaskManager {
         }
     }
 
-    public List<Task> getSnapTasks() {
+    public List<Task> getTasks() {
         List<Task> tasks = new ArrayList<>();
         Cursor c = null;
         try {
