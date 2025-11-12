@@ -25,6 +25,9 @@
       <SelectionState runConfigName="FirebaseSnapTaskManagerInstrumentedTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
+      <SelectionState runConfigName="live_planThingsToDo_hasUrls()">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
     </selectionStates>
   </component>
 </project>
