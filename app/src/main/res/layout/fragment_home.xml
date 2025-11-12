@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
@@ -8,17 +9,19 @@
     android:fitsSystemWindows="false"
     android:paddingTop="25dp">
 
+    <!-- Guidelines split the screen into three zones -->
+
     <ImageView
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
         android:src="@drawable/home_bg"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Guidelines split the screen into three zones -->
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guide_scoreboard_bottom"
@@ -147,126 +150,66 @@
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
         android:paddingVertical="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/bottomBar"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/guide_scoreboard_bottom">
 
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/bg_card_yellow" />
+
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/imageView13"
+        android:layout_width="143dp"
+        android:layout_height="189dp"
+        app:srcCompat="@drawable/center"
+        tools:layout_editor_absoluteX="137dp"
+        tools:layout_editor_absoluteY="562dp" />
+
+    <ImageView
+        android:id="@+id/imageView14"
+        android:layout_width="117dp"
+        android:layout_height="172dp"
+        app:srcCompat="@drawable/right"
+        tools:layout_editor_absoluteX="16dp"
+        tools:layout_editor_absoluteY="594dp" />
+
+    <ImageView
+        android:id="@+id/imageView15"
+        android:layout_width="117dp"
+        android:layout_height="172dp"
+        app:srcCompat="@drawable/right"
+        tools:layout_editor_absoluteX="283dp"
+        tools:layout_editor_absoluteY="594dp" />
+
+    <ImageView
+        android:id="@+id/imageView16"
+        android:layout_width="126dp"
+        android:layout_height="142dp"
+        app:srcCompat="@drawable/ic_bottom_home"
+        tools:layout_editor_absoluteX="145dp"
+        tools:layout_editor_absoluteY="542dp" />
+
+    <ImageView
+        android:id="@+id/imageView17"
+        android:layout_width="82dp"
+        android:layout_height="79dp"
+        app:srcCompat="@drawable/ic_bottom_friends"
+        tools:layout_editor_absoluteX="35dp"
+        tools:layout_editor_absoluteY="630dp" />
+
+    <ImageView
+        android:id="@+id/imageView18"
+        android:layout_width="79dp"
+        android:layout_height="77dp"
+        app:srcCompat="@drawable/ic_bottom_profile"
+        tools:layout_editor_absoluteX="304dp"
+        tools:layout_editor_absoluteY="632dp" />
+
     <!-- Bottom bar container (transparent, sits above background/grass) -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/bottomBar"
-        android:layout_width="0dp"
-        android:layout_height="96dp"
-        android:layout_marginStart="@dimen/wl_space_m"
-        android:layout_marginEnd="@dimen/wl_space_m"
-        android:layout_marginBottom="@dimen/wl_space_m"
-        app:cardCornerRadius="28dp"
-        app:cardElevation="0dp"
-        app:cardUseCompatPadding="false"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <!-- Left: Friends -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnFriends"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_bottom_friends" />
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Center: Home (larger, with label) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnHome"
-                android:layout_width="0dp"
-                android:layout_height="84dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:cardCornerRadius="26dp"
-                app:cardElevation="6dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/btnProfile"
-                app:layout_constraintStart_toEndOf="@id/btnFriends"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
-
-                    <ImageView
-                        android:id="@+id/homeIcon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:layout_marginTop="6dp"
-                        android:contentDescription="@string/home"
-                        android:src="@drawable/ic_bottom_home"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                    <TextView
-                        android:id="@+id/homeLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/poppins_bold"
-                        android:shadowColor="@color/wl_shadow"
-                        android:shadowDx="0"
-                        android:shadowDy="3"
-                        android:shadowRadius="2"
-                        android:text="@string/home"
-                        android:textAllCaps="true"
-                        android:textColor="@color/wl_onPrimary"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/homeIcon" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Right: Profile -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnProfile"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackgroundBorderless"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="4dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_bottom_profile" />
-            </com.google.android.material.card.MaterialCardView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
