@@ -51,10 +51,8 @@ public final class UserRepository {
 
 
     // ------------------------------------------------------------
-    // UserInterface delegation (LOCAL only)
+    // Method delegation
     // ------------------------------------------------------------
-
-    // user_profile
 
     public boolean upsertUserProfile(String uid, String name, String email) {
         return local.upsertUserProfile(uid, name, email);
