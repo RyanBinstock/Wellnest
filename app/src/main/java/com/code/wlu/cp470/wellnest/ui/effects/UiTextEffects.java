@@ -44,7 +44,7 @@ public final class UiTextEffects {
     }
 
     /**
-     * Applies a horizontal gradient (left → right) to a TextView.
+     * Applies a horizontal gradient (left → nav_card_inactive) to a TextView.
      */
     public static void applyHorizontalGradient(TextView tv,
                                                @ColorRes int startColorRes,
@@ -68,7 +68,7 @@ public final class UiTextEffects {
     }
 
     /**
-     * Applies a diagonal gradient (top-left → bottom-right) to a TextView.
+     * Applies a diagonal gradient (top-left → bottom-nav_card_inactive) to a TextView.
      */
     public static void applyDiagonalGradient(TextView tv,
                                              @ColorRes int startColorRes,

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EFCD85"
-    android:paddingVertical="@dimen/wl_space_l">
+    android:paddingTop="@dimen/wl_space_l">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/title_guide"
@@ -94,7 +94,8 @@
                 android:background="#00000000"
                 android:fontFamily="@font/poppins_bold"
                 android:hint="@string/enter_friends_email_hint"
-                android:paddingHorizontal="@dimen/wl_space_m" />
+                android:paddingHorizontal="@dimen/wl_space_m"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
                 android:id="@+id/friendSearchSendButton"
@@ -118,6 +119,14 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/searchContainer" />
+
+    <FrameLayout
+        android:id="@+id/friends_navbar_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
