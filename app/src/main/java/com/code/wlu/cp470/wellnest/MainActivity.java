@@ -1,5 +1,6 @@
 package com.code.wlu.cp470.wellnest;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.code.wlu.cp470.wellnest.utils.MusicService;
 import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
@@ -57,5 +59,34 @@ public class MainActivity extends AppCompatActivity {
         if (newDay) {
             snapTaskRepository.syncSnapTasks();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startService(new Intent(this, MusicService.class));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Intent i = new Intent(this, MusicService.class);
+        i.setAction(MusicService.ACTION_PAUSE);
+        startService(i);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent i = new Intent(this, MusicService.class);
+        i.setAction(MusicService.ACTION_RESUME);
+        startService(i);
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopService(new Intent(this, MusicService.class));
     }
 }
