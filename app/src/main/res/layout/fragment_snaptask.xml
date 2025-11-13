@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillViewport="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tvTaskTitle"
+            android:text="SnapTask"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <EditText
+            android:id="@+id/etTaskName"
+            android:hint="Activity name (e.g., Clean desk)"
+            android:layout_marginTop="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="Before Photo"
+            android:layout_marginTop="16dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/ivBefore"
+            android:contentDescription="Before preview"
+            android:background="#EEEEEE"
+            android:adjustViewBounds="true"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/>
+        <Button
+            android:id="@+id/btnCaptureBefore"
+            android:text="Capture Before"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="After Photo"
+            android:layout_marginTop="16dp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/ivAfter"
+            android:contentDescription="After preview"
+            android:background="#EEEEEE"
+            android:adjustViewBounds="true"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"/>
+        <Button
+            android:id="@+id/btnCaptureAfter"
+            android:text="Capture After"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="8dp"/>
+
+        <Button
+            android:id="@+id/btnSubmit"
+            android:text="Submit for Verification"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:text=""
+            android:layout_marginTop="12dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
+</ScrollView>
