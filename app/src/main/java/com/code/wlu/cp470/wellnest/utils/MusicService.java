@@ -45,6 +45,7 @@ public class MusicService extends Service {
         }
 
         player = MediaPlayer.create(this, playlist[index]);
+        player.setVolume(0.3f, 0.3f);
         player.setOnCompletionListener(mp -> {
             index = (index + 1) % playlist.length;   // loop through all 3
             startSong();
