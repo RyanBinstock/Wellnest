@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
@@ -26,6 +28,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        NavHostFragment navHostFragment =
+                (NavHostFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.nav_host);
+        NavController navController = navHostFragment.getNavController();
 
         // Synchronization logic goes here
         prefs = this.getSharedPreferences(PREFS, MODE_PRIVATE);

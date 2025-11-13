@@ -21,4 +21,11 @@
 
     <!-- Button height -->
     <dimen name="wl_button_height">48dp</dimen>
+
+    <!--  Navbar  -->
+    <dimen name="nav_item_inactive_width">130dp</dimen>
+    <dimen name="nav_item_inactive_height">120dp</dimen>
+    <dimen name="nav_item_active_width">150dp</dimen>
+    <dimen name="nav_item_active_height">130dp</dimen>
+
 </resources>
