@@ -7,6 +7,7 @@
 
     <!-- Surface & text -->
     <color name="wl_surface">#FFFFFFFF</color>
+    <color name="wl_surface_yellow">#EFCD85</color>
     <color name="wl_onSurface">#3C3C3C</color>
     <color name="wl_onSurfaceSecondary">#7A7A7A</color>
     <color name="wl_surfaceTranslucent">#80FFFFFF</color>
