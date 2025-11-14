@@ -157,19 +157,55 @@ public class AuthRepository {
 
     public void deleteAccount() {
         FirebaseUser user = currentUser();
-        AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(), user.getUid());
+        if (user == null) {
+            Log.e("AuthRepository", "No user to delete");
+            return;
+        }
+        
+        // DEBUG: Log the issue with current implementation
+        Log.d("AuthRepository", "Attempting to delete account for: " + user.getEmail());
+        Log.e("AuthRepository", "BUG: Using UID instead of password for reauthentication - this will fail!");
+        
+        // Temporary fix: Skip reauthentication and delete directly
+        // NOTE: This will only work if the user recently signed in (within ~5 minutes)
+        // For production, you should prompt for password or use recent auth
+        user.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("AuthRepository", "User account deleted successfully.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("AuthRepository", "Error deleting user account", e);
+                    // If deletion fails due to stale auth, log specific message
+                    if (e.getMessage() != null && e.getMessage().contains("reauthenticate")) {
+                        Log.e("AuthRepository", "User needs to reauthenticate. Implement password prompt dialog.");
+                    }
+                });
+    }
+    
+    // Proper implementation with password parameter (for future use)
+    public void deleteAccountWithPassword(String password, Callback<Void> callback) {
+        FirebaseUser user = currentUser();
+        if (user == null) {
+            callback.onResult(null, new Exception("No user logged in"));
+            return;
+        }
+        
+        AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(), password);
         user.reauthenticate(cred)
                 .addOnSuccessListener(v -> {
                     user.delete()
                             .addOnSuccessListener(aVoid -> {
-                                Log.d("AuthRepository", "User account deleted.");
+                                Log.d("AuthRepository", "User account deleted successfully.");
+                                callback.onResult(null, null);
                             })
                             .addOnFailureListener(e -> {
                                 Log.w("AuthRepository", "Error deleting user account", e);
+                                callback.onResult(null, e);
                             });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Auth", "reauth failed");
+                    Log.e("AuthRepository", "Reauthentication failed", e);
+                    callback.onResult(null, new Exception("Invalid password"));
                 });
     }
 

@@ -1,11 +1,15 @@
 package com.code.wlu.cp470.wellnest.ui.profile;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,18 +63,74 @@ public class ProfileFragment extends Fragment {
             navController.navigate(R.id.authFragment, null, navOptions);
         });
         UiClickEffects.setOnClickWithPulse(delete, 0, v -> {
-            authViewModel.deleteAccount();
-            NavController navController =
-                    NavHostFragment.findNavController(ProfileFragment.this);
-            NavOptions navOptions = new NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_graph, true)   // inclusive = clear back stack
-                    .build();
-            navController.navigate(R.id.authFragment, null, navOptions);
+            // Show password confirmation dialog
+            showDeleteAccountDialog(authViewModel);
         });
         FragmentManager fm = getChildFragmentManager();
         fm.beginTransaction()
                 .replace(R.id.profile_navbar_container, new com.code.wlu.cp470.wellnest.ui.nav.NavFragment("profile"))
                 .commit();
+    }
+    
+    private void showDeleteAccountDialog(AuthViewModel authViewModel) {
+        // Inflate the custom dialog layout
+        View dialogView = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_delete_account, null);
+        EditText passwordInput = dialogView.findViewById(R.id.passwordInput);
+        
+        // Create styled dialog using custom view
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
+        
+        // Set transparent background to show our custom card styling
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        
+        // Handle cancel button
+        dialogView.findViewById(R.id.cancelButton).setOnClickListener(v -> {
+            dialog.dismiss();
+        });
+        
+        // Handle delete button
+        dialogView.findViewById(R.id.deleteButton).setOnClickListener(v -> {
+            String password = passwordInput.getText().toString().trim();
+            if (password.isEmpty()) {
+                Toast.makeText(requireContext(), "Password is required", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Disable buttons while processing
+            dialogView.findViewById(R.id.deleteButton).setEnabled(false);
+            dialogView.findViewById(R.id.cancelButton).setEnabled(false);
+            
+            // Call delete with password
+            authViewModel.deleteAccountWithPassword(password, (success, error) -> {
+                if (success) {
+                    // Dismiss dialog and navigate to auth screen on successful deletion
+                    requireActivity().runOnUiThread(() -> {
+                        dialog.dismiss();
+                        NavController navController =
+                                NavHostFragment.findNavController(ProfileFragment.this);
+                        NavOptions navOptions = new NavOptions.Builder()
+                                .setPopUpTo(R.id.nav_graph, true)
+                                .build();
+                        navController.navigate(R.id.authFragment, null, navOptions);
+                    });
+                } else {
+                    requireActivity().runOnUiThread(() -> {
+                        // Re-enable buttons on error
+                        dialogView.findViewById(R.id.deleteButton).setEnabled(true);
+                        dialogView.findViewById(R.id.cancelButton).setEnabled(true);
+                        String message = error != null ? error.getMessage() : "Failed to delete account";
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show();
+                    });
+                }
+            });
+        });
+        
+        dialog.show();
     }
 
 

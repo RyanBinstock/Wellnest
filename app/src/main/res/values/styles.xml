@@ -111,6 +111,26 @@
         <item name="android:background">@drawable/btn_primary</item>
     </style>
 
+    <!-- Secondary button with transparent background -->
+    <style name="Widget.Wellnest.Button.Secondary" parent="Widget.AppCompat.Button">
+        <item name="android:layout_height">@dimen/wl_button_height</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/poppins_medium</item>
+        <item name="android:textSize">@dimen/wl_text_body</item>
+        <item name="android:textColor">@color/wl_onSurfaceSecondary</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!-- Danger button for destructive actions -->
+    <style name="Widget.Wellnest.Button.Danger" parent="Widget.AppCompat.Button">
+        <item name="android:layout_height">@dimen/wl_button_height</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:textSize">@dimen/wl_text_body</item>
+        <item name="android:textColor">@color/wl_onPrimary</item>
+        <item name="android:background">@drawable/btn_danger</item>
+    </style>
+
     <!-- Card container -->
     <style name="Widget.Wellnest.Card">
         <item name="android:background">@drawable/shape_card</item>
