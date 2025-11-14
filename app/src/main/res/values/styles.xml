@@ -69,6 +69,30 @@
         <item name="android:textAlignment">textEnd</item>
     </style>
 
+    <style name="TextAppearance.Wellnest.TaskScore">
+        <item name="android:fontFamily">@font/poppins_extrabold</item>
+        <item name="android:textColor">#485586</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.ScoreTitle">
+        <item name="android:fontFamily">@font/poppins_extrabold</item>
+        <item name="android:textColor">#485586</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.ScoreSubtitle">
+        <item name="android:fontFamily">@font/poppins_bold</item>
+        <item name="android:textColor">#C3B8D2</item>
+        <item name="android:textSize">@dimen/wl_text_body</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+
     <style name="TextAppearance.Wellnest.FriendScore">
         <item name="android:fontFamily">@font/poppins_black</item>
         <item name="android:textColor">#E7D095</item>

@@ -48,4 +48,6 @@
     <string name="accept_friend">Accept Friend</string>
     <string name="friend_not_found">Friend not found</string>
     <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
+    <string name="task_finished">Finished</string>
+    <string name="task_unfinished">Unfinished</string>
 </resources>
