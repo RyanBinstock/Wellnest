@@ -42,5 +42,9 @@ public class SnapTaskViewModel extends AndroidViewModel {
         return repo.getTasks();
     }
 
+    public int getScore() {
+        return repo.getSnapTaskScore();
+    }
+
 }
 

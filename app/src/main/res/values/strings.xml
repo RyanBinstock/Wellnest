@@ -50,4 +50,6 @@
     <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
     <string name="task_finished">Finished</string>
     <string name="task_unfinished">Unfinished</string>
+    <string name="daily_progress">Daily Progress</string>
+    <string name="home_button_text">Home</string>
 </resources>

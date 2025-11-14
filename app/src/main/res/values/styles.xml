@@ -77,6 +77,14 @@
         <item name="android:textAlignment">center</item>
     </style>
 
+    <style name="TextAppearance.Wellnest.Scorecard.SnapTask">
+        <item name="android:fontFamily">@font/poppins_extrabold</item>
+        <item name="android:textColor">#72A4E4</item>
+        <item name="android:textSize">60sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
     <style name="TextAppearance.Wellnest.ScoreTitle">
         <item name="android:fontFamily">@font/poppins_extrabold</item>
         <item name="android:textColor">#485586</item>
@@ -91,6 +99,26 @@
         <item name="android:textSize">@dimen/wl_text_body</item>
         <item name="android:gravity">center</item>
         <item name="android:textAlignment">textEnd</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.MicroApp" />
+
+    <style name="TextAppearance.Wellnest.Scorecard" />
+
+    <style name="TextAppearance.Wellnest.MicroApp.ProgressText">
+        <item name="android:fontFamily">@font/poppins_extrabold</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textSize">@dimen/wl_text_primary_button</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">textEnd</item>
+    </style>
+
+    <style name="TextAppearance.Wellnest.MicroApp.HomeButtonText">
+        <item name="android:fontFamily">@font/poppins_extrabold</item>
+        <item name="android:textColor">#485586</item>
+        <item name="android:textSize">@dimen/wl_text_subtitle</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
     </style>
 
     <style name="TextAppearance.Wellnest.FriendScore">
@@ -160,9 +188,9 @@
         <item name="android:background">@drawable/shape_card</item>
         <item name="android:padding">@dimen/wl_space_l</item>
     </style>
-    
+
     <!-- ========= PROGRESS BAR ========= -->
-    
+
     <!-- Base progress bar style with the blue color scheme from design -->
     <style name="Widget.Wellnest.ProgressBar">
         <item name="wl_progressHeight">28dp</item>
@@ -173,31 +201,31 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">match_parent</item>
     </style>
-    
+
     <!-- Large variant for prominent display -->
     <style name="Widget.Wellnest.ProgressBar.Large">
         <item name="wl_progressHeight">36dp</item>
         <item name="wl_animationDuration">400</item>
     </style>
-    
+
     <!-- Small variant for compact spaces -->
     <style name="Widget.Wellnest.ProgressBar.Small">
         <item name="wl_progressHeight">16dp</item>
         <item name="wl_animationDuration">250</item>
     </style>
-    
+
     <!-- Accent color variant using yellow -->
     <style name="Widget.Wellnest.ProgressBar.Accent">
         <item name="wl_progressColor">@color/wl_card_yellow</item>
         <item name="wl_trackColor">@color/wl_surface_yellow</item>
     </style>
-    
+
     <!-- Success variant with green -->
     <style name="Widget.Wellnest.ProgressBar.Success">
         <item name="wl_progressColor">@color/wl_primary</item>
         <item name="wl_trackColor">#E8F5E9</item>
     </style>
-    
+
     <!-- Alternative light theme -->
     <style name="Widget.Wellnest.ProgressBar.Light">
         <item name="wl_trackColor">@color/wl_progress_track_alt</item>

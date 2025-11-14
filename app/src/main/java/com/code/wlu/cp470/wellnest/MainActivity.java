@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -51,13 +52,28 @@ public class MainActivity extends AppCompatActivity {
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
         boolean newDay = !today.equals(lastDate);
+        Log.d(TAG, "onCreate: lastCheckMillis=" + lastCheckMillis
+                + ", lastDate=" + lastDate
+                + ", today=" + today
+                + ", newDay=" + newDay);
 
-
-        SnapTaskManager snapTaskManager = new SnapTaskManager(db);
-        FirebaseSnapTaskManager snapTaskRemoteManager = new FirebaseSnapTaskManager();
-        SnapTaskRepository snapTaskRepository = new SnapTaskRepository(this, snapTaskManager, snapTaskRemoteManager);
         if (newDay) {
-            snapTaskRepository.syncSnapTasks();
+            Log.d(TAG, "onCreate: new day detected, starting background sync of snap tasks");
+            new Thread(() -> {
+                SnapTaskManager snapTaskManager = new SnapTaskManager(db);
+                FirebaseSnapTaskManager snapTaskRemoteManager = new FirebaseSnapTaskManager();
+                SnapTaskRepository snapTaskRepository =
+                        new SnapTaskRepository(getApplicationContext(), snapTaskManager, snapTaskRemoteManager);
+                try {
+                    snapTaskRepository.syncSnapTasks();
+                    prefs.edit().putLong("last_check_date", nowMillis).apply();
+                    Log.d(TAG, "onCreate: snap task sync finished, last_check_date updated=" + nowMillis);
+                } catch (Exception e) {
+                    Log.e(TAG, "onCreate: snap task sync failed", e);
+                }
+            }).start();
+        } else {
+            Log.d(TAG, "onCreate: same day as last check, skipping snap task sync");
         }
     }
 

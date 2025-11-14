@@ -1,6 +1,7 @@
 package com.code.wlu.cp470.wellnest.ui.snaptask;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,16 +13,17 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.viewmodel.SnapTaskViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyViewHolder> {
-
     private final Context context;
     private final SnapTaskViewModel viewModel;
     private final List<SnapTaskModels.Task> items = new ArrayList<>();
+    private final String TAG = "SNAPTASK_ADAPTER";
 
     public SnapTaskAdapter(Context context, List<SnapTaskModels.Task> initial, SnapTaskViewModel viewModel) {
         this.context = context;
@@ -39,6 +41,7 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
     @Override
     public void onBindViewHolder(@NonNull SnapTaskAdapter.MyViewHolder holder, int position) {
         SnapTaskModels.Task task = items.get(position);
+        holder.task_title.setText(task.getName());
         if (task.getCompleted()) {
             holder.task_bg.setImageResource(R.drawable.task_card_completed);
             holder.task_points.setVisibility(View.GONE);
@@ -51,6 +54,9 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
             holder.task_star_icon.setVisibility(View.VISIBLE);
             holder.task_subtitle.setText(R.string.task_unfinished);
         }
+        UiClickEffects.setOnClickWithPulse(holder.itemView, R.raw.happy_ping, v -> {
+            Log.d(TAG, "Postion " + position + " clicked");
+        });
 
     }
 
