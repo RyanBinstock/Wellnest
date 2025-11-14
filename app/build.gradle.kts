@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.espresso.contrib)
+    implementation(libs.firebase.database)
 
     // Unit tests
     testImplementation(libs.junit4)

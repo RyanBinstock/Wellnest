@@ -149,6 +149,19 @@ public class FirebaseUserManager {
         return new UserProfile(outUid, outName, outEmail);
     }
 
+    public boolean deleteUserProfile(@NonNull String uid) {
+        try {
+            FirebaseFirestore.getInstance()
+                    .collection("user_profiles")
+                    .document(uid)
+                    .delete();
+            return true;
+        } catch (Exception e) {
+            Log.e("FirebaseUserManager", "deleteUserProfile failed", e);
+            return false;
+        }
+    }
+
 
     // Optional convenience methods for score/streak on root user doc
     public Integer getGlobalScore(@NonNull String uid) throws ExecutionException, InterruptedException {

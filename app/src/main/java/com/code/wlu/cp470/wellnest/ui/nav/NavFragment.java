@@ -1,6 +1,7 @@
 package com.code.wlu.cp470.wellnest.ui.nav;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -114,13 +115,27 @@ public class NavFragment extends Fragment {
 
     private void setActive(View view) {
         float d = getResources().getDisplayMetrics().density;
+        
+        // Debug logging
+        String buttonName = "unknown";
+        if (view.getId() == R.id.navbar_friends_button) buttonName = "friends";
+        else if (view.getId() == R.id.navbar_home_button) buttonName = "home";
+        else if (view.getId() == R.id.navbar_profile_button) buttonName = "profile";
+        
+        Log.d("NavFragment", "=== ACTIVATING " + buttonName.toUpperCase() + " BUTTON ===");
 
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
+        
+        // Log current dimensions before change
+        Log.d("NavFragment", "Current dimensions: width=" + lp.width/d + "dp, height=" + lp.height/d + "dp");
+        
         lp.width = 0;                    // use weight
-        lp.height = (int) (140 * d);     // 140dp
+        lp.height = (int) (140 * d);     // 140dp for all active buttons
         lp.weight = 1f;
         view.setLayoutParams(lp);
+        
+        Log.d("NavFragment", "New dimensions: width=0 (weight=1), height=140dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
@@ -128,23 +143,56 @@ public class NavFragment extends Fragment {
 
         bg.setImageResource(R.drawable.nav_card_active);
         icon.setTranslationY(-30 * d);
+        
+        Log.d("NavFragment", "Icon translationY set to: -30dp");
+        Log.d("NavFragment", "Total space needed: 140dp + 30dp translation = 170dp");
+        
+        // Check parent clipping
+        ViewGroup parent = (ViewGroup) view.getParent();
+        if (parent != null) {
+            Log.d("NavFragment", "Parent clipChildren: " + !parent.getClipChildren());
+            Log.d("NavFragment", "Parent height: " + parent.getHeight()/d + "dp");
+        }
 
         if (view.getId() == R.id.navbar_home_button) {
             text.setVisibility(View.VISIBLE);
+            Log.d("NavFragment", "Home text visibility: VISIBLE");
         } else {
             text.setVisibility(View.GONE);
+            Log.d("NavFragment", buttonName + " text visibility: GONE");
         }
+        
+        // Check if icon might be clipped
+        view.post(() -> {
+            int viewHeight = view.getHeight();
+            float iconTop = icon.getY();
+            Log.d("NavFragment", "After layout - View height: " + viewHeight/d + "dp");
+            Log.d("NavFragment", "After layout - Icon top position: " + iconTop/d + "dp");
+            if (iconTop < 0) {
+                Log.w("NavFragment", "⚠️ WARNING: Icon is extending above container by " + Math.abs(iconTop/d) + "dp - WILL BE CLIPPED!");
+            }
+        });
     }
 
     private void setInactive(View view) {
         float d = getResources().getDisplayMetrics().density;
+        
+        // Debug logging
+        String buttonName = "unknown";
+        if (view.getId() == R.id.navbar_friends_button) buttonName = "friends";
+        else if (view.getId() == R.id.navbar_home_button) buttonName = "home";
+        else if (view.getId() == R.id.navbar_profile_button) buttonName = "profile";
+        
+        Log.d("NavFragment", "--- Deactivating " + buttonName + " button ---");
 
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
         lp.width = (int) (130 * d);      // 130dp
-        lp.height = (int) (120 * d);     // 120dp
+        lp.height = (int) (120 * d);     // 120dp for all inactive buttons
         lp.weight = 0f;
         view.setLayoutParams(lp);
+        
+        Log.d("NavFragment", "Set to inactive: width=130dp, height=120dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
@@ -153,5 +201,7 @@ public class NavFragment extends Fragment {
         text.setVisibility(View.GONE);
         bg.setImageResource(R.drawable.nav_card_inactive);
         icon.setTranslationY(0);
+        
+        Log.d("NavFragment", "Icon translationY reset to: 0dp");
     }
 }

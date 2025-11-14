@@ -1,10 +1,13 @@
 package com.code.wlu.cp470.wellnest.data.auth;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.code.wlu.cp470.wellnest.data.UserRepository;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -149,6 +152,25 @@ public class AuthRepository {
 
     public void signOut() {
         auth.signOut();
+
+    }
+
+    public void deleteAccount() {
+        FirebaseUser user = currentUser();
+        AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(), user.getUid());
+        user.reauthenticate(cred)
+                .addOnSuccessListener(v -> {
+                    user.delete()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d("AuthRepository", "User account deleted.");
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w("AuthRepository", "Error deleting user account", e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Auth", "reauth failed");
+                });
     }
 
     public interface Callback<T> {

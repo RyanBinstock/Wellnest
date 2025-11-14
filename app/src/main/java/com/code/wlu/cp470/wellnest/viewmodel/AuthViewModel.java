@@ -25,16 +25,19 @@ public class AuthViewModel extends AndroidViewModel {
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> loginResult = new MutableLiveData<>();
+    Context context;
+    UserManager local;
+    FirebaseUserManager remote;
 
     public AuthViewModel(Application app) {
         super(app);
-        Context context = app.getApplicationContext();
+        context = app.getApplicationContext();
 
         this.dbHelper = new WellnestDatabaseHelper(context);
         this.db = dbHelper.getWritableDatabase();
 
-        UserManager local = new UserManager(db);
-        FirebaseUserManager remote = new FirebaseUserManager();
+        this.local = new UserManager(db);
+        this.remote = new FirebaseUserManager();
 
         UserRepository userRepo = new UserRepository(context, local, remote);
 
@@ -87,6 +90,25 @@ public class AuthViewModel extends AndroidViewModel {
             loading.postValue(false);
         });
     }
+
+    public boolean deleteAccount() {
+        loading.setValue(true);
+        UserRepository userRepo = new UserRepository(context, local, remote);
+        try {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                userRepo.deleteUserProfile();
+                repo.deleteAccount();
+                signOut();
+                loading.postValue(false);
+            });
+        } catch (Exception e) {
+            error.postValue(e.getMessage());
+            loading.postValue(false);
+            return false;
+        }
+        return true;
+    }
+
 
     @Override
     protected void onCleared() {

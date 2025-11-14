@@ -5,7 +5,8 @@
     android:layout_width="150dp"
     android:layout_height="130dp"
     android:layout_gravity="bottom|center"
-    android:clipChildren="false">
+    android:clipChildren="false"
+    android:clipToPadding="false">
 
     <ImageView
         android:id="@+id/nav_item_bg"

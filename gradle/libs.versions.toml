@@ -34,6 +34,7 @@ espressoCore = "3.5.1"
 # Fragment testing (debug only)
 fragmentTesting = "1.6.2"
 espressoContrib = "3.7.0"
+firebaseDatabase = "22.0.1"
 
 [libraries]
 # AndroidX Core
@@ -72,6 +73,7 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 # FragmentScenario (debug)
 androidx-fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragmentTesting" }
 androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
