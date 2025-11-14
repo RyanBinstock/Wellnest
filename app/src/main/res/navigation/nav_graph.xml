@@ -44,10 +44,10 @@
             app:destination="@id/homeFragment" />
     </fragment>
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.code.wlu.cp470.wellnest.ui.home.HomeFragment"
-        android:label="Home" />
+    <!--        <fragment-->
+    <!--            android:id="@+id/homeFragment"-->
+    <!--            android:name="com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBarDemoFragment"-->
+    <!--            android:label="Progress Bar Demo" />-->
 
     <!--  Navigation for micro app cards in home fragment  -->
     <fragment
@@ -84,4 +84,8 @@
         android:id="@+id/profileFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.profile.ProfileFragment"
         android:label="ProfileFragment" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.home.HomeFragment"
+        android:label="HomeFragment" />
 </navigation>
