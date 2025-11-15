@@ -10,9 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
+import android.app.Activity;
+import android.content.Intent;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
@@ -24,12 +24,14 @@ import java.util.List;
 
 public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyViewHolder> {
     private final Context context;
+    private final Activity activity;
     private final SnapTaskViewModel viewModel;
     private final List<SnapTaskModels.Task> items = new ArrayList<>();
     private final String TAG = "SNAPTASK_ADAPTER";
 
     public SnapTaskAdapter(Context context, List<SnapTaskModels.Task> initial, SnapTaskViewModel viewModel) {
         this.context = context;
+        this.activity = (Activity) context;
         this.viewModel = viewModel;
         if (initial != null) items.addAll(initial);
     }
@@ -59,19 +61,18 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
         }
         UiClickEffects.setOnClickWithPulse(holder.itemView, R.raw.happy_ping, v -> {
             Log.d(TAG, "Position " + position + " clicked");
-
-            // Navigate to SnapTaskDetailFragment with task data
             try {
-                NavController navController = Navigation.findNavController(v);
-                Bundle args = new Bundle();
-                args.putString("mode", "before");
-                args.putString("taskUid", task.getUid());
-                args.putString("taskName", task.getName());
-                args.putString("taskDescription", task.getDescription());
-                args.putInt("taskPoints", task.getPoints());
-                args.putBoolean("taskCompleted", task.getCompleted());
-
-                navController.navigate(R.id.action_snapTask_to_detail, args);
+                Intent intent = SnapTaskDetailActivity.createIntent(
+                        activity,
+                        "before",
+                        task.getUid(),
+                        task.getName(),
+                        task.getDescription(),
+                        task.getPoints(),
+                        task.getCompleted()
+                );
+                activity.startActivityForResult(intent, SnapTaskActivity.REQUEST_TASK_DETAIL);
+                activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
             } catch (Exception e) {
                 Log.e(TAG, "Navigation error: " + e.getMessage());
             }
