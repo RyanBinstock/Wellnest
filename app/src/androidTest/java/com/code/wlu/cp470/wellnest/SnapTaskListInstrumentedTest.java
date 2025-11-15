@@ -16,28 +16,29 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Context;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentFactory;
-import androidx.fragment.app.testing.FragmentScenario;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.espresso.intent.matcher.IntentMatchers;
 import androidx.test.espresso.matcher.ViewMatchers.Visibility;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
-import com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskFragment;
+import com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskActivity;
+import com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailActivity;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -46,7 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Instrumented tests for the SnapTask list screen ({@link SnapTaskFragment}).
+ * Instrumented tests for the SnapTask list screen ({@link SnapTaskActivity}).
  *
  * Scenarios:
  * - List displays tasks with correct completion state and score.
@@ -59,7 +60,7 @@ public class SnapTaskListInstrumentedTest {
     private WellnestDatabaseHelper helper;
     private SQLiteDatabase db;
     private SnapTaskManager snapTaskManager;
-    private FragmentScenario<SnapTaskFragment> scenario;
+    private ActivityScenario<SnapTaskActivity> scenario;
 
     private static final String UID_INCOMPLETE = "task_list_incomplete";
     private static final String UID_COMPLETE = "task_list_complete";
@@ -83,26 +84,6 @@ public class SnapTaskListInstrumentedTest {
         };
     }
 
-    /**
-     * Simple NavController stub that records the last navigate() call without requiring
-     * a real NavHost/graph. This lets us assert correct navigation from the list.
-     */
-    private static class RecordingNavController extends NavController {
-
-        int lastNavigateResId = -1;
-        Bundle lastArgs = null;
-
-        RecordingNavController(@NonNull Context context) {
-            super(context);
-        }
-
-        @Override
-        public void navigate(int resId, Bundle args) {
-            lastNavigateResId = resId;
-            lastArgs = args;
-            // Do not call super; we are only recording the call.
-        }
-    }
 
     @Before
     public void setUp() {
@@ -132,24 +113,9 @@ public class SnapTaskListInstrumentedTest {
                 true
         );
 
-        // Launch the SnapTaskFragment in isolation, using the app theme.
-        FragmentFactory factory = new FragmentFactory() {
-            @NonNull
-            @Override
-            public Fragment instantiate(@NonNull ClassLoader cl, @NonNull String className) {
-                if (className.equals(SnapTaskFragment.class.getName())) {
-                    return new SnapTaskFragment();
-                }
-                return super.instantiate(cl, className);
-            }
-        };
-
-        scenario = FragmentScenario.launchInContainer(
-                SnapTaskFragment.class,
-                /* args = */ null,
-                R.style.Theme_Wellnest,
-                factory
-        );
+        // Launch the SnapTaskActivity
+        Intent intent = new Intent(context, SnapTaskActivity.class);
+        scenario = ActivityScenario.launch(intent);
 
         // Give the fragment a moment to inflate and bind views.
         onView(isRoot()).perform(waitFor(200));
@@ -262,44 +228,49 @@ public class SnapTaskListInstrumentedTest {
     }
 
     /**
-     * Tapping a SnapTask row should invoke navigation to the detail fragment with the
-     * correct arguments (mode, uid, name, description, points, completed flag).
-     *
-     * This test uses a RecordingNavController stub instead of a real NavHost.
+     * Tapping a SnapTask row should launch the detail activity with the
+     * correct intent extras (mode, uid, name, description, points, completed flag).
      */
     @Test
-    public void clickTask_navigatesToDetail_withCorrectArguments() {
-        RecordingNavController navController = new RecordingNavController(context);
+    public void clickTask_launchesDetailActivity_withCorrectExtras() {
+        // Initialize Intents to intercept activity launches
+        Intents.init();
 
-        // Attach stub NavController to the fragment's root view and also the RecyclerView before clicking.
-        scenario.onFragment(fragment -> {
-            View root = fragment.requireView();
-            Navigation.setViewNavController(root, navController);
+        try {
+            // Set up an ActivityResult stub for SnapTaskDetailActivity
+            Intent resultData = new Intent();
+            resultData.putExtra(SnapTaskDetailActivity.EXTRA_TASK_UID, UID_INCOMPLETE);
+            resultData.putExtra(SnapTaskDetailActivity.EXTRA_TASK_COMPLETED, false);
+            
+            Instrumentation.ActivityResult result = new Instrumentation.ActivityResult(
+                    Activity.RESULT_CANCELED, resultData);
+            
+            // Stub the activity launch to prevent actually starting it
+            Intents.intending(IntentMatchers.hasComponent(SnapTaskDetailActivity.class.getName()))
+                    .respondWith(result);
 
-            RecyclerView rv = root.findViewById(R.id.snap_task_recycler_view);
-            if (rv != null) {
-                Navigation.setViewNavController(rv, navController);
-            }
-        });
+            // Click the incomplete task row
+            onView(withId(R.id.snap_task_recycler_view))
+                    .perform(actionOnItem(
+                            hasDescendant(withText("List Incomplete Task")),
+                            click()
+                    ));
 
-        // Click the incomplete task row.
-        onView(withId(R.id.snap_task_recycler_view))
-                .perform(actionOnItem(
-                        hasDescendant(withText("List Incomplete Task")),
-                        click()
-                ));
+            // Wait for the click to process
+            onView(isRoot()).perform(waitFor(200));
 
-        // Verify navigation was requested with the expected action and arguments.
-        assertEquals(R.id.action_snapTask_to_detail, navController.lastNavigateResId);
-        assertNotNull(navController.lastArgs);
-
-        Bundle args = navController.lastArgs;
-        assertEquals("before", args.getString("mode"));
-        assertEquals(UID_INCOMPLETE, args.getString("taskUid"));
-        assertEquals("List Incomplete Task", args.getString("taskName"));
-        assertEquals("Description incomplete", args.getString("taskDescription"));
-        assertEquals(10, args.getInt("taskPoints"));
-        // Completed flag should reflect the underlying task state (false).
-        assertEquals(false, args.getBoolean("taskCompleted"));
+            // Verify that SnapTaskDetailActivity was started with correct extras
+            Intents.intended(allOf(
+                    IntentMatchers.hasComponent(SnapTaskDetailActivity.class.getName()),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_MODE, "before"),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_TASK_UID, UID_INCOMPLETE),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_TASK_NAME, "List Incomplete Task"),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_TASK_DESCRIPTION, "Description incomplete"),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_TASK_POINTS, 10),
+                    IntentMatchers.hasExtra(SnapTaskDetailActivity.EXTRA_TASK_COMPLETED, false)
+            ));
+        } finally {
+            Intents.release();
+        }
     }
 }

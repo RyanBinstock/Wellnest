@@ -2,8 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_item_scale_container"
-    android:layout_width="150dp"
-    android:layout_height="130dp"
+    android:layout_width="@dimen/nav_item_active_width"
+    android:layout_height="@dimen/nav_item_active_height"
     android:layout_gravity="bottom|center"
     android:clipChildren="false"
     android:clipToPadding="false">
@@ -25,7 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_bottom_home"
-        android:translationY="-30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
@@ -33,7 +32,7 @@
     <ImageView
         android:id="@+id/nav_item_home_text"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="@dimen/nav_text_height"
         android:layout_marginHorizontal="@dimen/wl_space_m"
         android:scaleType="fitCenter"
         android:src="@drawable/home_text"

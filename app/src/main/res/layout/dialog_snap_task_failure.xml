@@ -9,8 +9,8 @@
 
     <!-- Failure Icon (using exit icon as a placeholder) -->
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="@dimen/wl_icon_xlarge"
+        android:layout_height="@dimen/wl_icon_xlarge"
         android:layout_marginBottom="@dimen/wl_space_m"
         android:src="@drawable/exit_icon"
         android:scaleType="centerInside"

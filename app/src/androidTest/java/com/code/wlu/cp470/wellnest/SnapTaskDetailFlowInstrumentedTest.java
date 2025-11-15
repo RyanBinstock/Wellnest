@@ -24,12 +24,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.FragmentFactory;
-import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
@@ -41,7 +37,7 @@ import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
 import com.code.wlu.cp470.wellnest.data.WellnestAiClient;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
-import com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailFragment;
+import com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailActivity;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -70,7 +66,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
     private WellnestDatabaseHelper helper;
     private SQLiteDatabase db;
     private SnapTaskManager snapTaskManager;
-    private FragmentScenario<SnapTaskDetailFragment> scenario;
+    private ActivityScenario<SnapTaskDetailActivity> scenario;
 
     public static ViewAction waitFor(long millis) {
         return new ViewAction() {
@@ -157,24 +153,20 @@ public class SnapTaskDetailFlowInstrumentedTest {
     }
 
     /**
-     * Helper to launch the detail fragment for a given task uid and points.
+     * Helper to launch the detail activity for a given task uid and points.
      */
-    private void launchDetailFragment(String taskUid, String taskName, String taskDescription, int points, boolean completed) {
-        Bundle args = new Bundle();
-        args.putString("mode", "before");
-        args.putString("taskUid", taskUid);
-        args.putString("taskName", taskName);
-        args.putString("taskDescription", taskDescription);
-        args.putInt("taskPoints", points);
-        args.putBoolean("taskCompleted", completed);
-
-        scenario = FragmentScenario.launchInContainer(
-                SnapTaskDetailFragment.class,
-                args,
-                R.style.Theme_Wellnest,
-                (FragmentFactory) null
+    private void launchDetailActivity(String taskUid, String taskName, String taskDescription, int points, boolean completed) {
+        Intent intent = SnapTaskDetailActivity.createIntent(
+                context,
+                "before",
+                taskUid,
+                taskName,
+                taskDescription,
+                points,
+                completed
         );
 
+        scenario = ActivityScenario.launch(intent);
         onView(isRoot()).perform(waitFor(200));
     }
 
@@ -182,23 +174,21 @@ public class SnapTaskDetailFlowInstrumentedTest {
      * Helper to simulate the before/after camera captures so that evaluateTask() is invoked.
      * Uses a tiny in-memory bitmap to keep these tests fast and deterministic.
      */
-    private void triggerEvaluationWithDummyPhotos(TestNavController navController) {
-        scenario.onFragment(fragment -> {
-            Navigation.setViewNavController(fragment.requireView(), navController);
-
+    private void triggerEvaluationWithDummyPhotos() {
+        scenario.onActivity(activity -> {
             Bitmap bmp = Bitmap.createBitmap(10, 10, Config.ARGB_8888);
 
             Intent beforeIntent = new Intent();
             Bundle beforeExtras = new Bundle();
             beforeExtras.putParcelable("data", bmp);
             beforeIntent.putExtras(beforeExtras);
-            fragment.onActivityResult(1001, Activity.RESULT_OK, beforeIntent);
+            activity.onActivityResult(1001, Activity.RESULT_OK, beforeIntent);
 
             Intent afterIntent = new Intent();
             Bundle afterExtras = new Bundle();
             afterExtras.putParcelable("data", bmp);
             afterIntent.putExtras(afterExtras);
-            fragment.onActivityResult(1002, Activity.RESULT_OK, afterIntent);
+            activity.onActivityResult(1002, Activity.RESULT_OK, afterIntent);
         });
     }
 
@@ -207,14 +197,11 @@ public class SnapTaskDetailFlowInstrumentedTest {
      * real WellnestAiClient.evaluateSnapTask(...) implementation is exercised end-to-end.
      */
     private void triggerEvaluationWithResourcePhotos(
-            TestNavController navController,
             int beforeDrawableResId,
             int afterDrawableResId
     ) {
-        scenario.onFragment(fragment -> {
-            Navigation.setViewNavController(fragment.requireView(), navController);
-
-            Resources res = fragment.getResources();
+        scenario.onActivity(activity -> {
+            Resources res = activity.getResources();
             Bitmap before = BitmapFactory.decodeResource(res, beforeDrawableResId);
             Bitmap after = BitmapFactory.decodeResource(res, afterDrawableResId);
 
@@ -222,41 +209,37 @@ public class SnapTaskDetailFlowInstrumentedTest {
             Bundle beforeExtras = new Bundle();
             beforeExtras.putParcelable("data", before);
             beforeIntent.putExtras(beforeExtras);
-            fragment.onActivityResult(1001, Activity.RESULT_OK, beforeIntent);
+            activity.onActivityResult(1001, Activity.RESULT_OK, beforeIntent);
 
             Intent afterIntent = new Intent();
             Bundle afterExtras = new Bundle();
             afterExtras.putParcelable("data", after);
             afterIntent.putExtras(afterExtras);
-            fragment.onActivityResult(1002, Activity.RESULT_OK, afterIntent);
+            activity.onActivityResult(1002, Activity.RESULT_OK, afterIntent);
         });
     }
 
     /**
-     * Assert that the loading overlay view inside the fragment is currently visible.
-     * Uses FragmentScenario.onFragment(...) so it is independent of dialog roots.
+     * Assert that the loading overlay view inside the activity is currently visible.
+     * Uses ActivityScenario.onActivity(...) so it is independent of dialog roots.
      */
     private void assertOverlayVisible() {
-        assertNotNull("FragmentScenario should be initialized before checking overlay", scenario);
-        scenario.onFragment(fragment -> {
-            View root = fragment.getView();
-            assertNotNull("Fragment view should not be null", root);
-            View overlay = root.findViewById(R.id.snap_task_loading_overlay);
-            assertNotNull("Overlay should exist in fragment view", overlay);
+        assertNotNull("ActivityScenario should be initialized before checking overlay", scenario);
+        scenario.onActivity(activity -> {
+            View overlay = activity.findViewById(R.id.snap_task_loading_overlay);
+            assertNotNull("Overlay should exist in activity view", overlay);
             assertEquals("Overlay should be visible", View.VISIBLE, overlay.getVisibility());
         });
     }
 
     /**
-     * Assert that the loading overlay view inside the fragment is currently hidden (GONE).
+     * Assert that the loading overlay view inside the activity is currently hidden (GONE).
      */
     private void assertOverlayHidden() {
-        assertNotNull("FragmentScenario should be initialized before checking overlay", scenario);
-        scenario.onFragment(fragment -> {
-            View root = fragment.getView();
-            assertNotNull("Fragment view should not be null", root);
-            View overlay = root.findViewById(R.id.snap_task_loading_overlay);
-            assertNotNull("Overlay should exist in fragment view", overlay);
+        assertNotNull("ActivityScenario should be initialized before checking overlay", scenario);
+        scenario.onActivity(activity -> {
+            View overlay = activity.findViewById(R.id.snap_task_loading_overlay);
+            assertNotNull("Overlay should exist in activity view", overlay);
             assertEquals("Overlay should be gone", View.GONE, overlay.getVisibility());
         });
     }
@@ -280,7 +263,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
             return "pass";
         });
 
-        launchDetailFragment(
+        launchDetailActivity(
                 UID_SUCCESS,
                 "Detail Success Task",
                 "Success description",
@@ -288,8 +271,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
                 false
         );
 
-        TestNavController navController = new TestNavController(context);
-        triggerEvaluationWithDummyPhotos(navController);
+        triggerEvaluationWithDummyPhotos();
 
         // Immediately after starting evaluation, the loading overlay should be visible.
         assertOverlayVisible();
@@ -314,10 +296,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
         assertTrue(task.getCompleted());
         assertEquals(50, snapTaskManager.getSnapTaskScore().intValue());
 
-        // Click Continue and ensure navigateUp() is invoked on the NavController stub.
+        // Click Continue - in Activity version, this will finish the activity
         onView(withId(R.id.continueButton)).perform(click());
         onView(isRoot()).perform(waitFor(200L));
-        assertTrue(navController.navigateUpCalled);
+        // Activity should be finishing/finished
+        scenario.onActivity(activity -> {
+            assertTrue("Activity should be finishing", activity.isFinishing());
+        });
     }
 
     /**
@@ -339,7 +324,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
             return "fail";
         });
 
-        launchDetailFragment(
+        launchDetailActivity(
                 UID_FAILURE,
                 "Detail Failure Task",
                 "Failure description",
@@ -347,8 +332,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
                 false
         );
 
-        TestNavController navController = new TestNavController(context);
-        triggerEvaluationWithDummyPhotos(navController);
+        triggerEvaluationWithDummyPhotos();
 
         // Loading overlay should be visible right after evaluation starts.
         assertOverlayVisible();
@@ -371,10 +355,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
         assertTrue("Task should remain incomplete after failure", !task.getCompleted());
         assertEquals(0, snapTaskManager.getSnapTaskScore().intValue());
 
-        // Click Try Again / Back to Tasks and ensure navigateUp() is invoked.
+        // Click Try Again / Back to Tasks - in Activity version, this will finish the activity
         onView(withId(R.id.tryAgainButton)).perform(click());
         onView(isRoot()).perform(waitFor(200L));
-        assertTrue(navController.navigateUpCalled);
+        // Activity should be finishing/finished
+        scenario.onActivity(activity -> {
+            assertTrue("Activity should be finishing", activity.isFinishing());
+        });
     }
 
     /**
@@ -394,7 +381,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
             return "pass";
         });
 
-        launchDetailFragment(
+        launchDetailActivity(
                 UID_SUCCESS,
                 "Detail Success Task",
                 "Success description",
@@ -402,10 +389,9 @@ public class SnapTaskDetailFlowInstrumentedTest {
                 false
         );
 
-        TestNavController navController = new TestNavController(context);
-        triggerEvaluationWithDummyPhotos(navController);
+        triggerEvaluationWithDummyPhotos();
 
-        // Immediately move the fragment to DESTROYED while evaluation is still in progress.
+        // Immediately move the activity to DESTROYED while evaluation is still in progress.
         scenario.moveToState(Lifecycle.State.DESTROYED);
 
         // Wait longer than the override delay to let evaluation finish.
@@ -427,7 +413,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
         // Ensure we are using the real network-backed implementation.
         WellnestAiClient.setSnapTaskEvaluationOverride(null);
 
-        launchDetailFragment(
+        launchDetailActivity(
                 UID_SUCCESS_REAL,
                 "Detail Real Success Task",
                 "Success description",
@@ -435,9 +421,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
                 false
         );
 
-        TestNavController navController = new TestNavController(context);
         triggerEvaluationWithResourcePhotos(
-                navController,
                 R.drawable.snap_task_test_before,
                 R.drawable.snap_task_test_after_pass
         );
@@ -466,10 +450,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
         assertTrue(task.getCompleted());
         assertEquals(50, snapTaskManager.getSnapTaskScore().intValue());
 
-        // Click Continue and ensure navigateUp() is invoked on the NavController stub.
+        // Click Continue - in Activity version, this will finish the activity
         onView(withId(R.id.continueButton)).perform(click());
         onView(isRoot()).perform(waitFor(200L));
-        assertTrue(navController.navigateUpCalled);
+        // Activity should be finishing/finished
+        scenario.onActivity(activity -> {
+            assertTrue("Activity should be finishing", activity.isFinishing());
+        });
     }
 
     /**
@@ -483,7 +470,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
         // Ensure we are using the real network-backed implementation.
         WellnestAiClient.setSnapTaskEvaluationOverride(null);
 
-        launchDetailFragment(
+        launchDetailActivity(
                 UID_FAILURE_REAL,
                 "Detail Real Failure Task",
                 "Failure description",
@@ -491,9 +478,7 @@ public class SnapTaskDetailFlowInstrumentedTest {
                 false
         );
 
-        TestNavController navController = new TestNavController(context);
         triggerEvaluationWithResourcePhotos(
-                navController,
                 R.drawable.snap_task_test_before,
                 R.drawable.snap_task_test_after_fail
         );
@@ -519,28 +504,12 @@ public class SnapTaskDetailFlowInstrumentedTest {
         assertTrue("Task should remain incomplete after failure", !task.getCompleted());
         assertEquals(0, snapTaskManager.getSnapTaskScore().intValue());
 
-        // Click Try Again / Back to Tasks and ensure navigateUp() is invoked.
+        // Click Try Again / Back to Tasks - in Activity version, this will finish the activity
         onView(withId(R.id.tryAgainButton)).perform(click());
         onView(isRoot()).perform(waitFor(200L));
-        assertTrue(navController.navigateUpCalled);
-    }
-
-    /**
-     * Simple NavController stub that records navigateUp() calls without requiring
-     * a real NavHost or navigation graph.
-     */
-    private static class TestNavController extends NavController {
-
-        boolean navigateUpCalled = false;
-
-        TestNavController(@NonNull Context context) {
-            super(context);
-        }
-
-        @Override
-        public boolean navigateUp() {
-            navigateUpCalled = true;
-            return true;
-        }
+        // Activity should be finishing/finished
+        scenario.onActivity(activity -> {
+            assertTrue("Activity should be finishing", activity.isFinishing());
+        });
     }
 }

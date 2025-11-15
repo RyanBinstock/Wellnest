@@ -15,6 +15,7 @@ import androidx.navigation.NavController;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects;
 
 public class NavFragment extends Fragment {
     private View friendsButton;
@@ -73,6 +74,11 @@ public class NavFragment extends Fragment {
         }
 
         navController = androidx.navigation.fragment.NavHostFragment.findNavController(this);
+        UiTouchEffects.attachPressScale(friendsButton, 0.9F);
+        UiTouchEffects.attachPressScale(homeButton, 0.9F);
+        UiTouchEffects.attachPressScale(profileButton, 0.9F);
+
+
         UiClickEffects.setOnClickWithPulse(friendsButton, R.raw.ui_click_effect, v -> {
             setActive(friendsButton);
             setInactive(homeButton);
@@ -115,43 +121,50 @@ public class NavFragment extends Fragment {
 
     private void setActive(View view) {
         float d = getResources().getDisplayMetrics().density;
-        
+
         // Debug logging
         String buttonName = "unknown";
         if (view.getId() == R.id.navbar_friends_button) buttonName = "friends";
         else if (view.getId() == R.id.navbar_home_button) buttonName = "home";
         else if (view.getId() == R.id.navbar_profile_button) buttonName = "profile";
-        
+
         Log.d("NavFragment", "=== ACTIVATING " + buttonName.toUpperCase() + " BUTTON ===");
 
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
-        
+
         // Log current dimensions before change
-        Log.d("NavFragment", "Current dimensions: width=" + lp.width/d + "dp, height=" + lp.height/d + "dp");
-        
+        Log.d("NavFragment", "Current dimensions: width=" + lp.width / d + "dp, height=" + lp.height / d + "dp");
+
         lp.width = 0;                    // use weight
-        lp.height = (int) (140 * d);     // 140dp for all active buttons
+        lp.height = (int) (110 * d);     // 140dp for all active buttons
         lp.weight = 1f;
         view.setLayoutParams(lp);
-        
-        Log.d("NavFragment", "New dimensions: width=0 (weight=1), height=140dp");
+
+        Log.d("NavFragment", "New dimensions: width=0 (weight=1), height=120dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
         ImageView text = view.findViewById(R.id.nav_item_home_text);
 
         bg.setImageResource(R.drawable.nav_card_active);
-        icon.setTranslationY(-30 * d);
-        
-        Log.d("NavFragment", "Icon translationY set to: -30dp");
-        Log.d("NavFragment", "Total space needed: 140dp + 30dp translation = 170dp");
-        
+        icon.setTranslationY(-60);
+
+        // Scale up with bottom pivot so bottoms align
+        view.post(() -> {
+            view.setPivotY(view.getHeight());
+            view.animate()
+                    .scaleX(1.12f)
+                    .scaleY(1.12f)
+                    .setDuration(180)
+                    .start();
+        });
+
         // Check parent clipping
         ViewGroup parent = (ViewGroup) view.getParent();
         if (parent != null) {
             Log.d("NavFragment", "Parent clipChildren: " + !parent.getClipChildren());
-            Log.d("NavFragment", "Parent height: " + parent.getHeight()/d + "dp");
+            Log.d("NavFragment", "Parent height: " + parent.getHeight() / d + "dp");
         }
 
         if (view.getId() == R.id.navbar_home_button) {
@@ -161,38 +174,35 @@ public class NavFragment extends Fragment {
             text.setVisibility(View.GONE);
             Log.d("NavFragment", buttonName + " text visibility: GONE");
         }
-        
+
         // Check if icon might be clipped
         view.post(() -> {
             int viewHeight = view.getHeight();
             float iconTop = icon.getY();
-            Log.d("NavFragment", "After layout - View height: " + viewHeight/d + "dp");
-            Log.d("NavFragment", "After layout - Icon top position: " + iconTop/d + "dp");
-            if (iconTop < 0) {
-                Log.w("NavFragment", "⚠️ WARNING: Icon is extending above container by " + Math.abs(iconTop/d) + "dp - WILL BE CLIPPED!");
-            }
+            Log.d("NavFragment", "After layout - View height: " + viewHeight / d + "dp");
+            Log.d("NavFragment", "After layout - Icon top position: " + iconTop / d + "dp");
         });
     }
 
     private void setInactive(View view) {
         float d = getResources().getDisplayMetrics().density;
-        
+
         // Debug logging
         String buttonName = "unknown";
         if (view.getId() == R.id.navbar_friends_button) buttonName = "friends";
         else if (view.getId() == R.id.navbar_home_button) buttonName = "home";
         else if (view.getId() == R.id.navbar_profile_button) buttonName = "profile";
-        
+
         Log.d("NavFragment", "--- Deactivating " + buttonName + " button ---");
 
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
-        lp.width = (int) (130 * d);      // 130dp
-        lp.height = (int) (120 * d);     // 120dp for all inactive buttons
+        lp.width = (int) (115 * d);      // 130dp
+        lp.height = (int) (100 * d);     // 120dp for all inactive buttons
         lp.weight = 0f;
         view.setLayoutParams(lp);
-        
-        Log.d("NavFragment", "Set to inactive: width=130dp, height=120dp");
+
+        Log.d("NavFragment", "Set to inactive: width=0 (weight=1), height=120dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
@@ -201,7 +211,17 @@ public class NavFragment extends Fragment {
         text.setVisibility(View.GONE);
         bg.setImageResource(R.drawable.nav_card_inactive);
         icon.setTranslationY(0);
-        
+
+        // Reset scale with bottom pivot
+        view.post(() -> {
+            view.setPivotY(view.getHeight());
+            view.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(180)
+                    .start();
+        });
+
         Log.d("NavFragment", "Icon translationY reset to: 0dp");
     }
 }

@@ -33,7 +33,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingHorizontal="@dimen/wl_space_m"
-        android:paddingVertical="@dimen/wl_space_m"
+        android:paddingTop="32dp"
+        android:paddingBottom="@dimen/wl_space_m"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -107,8 +108,8 @@
     <!--  Home Button  -->
     <androidx.cardview.widget.CardView
         android:id="@+id/snap_task_back_button"
-        android:layout_width="130dp"
-        android:layout_height="45dp"
+        android:layout_width="@dimen/snap_task_back_button_width"
+        android:layout_height="@dimen/snap_task_back_button_height"
         android:layout_margin="@dimen/wl_space_l"
         android:background="#FFFFFF"
         android:clickable="true"
@@ -129,7 +130,7 @@
 
     <!--  Character  -->
     <ImageView
-        android:layout_width="150dp"
+        android:layout_width="@dimen/snap_task_hero_width"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:src="@drawable/character_shadow"
@@ -141,7 +142,7 @@
     <ImageView
         android:id="@+id/snap_task_character"
         android:layout_width="wrap_content"
-        android:layout_height="150dp"
+        android:layout_height="@dimen/snap_task_hero_height"
         android:layout_marginLeft="@dimen/wl_space_m"
         android:layout_marginBottom="@dimen/wl_space_m"
         android:adjustViewBounds="true"

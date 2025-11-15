@@ -19,7 +19,7 @@ public class SnapTaskFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate original layout to avoid ID dependency issues; real UI is moved to Activity
-        return inflater.inflate(R.layout.fragment_snap_task, container, false);
+        return inflater.inflate(R.layout.activity_snap_task, container, false);
     }
 
     @Override

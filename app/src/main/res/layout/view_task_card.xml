@@ -35,8 +35,8 @@
 
     <ImageView
         android:id="@+id/task_star_icon"
-        android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_width="@dimen/wl_icon_tiny"
+        android:layout_height="@dimen/wl_icon_tiny"
         android:src="@drawable/star_icon"
         android:translationX="10sp"
         android:translationY="-2sp"

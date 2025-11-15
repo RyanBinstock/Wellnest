@@ -18,6 +18,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.WindowCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.code.wlu.cp470.wellnest.R;
@@ -31,8 +32,6 @@ import java.io.ByteArrayOutputStream;
 
 public class SnapTaskDetailActivity extends AppCompatActivity {
 
-    private static final String TAG = "SnapTaskDetailActivity";
-
     // Intent extras (aligned with previous Fragment argument keys)
     public static final String EXTRA_MODE = "mode";
     public static final String EXTRA_TASK_UID = "taskUid";
@@ -40,7 +39,7 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
     public static final String EXTRA_TASK_DESCRIPTION = "taskDescription";
     public static final String EXTRA_TASK_POINTS = "taskPoints";
     public static final String EXTRA_TASK_COMPLETED = "taskCompleted";
-
+    private static final String TAG = "SnapTaskDetailActivity";
     private static final String ACTIVE_COLOUR = "#4A74DF";
     private static final String INACTIVE_COLOUR = "#CBD1E0";
     private static final String ACTIVE_TEXT_COLOUR = "#FFFFFF";
@@ -84,13 +83,30 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Enable edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // Hide navigation bar and allow content behind the status bar
+        View decorView = getWindow().getDecorView();
+
         // Reuse existing detail Fragment layout as Activity content
         setContentView(R.layout.fragment_snap_task_detail);
+
+        // Ensure layout extends behind system bars; do NOT use FULLSCREEN so status icons remain visible
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
+
 
         // Enter animation
         try {
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
 
         initializeViewModel();
         if (!extractExtras(getIntent())) {
@@ -375,7 +391,8 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
         finish();
         try {
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 
     @Override
@@ -383,6 +400,7 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
         super.onBackPressed();
         try {
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        } catch (Exception ignored) { }
+        } catch (Exception ignored) {
+        }
     }
 }
