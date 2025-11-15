@@ -10,11 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.code.wlu.cp470.wellnest.utils.MusicService;
 import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseSnapTaskManager;
+import com.code.wlu.cp470.wellnest.utils.MusicService;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -105,4 +105,5 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         stopService(new Intent(this, MusicService.class));
     }
+
 }

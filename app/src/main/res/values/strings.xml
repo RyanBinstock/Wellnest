@@ -52,4 +52,6 @@
     <string name="task_unfinished">Unfinished</string>
     <string name="daily_progress">Daily Progress</string>
     <string name="home_button_text">Home</string>
+    <string name="start_task">Start Task</string>
+    <string name="end_task">End Task</string>
 </resources>

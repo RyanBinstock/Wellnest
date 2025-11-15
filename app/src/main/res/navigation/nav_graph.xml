@@ -57,6 +57,34 @@
         android:layout_height="0dp"
         android:label="SnapTask">
         <deepLink app:uri="wellnest://snaptask" />
+        <action
+            android:id="@+id/action_snapTask_to_detail"
+            app:destination="@id/snapTaskDetailFragment" />
+    </fragment>
+    
+    <fragment
+        android:id="@+id/snapTaskDetailFragment"
+        android:name="com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailFragment"
+        android:label="SnapTaskDetail">
+        <argument
+            android:name="mode"
+            app:argType="string"
+            android:defaultValue="before" />
+        <argument
+            android:name="taskUid"
+            app:argType="string" />
+        <argument
+            android:name="taskName"
+            app:argType="string" />
+        <argument
+            android:name="taskDescription"
+            app:argType="string" />
+        <argument
+            android:name="taskPoints"
+            app:argType="integer" />
+        <argument
+            android:name="taskCompleted"
+            app:argType="boolean" />
     </fragment>
 
     <fragment

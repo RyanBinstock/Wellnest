@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_card"
+    android:orientation="vertical"
+    android:padding="@dimen/wl_space_l">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/wl_space_m"
+        android:text="Task Information"
+        android:textAppearance="@style/TextAppearance.Wellnest.Title" />
+
+    <!-- Description -->
+    <TextView
+        android:id="@+id/taskDescriptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/wl_space_l"
+        android:text="Task description goes here"
+        android:textAppearance="@style/TextAppearance.Wellnest.Body"
+        android:textColor="@color/wl_onSurfaceSecondary" />
+
+    <!-- OK button -->
+    <Button
+        android:id="@+id/okButton"
+        style="@style/Widget.Wellnest.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Got it!" />
+
+</LinearLayout>

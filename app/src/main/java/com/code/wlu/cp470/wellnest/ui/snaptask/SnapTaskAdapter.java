@@ -1,6 +1,7 @@
 package com.code.wlu.cp470.wellnest.ui.snaptask;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.code.wlu.cp470.wellnest.R;
@@ -55,7 +58,23 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
             holder.task_subtitle.setText(R.string.task_unfinished);
         }
         UiClickEffects.setOnClickWithPulse(holder.itemView, R.raw.happy_ping, v -> {
-            Log.d(TAG, "Postion " + position + " clicked");
+            Log.d(TAG, "Position " + position + " clicked");
+
+            // Navigate to SnapTaskDetailFragment with task data
+            try {
+                NavController navController = Navigation.findNavController(v);
+                Bundle args = new Bundle();
+                args.putString("mode", "before");
+                args.putString("taskUid", task.getUid());
+                args.putString("taskName", task.getName());
+                args.putString("taskDescription", task.getDescription());
+                args.putInt("taskPoints", task.getPoints());
+                args.putBoolean("taskCompleted", task.getCompleted());
+
+                navController.navigate(R.id.action_snapTask_to_detail, args);
+            } catch (Exception e) {
+                Log.e(TAG, "Navigation error: " + e.getMessage());
+            }
         });
 
     }
