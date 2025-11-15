@@ -9,6 +9,7 @@
     <dimen name="wl_space_xl">32dp</dimen>
 
     <!-- Radii -->
+    <dimen name="wl_corner_radius">24dp</dimen>
     <dimen name="wl_radius_l">24dp</dimen>
     <dimen name="wl_radius_pill">50dp</dimen>
 
@@ -21,4 +22,11 @@
 
     <!-- Button height -->
     <dimen name="wl_button_height">48dp</dimen>
+
+    <!--  Navbar  -->
+    <dimen name="nav_item_inactive_width">130dp</dimen>
+    <dimen name="nav_item_inactive_height">120dp</dimen>
+    <dimen name="nav_item_active_width">150dp</dimen>
+    <dimen name="nav_item_active_height">130dp</dimen>
+
 </resources>

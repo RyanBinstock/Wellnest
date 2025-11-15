@@ -16,6 +16,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 
 public class MicroAppCardFragment extends Fragment {
     private static final String ARG_TITLE = "arg_title";
@@ -61,7 +62,7 @@ public class MicroAppCardFragment extends Fragment {
         subtitleTv.setText(subtitle);
         if (bgRes != 0) bg.setImageResource(bgRes);
 
-        card.setOnClickListener(view -> {
+        UiClickEffects.setOnClickWithPulse(card, R.raw.game_start_effect, view -> {
             if (deepLink != null && !deepLink.isEmpty()) {
                 try {
                     NavController nav = Navigation.findNavController(view);

@@ -51,10 +51,8 @@ public final class UserRepository {
 
 
     // ------------------------------------------------------------
-    // UserInterface delegation (LOCAL only)
+    // Method delegation
     // ------------------------------------------------------------
-
-    // user_profile
 
     public boolean upsertUserProfile(String uid, String name, String email) {
         return local.upsertUserProfile(uid, name, email);
@@ -70,18 +68,32 @@ public final class UserRepository {
     }
 
 
-    public String getUserName(String uid) {
+    public String getUserName() {
+        String uid = local.currentUid();
         return local.getUserName(uid);
     }
 
 
-    public String getUserEmail(String uid) {
+    public String getUserEmail() {
+        String uid = local.currentUid();
         return local.getUserEmail(uid);
     }
 
 
     public UserProfile getUser(String uid, String email) {
         return local.getUserProfile(uid, email);
+    }
+
+    public void deleteUserProfile() {
+        String uid = local.currentUid();
+        boolean localSuccess = local.deleteUserProfile();
+        if (!localSuccess) {
+            throw new IllegalStateException("Failed to delete local user profile");
+        }
+        boolean remoteSuccess = remote.deleteUserProfile(uid);
+        if (!remoteSuccess) {
+            throw new IllegalStateException("Failed to delete remote user profile");
+        }
     }
 
     // global score (reads/writes used by UI go to LOCAL)

@@ -48,4 +48,11 @@
     <string name="accept_friend">Accept Friend</string>
     <string name="friend_not_found">Friend not found</string>
     <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
+    <string name="task_finished">Finished</string>
+    <string name="task_unfinished">Unfinished</string>
+    <string name="daily_progress">Daily Progress</string>
+    <string name="home_button_text">Home</string>
+    <string name="start_task">Start Task</string>
+    <string name="end_task">End Task</string>
+    <string name="snaptask_loading_message">Evaluating your snap...</string>
 </resources>

@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.espresso.contrib)
+    implementation(libs.firebase.database)
 
     // Unit tests
     testImplementation(libs.junit4)
@@ -73,5 +74,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.rules)       // 1.5.0
     androidTestImplementation(libs.androidx.test.ext.junit)   // 1.1.5
     androidTestImplementation(libs.espresso.core)             // 3.5.1
-    implementation("com.google.protobuf:protobuf-javalite:3.25.5")
+    implementation(libs.protobuf.javalite)
+    implementation(libs.okhttp3.okhttp)
 }

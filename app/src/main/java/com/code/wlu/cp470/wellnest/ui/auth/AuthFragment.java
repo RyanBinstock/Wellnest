@@ -90,7 +90,7 @@ public class AuthFragment extends Fragment {
 
         // 3) Primary
         UiTouchEffects.attachPressScale(primaryButton, 0.96f);
-        UiClickEffects.setOnClickWithPulse(primaryButton, v -> {
+        UiClickEffects.setOnClickWithPulse(primaryButton, R.raw.login_effect, v -> {
             String email = emailForm.getText().toString().trim();
             String pass = passwordForm.getText().toString();
 

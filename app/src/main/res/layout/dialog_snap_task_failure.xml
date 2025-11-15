@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_card"
+    android:orientation="vertical"
+    android:padding="@dimen/wl_space_l"
+    android:gravity="center_horizontal">
+
+    <!-- Failure Icon (using exit icon as a placeholder) -->
+    <ImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginBottom="@dimen/wl_space_m"
+        android:src="@drawable/exit_icon"
+        android:scaleType="centerInside"
+        android:alpha="0.7" />
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/wl_space_s"
+        android:text="Not Quite There"
+        android:textAppearance="@style/TextAppearance.Wellnest.Title"
+        android:gravity="center" />
+
+    <!-- Failure message -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/wl_space_xl"
+        android:text="Your photos don't quite meet the task criteria yet. Don't worry, you can try again!"
+        android:textAppearance="@style/TextAppearance.Wellnest.Body"
+        android:textColor="@color/wl_onSurfaceSecondary"
+        android:gravity="center" />
+
+    <!-- Try Again button -->
+    <Button
+        android:id="@+id/tryAgainButton"
+        style="@style/Widget.Wellnest.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Back to Tasks" />
+
+</LinearLayout>

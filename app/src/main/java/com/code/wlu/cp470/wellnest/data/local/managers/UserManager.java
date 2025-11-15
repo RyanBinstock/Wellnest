@@ -200,6 +200,15 @@ public final class UserManager {
         }
     }
 
+    public boolean deleteUserProfile() {
+        int rows = db.delete(
+                UserContract.UserProfile.TABLE,
+                null,
+                null
+        );
+        return rows > 0;
+    }
+
     // ----------------------------------------------------------------------
     // global_score (multiple rows keyed by uid)
     // ----------------------------------------------------------------------
