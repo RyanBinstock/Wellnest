@@ -45,6 +45,24 @@ public abstract class WellnestAiClient {
             .build();
     private static final String TAG = "WellnestAiClient";
 
+    /**
+     * Optional test hook so androidTest code can override SnapTask evaluation
+     * and avoid hitting the real OpenAI backend. In production this remains null.
+     */
+    public interface SnapTaskEvaluationOverride {
+        String evaluate(String criteria, byte[] beforeJpeg, byte[] afterJpeg);
+    }
+
+    private static volatile SnapTaskEvaluationOverride snapTaskEvaluationOverride = null;
+
+    /**
+     * Test-only hook: when set from androidTest, {@link #evaluateSnapTask(String, byte[], byte[])}
+     * will delegate to this override instead of calling the real network-backed implementation.
+     */
+    public static void setSnapTaskEvaluationOverride(SnapTaskEvaluationOverride override) {
+        snapTaskEvaluationOverride = override;
+    }
+
     // ===== Utilities =====
 
     private static JSONObject imageUrlPart(byte[] jpegBytes) throws JSONException {
@@ -101,6 +119,18 @@ public abstract class WellnestAiClient {
      * Flow #1 — SnapTask vision verifier (GPT-4o). Retries; after 3 failures returns "pass".
      */
     public static String evaluateSnapTask(String criteria, byte[] beforeJpeg, byte[] afterJpeg) {
+        // Test-only override to avoid hitting the real network in androidTest.
+        SnapTaskEvaluationOverride override = snapTaskEvaluationOverride;
+        if (override != null) {
+            try {
+                String raw = override.evaluate(criteria, beforeJpeg, afterJpeg);
+                return normalizePassFail(raw == null ? "" : raw);
+            } catch (Exception e) {
+                Log.e(TAG, "SnapTaskEvaluationOverride threw; falling back to network evaluation", e);
+                // fall through to the normal network path
+            }
+        }
+
         Log.d(TAG, "evaluateSnapTask() called; criteriaLen=" +
                 (criteria == null ? "null" : criteria.length()) +
                 ", beforeBytes=" + (beforeJpeg == null ? "null" : beforeJpeg.length) +

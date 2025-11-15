@@ -41,10 +41,22 @@ public class SnapTaskViewModel extends AndroidViewModel {
     public List<SnapTaskModels.Task> getTasks() {
         return repo.getTasks();
     }
-
+    
     public int getScore() {
         return repo.getSnapTaskScore();
     }
 
+    /**
+     * Mark a SnapTask as completed and add its points to the local SnapTask score.
+     * This uses the existing repository/local manager methods to ensure consistency.
+     */
+    public void completeTaskAndApplyScore(String uid, int points) {
+        if (uid == null || uid.isEmpty()) return;
+        repo.setTaskCompleted(uid);
+        if (points != 0) {
+            repo.addToSnapTaskScore(points);
+        }
+    }
+    
 }
 

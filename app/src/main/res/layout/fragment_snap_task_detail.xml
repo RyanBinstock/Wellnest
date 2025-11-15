@@ -250,4 +250,58 @@
 
     </androidx.cardview.widget.CardView>
 
+    <!-- Full-screen loading overlay shown while SnapTask evaluation is running -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/snap_task_loading_overlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/wl_space_l"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:padding="@dimen/wl_space_l">
+
+                <TextView
+                    android:id="@+id/snap_task_loading_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/snaptask_loading_message"
+                    style="@style/TextAppearance.Wellnest.Body"
+                    android:textColor="@color/wl_onSurface"
+                    android:layout_marginBottom="@dimen/wl_space_m" />
+
+                <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+                    android:id="@+id/snap_task_loading_progress"
+                    style="@style/Widget.Wellnest.ProgressBar"
+                    app:wl_indeterminate="true"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
