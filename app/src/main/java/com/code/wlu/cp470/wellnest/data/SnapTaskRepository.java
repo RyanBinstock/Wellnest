@@ -2,6 +2,7 @@ package com.code.wlu.cp470.wellnest.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels.Task;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
@@ -31,8 +32,11 @@ public class SnapTaskRepository {
     // Sync helpers
     // ------------------------------------------------------------
     public void syncSnapTasks() {
+        Log.d("SnapTaskRepository", "syncSnapTasks: starting sync from remote");
         List<SnapTaskModels.Task> tasks = remote.getTasks();
+        Log.d("SnapTaskRepository", "syncSnapTasks: fetched " + tasks.size() + " tasks from remote");
         for (SnapTaskModels.Task task : tasks) {
+            Log.d("SnapTaskRepository", "syncSnapTasks: upserting task uid=" + task.getUid() + ", name=" + task.getName());
             local.upsertTask(task.getUid(), task.getName(), task.getPoints(), task.getDescription(), task.getCompleted());
         }
     }

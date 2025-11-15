@@ -1,5 +1,7 @@
 package com.code.wlu.cp470.wellnest.data;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -25,19 +27,15 @@ public abstract class WellnestAiClient {
 
     // ===== Your Vercel base URL =====
     private static final String VERCEL_BASE_URL = "https://wellnest-proxy.vercel.app/";
-
     // ===== Proxy endpoints =====
     private static final String OPENAI_PROXY_URL = VERCEL_BASE_URL + "/api/openai-chat";
     private static final String TAVILY_PROXY_URL = VERCEL_BASE_URL + "/api/tavily-search";
-
     // ===== Direct (no key) =====
     private static final String OPEN_METEO_URL = "https://api.open-meteo.com/v1/forecast";
-
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final int GPT_RETRY_MAX = 3;
     private static final long GPT_RETRY_DELAY_MS = 1200L;
-
-    private final OkHttpClient http = new OkHttpClient.Builder()
+    private static final OkHttpClient http = new OkHttpClient.Builder()
             .connectTimeout(20, TimeUnit.SECONDS)
             .writeTimeout(40, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
@@ -45,6 +43,7 @@ public abstract class WellnestAiClient {
             .retryOnConnectionFailure(true)
             .pingInterval(15, TimeUnit.SECONDS)
             .build();
+    private static final String TAG = "WellnestAiClient";
 
     // ===== Utilities =====
 
@@ -60,6 +59,7 @@ public abstract class WellnestAiClient {
 
     private static String normalizePassFail(String raw) {
         String s = raw.trim().toLowerCase(Locale.US);
+        Log.d(TAG, s);
         if (s.contains("pass") && !s.contains("fail")) return "pass";
         if (s.matches("^pass\\b.*")) return "pass";
         if (s.contains("fail")) return "fail";
@@ -100,9 +100,16 @@ public abstract class WellnestAiClient {
     /**
      * Flow #1 — SnapTask vision verifier (GPT-4o). Retries; after 3 failures returns "pass".
      */
-    public String evaluateSnapTask(String criteria, byte[] beforeJpeg, byte[] afterJpeg) {
+    public static String evaluateSnapTask(String criteria, byte[] beforeJpeg, byte[] afterJpeg) {
+        Log.d(TAG, "evaluateSnapTask() called; criteriaLen=" +
+                (criteria == null ? "null" : criteria.length()) +
+                ", beforeBytes=" + (beforeJpeg == null ? "null" : beforeJpeg.length) +
+                ", afterBytes=" + (afterJpeg == null ? "null" : afterJpeg.length));
+
         for (int attempt = 1; attempt <= GPT_RETRY_MAX; attempt++) {
             try {
+                Log.d(TAG, "evaluateSnapTask() attempt " + attempt);
+
                 JSONObject req = new JSONObject()
                         .put("model", "gpt-4o")
                         .put("temperature", 0.0);
@@ -127,8 +134,10 @@ public abstract class WellnestAiClient {
                 req.put("messages", messages);
 
                 String text = callOpenAIText(req);
+                Log.d(TAG, "evaluateSnapTask() got raw response: " + text);
                 return normalizePassFail(text);
             } catch (Exception e) {
+                Log.e(TAG, "evaluateSnapTask() error on attempt " + attempt, e);
                 if (attempt == GPT_RETRY_MAX) return "pass";
                 try {
                     Thread.sleep(GPT_RETRY_DELAY_MS * attempt);
@@ -139,6 +148,35 @@ public abstract class WellnestAiClient {
             }
         }
         return "pass";
+    }
+
+    /**
+     * Uses Vercel proxy (no Authorization header in app). Protected so tests can override/stub.
+     */
+    protected static String callOpenAIText(JSONObject chatRequest) throws IOException {
+        Headers headers = new Headers.Builder()
+                .add("Content-Type", "application/json")
+                .add("User-Agent", "Wellnest/1.0 (Android)")
+                .build();
+
+        RequestBody body = RequestBody.create(chatRequest.toString(), JSON);
+        Request req = new Request.Builder().url(OPENAI_PROXY_URL).headers(headers).post(body).build();
+
+        try (Response resp = http.newCall(req).execute()) {
+            if (!resp.isSuccessful())
+                throw new IOException("OpenAI proxy error: " + resp.code() + " " + safeBody(resp));
+            String text = safeBody(resp);
+            try {
+                JSONObject root = new JSONObject(text);
+                JSONArray choices = root.optJSONArray("choices");
+                if (choices == null || choices.length() == 0)
+                    throw new IOException("OpenAI: no choices");
+                JSONObject message = choices.getJSONObject(0).getJSONObject("message");
+                return message.optString("content", "").trim();
+            } catch (JSONException je) {
+                throw new IOException("OpenAI parse error: " + je.getMessage() + "\n" + text);
+            }
+        }
     }
 
     /**
@@ -202,14 +240,14 @@ public abstract class WellnestAiClient {
         return askNanoForStrictJson(choosePrompt.replace("//", "#"));
     }
 
+    // ===== OpenAI (nano) helpers =====
+
     /**
      * Public getter so tests/screens can fetch a weather string.
      */
     public String getWeatherSummary(double lat, double lon) throws IOException {
         return fetchWeatherSummary(lat, lon);
     }
-
-    // ===== OpenAI (nano) helpers =====
 
     private String askNanoForQuery(String instruction) throws IOException {
         try {
@@ -260,35 +298,6 @@ public abstract class WellnestAiClient {
             }
         }
         throw last != null ? last : new IOException("unknown failure");
-    }
-
-    /**
-     * Uses Vercel proxy (no Authorization header in app). Protected so tests can override/stub.
-     */
-    protected String callOpenAIText(JSONObject chatRequest) throws IOException {
-        Headers headers = new Headers.Builder()
-                .add("Content-Type", "application/json")
-                .add("User-Agent", "Wellnest/1.0 (Android)")
-                .build();
-
-        RequestBody body = RequestBody.create(chatRequest.toString(), JSON);
-        Request req = new Request.Builder().url(OPENAI_PROXY_URL).headers(headers).post(body).build();
-
-        try (Response resp = http.newCall(req).execute()) {
-            if (!resp.isSuccessful())
-                throw new IOException("OpenAI proxy error: " + resp.code() + " " + safeBody(resp));
-            String text = safeBody(resp);
-            try {
-                JSONObject root = new JSONObject(text);
-                JSONArray choices = root.optJSONArray("choices");
-                if (choices == null || choices.length() == 0)
-                    throw new IOException("OpenAI: no choices");
-                JSONObject message = choices.getJSONObject(0).getJSONObject("message");
-                return message.optString("content", "").trim();
-            } catch (JSONException je) {
-                throw new IOException("OpenAI parse error: " + je.getMessage() + "\n" + text);
-            }
-        }
     }
 
     // ===== External APIs =====

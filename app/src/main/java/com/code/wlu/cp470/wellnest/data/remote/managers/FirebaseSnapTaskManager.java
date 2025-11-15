@@ -44,6 +44,7 @@ public class FirebaseSnapTaskManager {
     }
 
     public List<SnapTaskModels.Task> getTasks() {
+        Log.d(TAG, "getTasks: starting fetch from Firestore on thread=" + Thread.currentThread().getName());
         try {
             QuerySnapshot snap = Tasks.await(
                     db.collection("micro_app_data")
@@ -61,8 +62,10 @@ public class FirebaseSnapTaskManager {
                         false
                 ));
             }
+            Log.d(TAG, "getTasks: fetched " + tasks.size() + " tasks from Firestore");
             return tasks;
         } catch (Exception e) {
+            Log.e(TAG, "getTasks: failed to fetch tasks from Firestore", e);
             e.printStackTrace();
             return new ArrayList<>();
         }

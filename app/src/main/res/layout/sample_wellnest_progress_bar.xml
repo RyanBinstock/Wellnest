@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/wl_surface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/wl_space_l">
+
+        <!-- Title -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wellnest Progress Bar Examples"
+            style="@style/TextAppearance.Wellnest.Title"
+            android:layout_marginBottom="@dimen/wl_space_xl" />
+
+        <!-- Default Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Default Style (Blue)"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressDefault"
+            style="@style/Widget.Wellnest.ProgressBar"
+            app:wl_progress="65"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Large Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Large Style"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressLarge"
+            style="@style/Widget.Wellnest.ProgressBar.Large"
+            app:wl_progress="45"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Small Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Small Style"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressSmall"
+            style="@style/Widget.Wellnest.ProgressBar.Small"
+            app:wl_progress="80"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Accent Color Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Accent Style (Yellow)"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressAccent"
+            style="@style/Widget.Wellnest.ProgressBar.Accent"
+            app:wl_progress="30"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Success Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Success Style (Green)"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressSuccess"
+            style="@style/Widget.Wellnest.ProgressBar.Success"
+            app:wl_progress="100"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Alternative Light Theme -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Light Theme Style"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressLight"
+            style="@style/Widget.Wellnest.ProgressBar.Light"
+            app:wl_progress="55"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Indeterminate Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Indeterminate (Loading)"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressIndeterminate"
+            style="@style/Widget.Wellnest.ProgressBar"
+            app:wl_indeterminate="true"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Custom Colors Progress Bar -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Custom Colors"
+            style="@style/TextAppearance.Wellnest.Body"
+            android:layout_marginBottom="@dimen/wl_space_xs" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressCustom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:wl_progress="75"
+            app:wl_max="100"
+            app:wl_progressColor="@color/wl_card_orange"
+            app:wl_trackColor="#FFE0E0"
+            app:wl_progressHeight="24dp"
+            app:wl_cornerRadius="@dimen/wl_radius_pill"
+            app:wl_animationDuration="500"
+            android:layout_marginBottom="@dimen/wl_space_l" />
+
+        <!-- Interactive Controls -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Interactive Demo"
+            style="@style/TextAppearance.Wellnest.Title"
+            android:textSize="@dimen/wl_text_subtitle"
+            android:layout_marginTop="@dimen/wl_space_m"
+            android:layout_marginBottom="@dimen/wl_space_m" />
+
+        <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+            android:id="@+id/progressInteractive"
+            style="@style/Widget.Wellnest.ProgressBar"
+            app:wl_progress="0"
+            app:wl_max="100"
+            android:layout_marginBottom="@dimen/wl_space_m" />
+
+        <!-- Control Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/wl_space_s">
+
+            <Button
+                android:id="@+id/btnDecrease"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-10"
+                style="@style/Widget.Wellnest.Button.Secondary"
+                android:layout_marginEnd="@dimen/wl_space_xs" />
+
+            <Button
+                android:id="@+id/btnIncrease"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="+10"
+                style="@style/Widget.Wellnest.Button.Secondary"
+                android:layout_marginEnd="@dimen/wl_space_xs" />
+
+            <Button
+                android:id="@+id/btnReset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reset"
+                style="@style/Widget.Wellnest.Button.Secondary"
+                android:layout_marginEnd="@dimen/wl_space_xs" />
+
+            <Button
+                android:id="@+id/btnComplete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                style="@style/Widget.Wellnest.Button.Secondary" />
+        </LinearLayout>
+
+        <!-- Effect Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="@dimen/wl_space_l">
+
+            <Button
+                android:id="@+id/btnPulse"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pulse"
+                style="@style/Widget.Wellnest.Button.Secondary"
+                android:layout_marginEnd="@dimen/wl_space_xs" />
+
+            <Button
+                android:id="@+id/btnBounce"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bounce"
+                style="@style/Widget.Wellnest.Button.Secondary"
+                android:layout_marginEnd="@dimen/wl_space_xs" />
+
+            <Button
+                android:id="@+id/btnIndeterminate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Loading"
+                style="@style/Widget.Wellnest.Button.Secondary" />
+        </LinearLayout>
+
+        <!-- Usage Example Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/shape_card"
+            android:padding="@dimen/wl_space_m"
+            android:layout_marginTop="@dimen/wl_space_m">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Usage Example:"
+                style="@style/TextAppearance.Wellnest.Body"
+                android:textStyle="bold"
+                android:layout_marginBottom="@dimen/wl_space_xs" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="// In Fragment/Activity\nWellnestProgressBar progressBar = findViewById(R.id.progressBar);\nprogressBar.setProgressAnimated(75);\n\n// Apply effects\nUiProgressEffects.pulseOnComplete(progressBar);\nUiProgressEffects.bounceOnMilestone(progressBar, 50);"
+                style="@style/TextAppearance.Wellnest.Caption"
+                android:fontFamily="monospace"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
