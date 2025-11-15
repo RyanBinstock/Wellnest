@@ -25,7 +25,10 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.WellnestAiClient;
+import com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar;
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
+import com.code.wlu.cp470.wellnest.ui.effects.UiProgressEffects;
+import com.code.wlu.cp470.wellnest.viewmodel.SnapTaskViewModel;
 
 import java.io.ByteArrayOutputStream;
 
@@ -44,10 +47,16 @@ public class SnapTaskDetailFragment extends Fragment {
     private boolean taskCompleted;
     private byte[] beforeImage, afterImage;
     private Context context;
+
+    // Data / state
+    private SnapTaskViewModel snapTaskViewModel;
+
     // UI elements
     private TextView taskNameView, beforeText, beforeInnerText, afterInnerText, afterText, primaryButtonText;
     private ImageView heroImage;
     private CardView exitButton, infoButton, primaryButton, beforeCard, afterCard;
+    private View loadingOverlay;
+    private WellnestProgressBar loadingProgressBar;
 
     @Nullable
     @Override
@@ -59,6 +68,9 @@ public class SnapTaskDetailFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         context = view.getContext();
+
+        // Shared SnapTask data access
+        snapTaskViewModel = new SnapTaskViewModel(requireActivity().getApplication());
 
         // Get arguments
         Bundle args = getArguments();
@@ -90,6 +102,8 @@ public class SnapTaskDetailFragment extends Fragment {
         infoButton = view.findViewById(R.id.snap_task_detail_info);
         primaryButton = view.findViewById(R.id.snap_task_primary_button_card);
         primaryButtonText = view.findViewById(R.id.snap_task_primary_button_text);
+        loadingOverlay = view.findViewById(R.id.snap_task_loading_overlay);
+        loadingProgressBar = view.findViewById(R.id.snap_task_loading_progress);
 
         // Set task name
         taskNameView.setText(taskName);
@@ -205,13 +219,16 @@ public class SnapTaskDetailFragment extends Fragment {
                 (beforeImage == null ? "null" : beforeImage.length) +
                 ", afterImage=" +
                 (afterImage == null ? "null" : afterImage.length));
-
+        
         if (beforeImage == null || afterImage == null) {
             Log.e(TAG, "Missing images for evaluation");
             showFailureDialog();
             return;
         }
 
+        // Show loading UI while the AI evaluation is in progress
+        showLoadingOverlay();
+        
         // Run network-bound AI call off the main thread to avoid NetworkOnMainThreadException
         new Thread(() -> {
             String verdictLocal = "fail";
@@ -221,22 +238,26 @@ public class SnapTaskDetailFragment extends Fragment {
             } catch (Exception e) {
                 Log.e(TAG, "Error during evaluateSnapTask in background thread", e);
             }
-
+            
             // Post result back to UI thread for dialog/navigation
             if (!isAdded()) {
                 Log.w(TAG, "Fragment not added when AI verdict returned, aborting UI update");
                 return;
             }
-
+            
             final String finalVerdict = verdictLocal;
-
+            
             requireActivity().runOnUiThread(() -> {
                 if (!isAdded()) {
                     Log.w(TAG, "Fragment not added on UI thread when updating UI, aborting");
                     return;
                 }
+
+                // Always hide loading UI once we have a result
+                hideLoadingOverlay();
+
                 if ("pass".equals(finalVerdict)) {
-                    showSuccessDialog();
+                    handleTaskCompletionSuccess();
                 } else {
                     showFailureDialog();
                 }
@@ -261,26 +282,78 @@ public class SnapTaskDetailFragment extends Fragment {
 
     private void showInfoDialog(String description) {
         if (context == null) return;
-
+        
         View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_snap_task_info, null);
         TextView descriptionText = dialogView.findViewById(R.id.taskDescriptionText);
         Button okButton = dialogView.findViewById(R.id.okButton);
-
+        
         // Replace literal '\n' with actual line breaks for display
         String formattedDescription = taskDescription.replace("\\n", "\n");
         descriptionText.setText(formattedDescription);
-
+        
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(dialogView);
         AlertDialog dialog = builder.create();
-
+        
         UiClickEffects.setOnClickWithPulse(okButton, R.raw.ui_click_effect, v -> {
             dialog.dismiss();
         });
-
+        
         dialog.show();
     }
 
+    private void showLoadingOverlay() {
+        if (!isAdded()) return;
+
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(View.VISIBLE);
+        }
+
+        if (loadingProgressBar != null) {
+            loadingProgressBar.setIndeterminate(true);
+            UiProgressEffects.pulseIndeterminate(loadingProgressBar);
+        }
+    }
+
+    private void hideLoadingOverlay() {
+        if (loadingOverlay != null) {
+            loadingOverlay.setVisibility(View.GONE);
+        }
+
+        if (loadingProgressBar != null) {
+            UiProgressEffects.stopPulseIndeterminate(loadingProgressBar);
+        }
+    }
+
+    /**
+     * Handle the successful evaluation case by marking the task as completed
+     * in the local database (and updating the SnapTask score) before showing
+     * the success dialog.
+     */
+    private void handleTaskCompletionSuccess() {
+        if (!isAdded()) {
+            Log.w(TAG, "Fragment not added when handling task completion success, aborting");
+            return;
+        }
+
+        try {
+            if (snapTaskViewModel != null && taskUid != null && !taskUid.isEmpty()) {
+                // Avoid double-scoring if this task was already completed
+                if (!taskCompleted) {
+                    snapTaskViewModel.completeTaskAndApplyScore(taskUid, taskPoints);
+                    taskCompleted = true;
+                } else {
+                    // Ensure the completed flag is persisted at least once
+                    snapTaskViewModel.completeTaskAndApplyScore(taskUid, 0);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating local SnapTask completion state", e);
+        }
+
+        showSuccessDialog();
+    }
+    
     private void showSuccessDialog() {
         if (context == null) return;
 
