@@ -64,6 +64,9 @@ public final class UiClickEffects {
             }
             
             // Animate and execute action
+            // Pivot at bottom-center to avoid vertical shift/gap on scale
+            view.setPivotX(view.getWidth() * 0.5f);
+            view.setPivotY(view.getHeight());
             view.animate().cancel();
             Log.d(TAG, "Starting pulse animation");
             

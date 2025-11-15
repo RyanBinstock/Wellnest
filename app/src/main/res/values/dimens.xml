@@ -7,26 +7,76 @@
     <dimen name="wl_space_m">16dp</dimen>
     <dimen name="wl_space_l">24dp</dimen>
     <dimen name="wl_space_xl">32dp</dimen>
+    <dimen name="wl_space_xxl">48dp</dimen>
 
     <!-- Radii -->
     <dimen name="wl_corner_radius">24dp</dimen>
     <dimen name="wl_radius_l">24dp</dimen>
     <dimen name="wl_radius_pill">50dp</dimen>
 
-    <!-- Typography sizes -->
-    <dimen name="wl_text_title">32sp</dimen>
-    <dimen name="wl_text_subtitle">24sp</dimen>
+    <!-- Typography sizes - Base (default for normal phones) -->
+    <dimen name="wl_text_huge">40sp</dimen>
+    <dimen name="wl_text_xlarge">32sp</dimen>
+    <dimen name="wl_text_large">24sp</dimen>
+    <dimen name="wl_text_medium">20sp</dimen>
     <dimen name="wl_text_body">16sp</dimen>
-    <dimen name="wl_text_caption">14sp</dimen>
-    <dimen name="wl_text_primary_button">24sp</dimen>
+    <dimen name="wl_text_small">14sp</dimen>
+    <dimen name="wl_text_tiny">12sp</dimen>
+    
+    <!-- Legacy names for compatibility -->
+    <dimen name="wl_text_title">@dimen/wl_text_xlarge</dimen>
+    <dimen name="wl_text_subtitle">@dimen/wl_text_large</dimen>
+    <dimen name="wl_text_caption">@dimen/wl_text_small</dimen>
+    <dimen name="wl_text_primary_button">@dimen/wl_text_large</dimen>
 
-    <!-- Button height -->
+    <!-- Specific text sizes -->
+    <dimen name="wl_text_home_score">55sp</dimen>
+    <dimen name="wl_text_welcome_title">40sp</dimen>
+    <dimen name="wl_text_snap_task_button">30sp</dimen>
+    <dimen name="wl_text_snap_task_label">20sp</dimen>
+
+    <!-- Component dimensions -->
     <dimen name="wl_button_height">48dp</dimen>
+    <dimen name="wl_button_height_small">40dp</dimen>
+    <dimen name="wl_button_height_large">56dp</dimen>
+    
+    <!-- Icon sizes -->
+    <dimen name="wl_icon_tiny">15dp</dimen>
+    <dimen name="wl_icon_small">20dp</dimen>
+    <dimen name="wl_icon_medium">40dp</dimen>
+    <dimen name="wl_icon_large">60dp</dimen>
+    <dimen name="wl_icon_xlarge">80dp</dimen>
 
-    <!--  Navbar  -->
+    <!-- Card dimensions -->
+    <dimen name="wl_card_height_small">60dp</dimen>
+    <dimen name="wl_card_height_medium">80dp</dimen>
+    <dimen name="wl_card_height_large">120dp</dimen>
+    <dimen name="wl_card_height_xlarge">150dp</dimen>
+
+    <!-- Navbar dimensions -->
     <dimen name="nav_item_inactive_width">130dp</dimen>
     <dimen name="nav_item_inactive_height">120dp</dimen>
     <dimen name="nav_item_active_width">150dp</dimen>
     <dimen name="nav_item_active_height">130dp</dimen>
+    <dimen name="nav_text_height">60dp</dimen>
+
+    <!-- Snap Task specific -->
+    <dimen name="snap_task_back_button_width">130dp</dimen>
+    <dimen name="snap_task_back_button_height">45dp</dimen>
+    <dimen name="snap_task_card_width">200dp</dimen>
+    <dimen name="snap_task_hero_width">150dp</dimen>
+    <dimen name="snap_task_hero_height">150dp</dimen>
+
+    <!-- Friends screen -->
+    <dimen name="friend_card_height">80dp</dimen>
+    <dimen name="friend_search_height">70dp</dimen>
+    <dimen name="friend_send_button_width">60dp</dimen>
+    <dimen name="friends_title_height">30dp</dimen>
+
+    <!-- Profile screen -->
+    <dimen name="profile_input_width">200dp</dimen>
+    
+    <!-- Home screen -->
+    <dimen name="home_oval_width">300dp</dimen>
 
 </resources>

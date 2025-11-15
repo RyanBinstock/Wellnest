@@ -1,7 +1,9 @@
 package com.code.wlu.cp470.wellnest.ui.snaptask;
 
+import android.app.Activity;
 import android.content.Context;
-import android.os.Bundle;
+import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +13,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-import android.app.Activity;
-import android.content.Intent;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
@@ -52,6 +52,8 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
             holder.task_points.setVisibility(View.GONE);
             holder.task_star_icon.setVisibility(View.GONE);
             holder.task_subtitle.setText(R.string.task_finished);
+            holder.task_title.setTextColor(Color.parseColor("#FFFFFF"));
+            holder.task_subtitle.setTextColor(Color.parseColor("#F4E1BA"));
         } else {
             holder.task_bg.setImageResource(R.drawable.task_card_incomplete);
             holder.task_points.setVisibility(View.VISIBLE);

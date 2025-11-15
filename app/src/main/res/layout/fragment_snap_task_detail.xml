@@ -6,7 +6,7 @@
     android:background="@drawable/bg_snap_task_detail_gradient"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:padding="@dimen/wl_space_xl">
+    android:padding="@dimen/wl_space_l">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -20,28 +20,37 @@
             android:layout_marginTop="@dimen/wl_space_m"
             android:gravity="center|center_vertical"
             android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/wl_space_m"
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/snap_task_detail_info"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/wl_icon_medium"
+                android:layout_height="@dimen/wl_icon_medium"
                 android:clickable="true"
                 app:cardCornerRadius="1000dp">
 
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="3dp"
+                    android:padding="@dimen/wl_space_xxs"
                     android:src="@drawable/info_icon" />
+
             </androidx.cardview.widget.CardView>
 
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <androidx.cardview.widget.CardView
-                android:layout_width="200dp"
-                android:layout_height="40dp"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/wl_button_height_small"
                 android:layout_marginHorizontal="@dimen/wl_space_m"
                 android:clickable="true"
-                app:cardCornerRadius="1000dp">
+                app:cardCornerRadius="1000dp"
+                app:contentPaddingLeft="@dimen/wl_space_m"
+                app:contentPaddingRight="@dimen/wl_space_m">
 
                 <TextView
                     android:id="@+id/snap_task_detail_top_name"
@@ -53,17 +62,22 @@
                     android:text="Clean Bed" />
             </androidx.cardview.widget.CardView>
 
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/snap_task_detail_exit"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="@dimen/wl_icon_medium"
+                android:layout_height="@dimen/wl_icon_medium"
                 android:clickable="true"
                 app:cardCornerRadius="1000dp">
 
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:padding="3dp"
+                    android:padding="@dimen/wl_space_xxs"
                     android:src="@drawable/exit_icon" />
             </androidx.cardview.widget.CardView>
 
@@ -148,7 +162,7 @@
                                 android:includeFontPadding="false"
                                 android:text="Before"
                                 android:textColor="#FFFFFF"
-                                android:textSize="20sp" />
+                                android:textSize="@dimen/wl_text_snap_task_label" />
                         </androidx.cardview.widget.CardView>
 
                         <TextView
@@ -159,7 +173,7 @@
                             android:fontFamily="@font/poppins_regular"
                             android:text="This is a description of the before acceptance criteria"
                             android:textColor="@color/wl_onSurface"
-                            android:textSize="14sp" />
+                            android:textSize="@dimen/wl_text_small" />
 
                     </LinearLayout>
 
@@ -193,7 +207,7 @@
                                 android:includeFontPadding="false"
                                 android:text="After"
                                 android:textColor="#494949"
-                                android:textSize="20sp" />
+                                android:textSize="@dimen/wl_text_snap_task_label" />
                         </androidx.cardview.widget.CardView>
 
                         <TextView
@@ -204,7 +218,7 @@
                             android:fontFamily="@font/poppins_regular"
                             android:text="This is a description of the after acceptance criteria"
                             android:textColor="@color/wl_onSurface"
-                            android:textSize="14sp" />
+                            android:textSize="@dimen/wl_text_small" />
 
                     </LinearLayout>
 
@@ -219,7 +233,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/snap_task_primary_button_card"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="@dimen/wl_card_height_medium"
         android:layout_margin="@dimen/wl_space_l"
         app:cardCornerRadius="40dp"
         app:cardElevation="8dp"
@@ -240,7 +254,7 @@
                 android:includeFontPadding="false"
                 android:text="Start Task"
                 android:textColor="@color/wl_surface"
-                android:textSize="30sp"
+                android:textSize="@dimen/wl_text_snap_task_button"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -259,10 +273,10 @@
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="0dp"
@@ -270,33 +284,33 @@
             android:layout_margin="@dimen/wl_space_l"
             app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:gravity="center_horizontal"
+                android:orientation="vertical"
                 android:padding="@dimen/wl_space_l">
 
                 <TextView
                     android:id="@+id/snap_task_loading_message"
+                    style="@style/TextAppearance.Wellnest.Body"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/wl_space_m"
                     android:text="@string/snaptask_loading_message"
-                    style="@style/TextAppearance.Wellnest.Body"
-                    android:textColor="@color/wl_onSurface"
-                    android:layout_marginBottom="@dimen/wl_space_m" />
+                    android:textColor="@color/wl_onSurface" />
 
                 <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
                     android:id="@+id/snap_task_loading_progress"
                     style="@style/Widget.Wellnest.ProgressBar"
-                    app:wl_indeterminate="true"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:wl_indeterminate="true" />
 
             </LinearLayout>
 

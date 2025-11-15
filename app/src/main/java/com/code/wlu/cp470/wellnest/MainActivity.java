@@ -9,6 +9,10 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+import android.view.View;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
@@ -31,6 +35,33 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Enable edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // Hide navigation bar and allow content behind the status bar
+        View decorView = getWindow().getDecorView();
+
+        // Use WindowInsetsControllerCompat for immersive nav hiding while keeping status bar visible
+        WindowInsetsControllerCompat insetsController =
+                WindowCompat.getInsetsController(getWindow(), decorView);
+        if (insetsController != null) {
+            insetsController.setSystemBarsBehavior(
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            );
+            // Hide only the navigation bar; keep status bar icons visible
+            insetsController.hide(WindowInsetsCompat.Type.navigationBars());
+            insetsController.show(WindowInsetsCompat.Type.statusBars());
+        }
+
+        // Ensure layout extends behind system bars; do NOT use FULLSCREEN so status icons remain visible
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        );
         NavHostFragment navHostFragment =
                 (NavHostFragment) getSupportFragmentManager()
                         .findFragmentById(R.id.nav_host);

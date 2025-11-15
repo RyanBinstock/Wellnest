@@ -6,7 +6,7 @@
     android:background="@color/wl_surface_yellow"
     android:clipChildren="false"
     android:clipToPadding="false"
-    android:paddingTop="@dimen/wl_space_m">
+    android:paddingTop="32dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -56,7 +56,7 @@
 
             <TextView
                 android:id="@+id/profile_name"
-                style="@style/TextAppearance.Wellnest.OutlinedMedium"
+                style="@style/TextAppearance.Wellnest.OutlinedSmall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/wl_space_m"
@@ -78,7 +78,7 @@
             <TextView
                 android:id="@+id/profile_email"
                 style="@style/TextAppearance.Wellnest.OutlinedSmall"
-                android:layout_width="200dp"
+                android:layout_width="@dimen/profile_input_width"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/wl_space_m"
                 android:text="email"

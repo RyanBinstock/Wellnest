@@ -79,7 +79,7 @@
 
     <style name="TextAppearance.Wellnest.MicroApp.SnapTaskDetail_Top_Name">
         <item name="android:fontFamily">@font/poppins_extrabold</item>
-        <item name="android:textSize">19sp</item>
+        <item name="android:textSize">15sp</item>
         <item name="android:textColor">@color/wl_onSurface</item>
 
     </style>

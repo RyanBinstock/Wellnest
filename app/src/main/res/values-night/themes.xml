@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Base application theme WITHOUT Material -->
-    <style name="Base.Theme.Wellnest" parent="Theme.AppCompat.DayNight.DarkActionBar">
-        <!-- Optional global overrides (colors, etc.) -->
-        <!-- <item name="android:statusBarColor">@color/...</item> -->
-    </style>
+    <!-- Night theme matching day (Material3 NoActionBar) with edge-to-edge -->
+    <style name="Theme.Wellnest" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand colors -->
+        <item name="colorPrimary">@color/wl_primary</item>
+        <item name="colorOnPrimary">@color/wl_onPrimary</item>
 
-    <style name="Theme.Wellnest" parent="Base.Theme.Wellnest" />
+        <item name="colorSurface">@color/wl_surface</item>
+        <item name="colorOnSurface">@color/wl_onSurface</item>
+
+        <!-- Transparent system bars for edge-to-edge -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:enforceStatusBarContrast">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+
+        <!-- Default Material widget styles (optional but helpful) -->
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+        <item name="materialCardViewStyle">@style/Widget.Material3.CardView.Elevated</item>
+
+        <!-- Wire custom text appearances into Material slots (optional) -->
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Wellnest.Body</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Wellnest.Body</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.Wellnest.Caption</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.Wellnest.Title</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Wellnest.Title</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.Wellnest.Caption</item>
+    </style>
 </resources>
