@@ -2,6 +2,7 @@ package com.code.wlu.cp470.wellnest.ui.snaptask;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.code.wlu.cp470.wellnest.R;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
+import com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar;
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.viewmodel.SnapTaskViewModel;
 
@@ -31,6 +33,7 @@ public class SnapTaskActivity extends AppCompatActivity {
     private TextView snapTaskScore;
     private ImageView character;
     private CardView backButton;
+    private WellnestProgressBar progressBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -87,6 +90,8 @@ public class SnapTaskActivity extends AppCompatActivity {
         snapTaskScore = findViewById(R.id.snap_task_score_text);
         character = findViewById(R.id.snap_task_character);
         backButton = findViewById(R.id.snap_task_back_button);
+        progressBar = findViewById(R.id.snap_task_progress_bar);
+
     }
 
     private void setupRecycler() {
@@ -95,12 +100,32 @@ public class SnapTaskActivity extends AppCompatActivity {
 
     private void loadTasks() {
         List<SnapTaskModels.Task> tasks = snapTaskViewModel.getTasks();
+        int completedTasks = 0;
+        for (SnapTaskModels.Task t : tasks) {
+            if (t.getCompleted()) {
+                completedTasks++;
+            }
+        }
+        Log.d("SNAPTASK_ACTIVITY", "Completed tasks: " + completedTasks);
+        int progress = (int) Math.ceil(((double) completedTasks / (double) tasks.size()) * 100);
+        Log.d("SNAPTASK_ACTIVITY", "Progress: " + progress + "%");
+        progressBar.setProgressAnimated(progress);
         adapter = new SnapTaskAdapter(this, tasks, snapTaskViewModel);
         recyclerView.setAdapter(adapter);
     }
 
     private void refreshTasks() {
         List<SnapTaskModels.Task> tasks = snapTaskViewModel.getTasks();
+        int completedTasks = 0;
+        for (SnapTaskModels.Task t : tasks) {
+            if (t.getCompleted()) {
+                completedTasks++;
+            }
+        }
+        Log.d("SNAPTASK_ACTIVITY", "Completed tasks: " + completedTasks);
+        int progress = (int) Math.ceil(((double) completedTasks / (double) tasks.size()) * 100);
+        Log.d("SNAPTASK_ACTIVITY", "Progress: " + progress + "%");
+        progressBar.setProgressAnimated(progress);
         adapter = new SnapTaskAdapter(this, tasks, snapTaskViewModel);
         recyclerView.setAdapter(adapter);
     }

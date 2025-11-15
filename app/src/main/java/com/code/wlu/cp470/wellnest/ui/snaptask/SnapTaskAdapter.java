@@ -61,24 +61,26 @@ public class SnapTaskAdapter extends RecyclerView.Adapter<SnapTaskAdapter.MyView
             holder.task_star_icon.setVisibility(View.VISIBLE);
             holder.task_subtitle.setText(R.string.task_unfinished);
         }
-        UiClickEffects.setOnClickWithPulse(holder.itemView, R.raw.happy_ping, v -> {
-            Log.d(TAG, "Position " + position + " clicked");
-            try {
-                Intent intent = SnapTaskDetailActivity.createIntent(
-                        activity,
-                        "before",
-                        task.getUid(),
-                        task.getName(),
-                        task.getDescription(),
-                        task.getPoints(),
-                        task.getCompleted()
-                );
-                activity.startActivityForResult(intent, SnapTaskActivity.REQUEST_TASK_DETAIL);
-                activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-            } catch (Exception e) {
-                Log.e(TAG, "Navigation error: " + e.getMessage());
-            }
-        });
+        if (!task.getCompleted()) {
+            UiClickEffects.setOnClickWithPulse(holder.itemView, R.raw.happy_ping, v -> {
+                Log.d(TAG, "Position " + position + " clicked");
+                try {
+                    Intent intent = SnapTaskDetailActivity.createIntent(
+                            activity,
+                            "before",
+                            task.getUid(),
+                            task.getName(),
+                            task.getDescription(),
+                            task.getPoints(),
+                            task.getCompleted()
+                    );
+                    activity.startActivityForResult(intent, SnapTaskActivity.REQUEST_TASK_DETAIL);
+                    activity.overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } catch (Exception e) {
+                    Log.e(TAG, "Navigation error: " + e.getMessage());
+                }
+            });
+        }
 
     }
 
