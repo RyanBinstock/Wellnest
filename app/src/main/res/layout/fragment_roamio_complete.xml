@@ -1,7 +1,212 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:padding="24dp">
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background -->
+    <ImageView
+        android:id="@+id/ivForestBg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:src="@drawable/bg_roamio_forest"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Content gutters (same as home) -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.07"/>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gEnd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.93"/>
+
+    <!-- Leafy header plaque -->
+    <FrameLayout
+        android:id="@+id/headerPlaque"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="90dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="@id/gStart"
+        app:layout_constraintEnd_toEndOf="@id/gEnd"
+        app:layout_constraintWidth_percent="0.645"
+        android:layout_marginTop="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/header_roamio_plaque"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"/>
+
+        <TextView
+            android:id="@+id/tvStepsComplete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="2,574"
+            android:textColor="#2F5C33"
+            android:textSize="45sp"
+            android:textStyle="bold" />
+    </FrameLayout>
+
+    <!-- Daily Progress text -->
+    <TextView
+        android:id="@+id/tvDailyProgressComplete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Daily Progress"
+        android:textStyle="bold"
+        android:textColor="@android:color/white"
+        android:textSize="20sp"
+        app:layout_constraintTop_toBottomOf="@id/headerPlaque"
+        app:layout_constraintStart_toStartOf="@id/gStart"
+        app:layout_constraintEnd_toEndOf="@id/gEnd"
+        app:layout_constraintWidth_percent="0.66"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"/>
+
+    <!-- Shiny progress pill (same style, usually 100% when completed) -->
+    <FrameLayout
+        android:id="@+id/progressWrap"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="4dp"
+        app:layout_constraintTop_toBottomOf="@id/tvDailyProgressComplete"
+        app:layout_constraintStart_toStartOf="@id/gStart"
+        app:layout_constraintEnd_toEndOf="@id/gEnd"
+        app:layout_constraintWidth_percent="0.76">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/progress_roamio_frame"
+            android:scaleType="fitXY"/>
+
+        <ProgressBar
+            android:id="@+id/pbDailyComplete"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_gravity="center"
+            android:max="100"
+            android:progress="100"
+            android:progressDrawable="@drawable/ro_progress_fill"
+            android:indeterminate="false"
+            android:background="@android:color/transparent"/>
+    </FrameLayout>
+
+    <!-- Journey card with 'Completed' badge -->
+    <LinearLayout
+        android:id="@+id/llCompletedCard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/ro_card"
+        android:padding="12dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/progressWrap"
+        app:layout_constraintStart_toStartOf="@id/gStart"
+        app:layout_constraintEnd_toEndOf="@id/gEnd"
+        app:layout_constraintWidth_percent="0.86">
+
+        <!-- header row with icon + text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginEnd="8dp"
+                android:src="@drawable/ic_roamio_map"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Your Journey For Today"
+                android:textStyle="bold"
+                android:textColor="#2F5C33"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <!-- inner white rounded 'Completed' panel -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/ro_badge"
+            android:layout_marginTop="8dp"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Completed"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="#2F5C33"/>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Come Back Tomorrow button -->
     <Button
         android:id="@+id/btnComeBack"
-        android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:text="Come Back Tomorrow!"/>
-</FrameLayout>
+        android:layout_width="0dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="16dp"
+        android:text="Come Back Tomorrow!"
+        android:textStyle="bold"
+        android:textAllCaps="false"
+        android:textSize="20dp"
+        android:background="@drawable/ro_pill_button"
+        app:layout_constraintTop_toBottomOf="@id/llCompletedCard"
+        app:layout_constraintStart_toStartOf="@id/gStart"
+        app:layout_constraintEnd_toEndOf="@id/gEnd"
+        app:layout_constraintWidth_percent="0.72"/>
+
+    <!-- Bird / mascot near path (use whatever asset name you have) -->
+
+    <!-- Home pill bottom-right -->
+    <ImageView
+        android:id="@+id/ivBirdComplete"
+        android:layout_width="135dp"
+        android:layout_height="153dp"
+        android:layout_marginBottom="12dp"
+        android:src="@drawable/roamio_bird_idle"
+        app:layout_constraintBottom_toTopOf="@id/btnHome"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.423"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnHome"
+        android:layout_width="92dp"
+        android:layout_height="42dp"
+        android:text="Home"
+        android:textAllCaps="false"
+        android:textColor="#2F5C33"
+        android:textStyle="bold"
+        android:background="@drawable/ro_home_pill"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
