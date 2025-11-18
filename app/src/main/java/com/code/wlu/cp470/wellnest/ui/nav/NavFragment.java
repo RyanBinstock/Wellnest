@@ -97,26 +97,6 @@ public class NavFragment extends Fragment {
             setInactive(homeButton);
             navController.navigate(R.id.profileFragment);
         });
-//        friendsButton.setOnClickListener(v -> {
-//            setActive(friendsButton);
-//            setInactive(homeButton);
-//            setInactive(profileButton);
-//            navController.navigate(R.id.friendsFragment);
-//        });
-//
-//        homeButton.setOnClickListener(v -> {
-//            setActive(homeButton);
-//            setInactive(friendsButton);
-//            setInactive(profileButton);
-//            navController.navigate(R.id.homeFragment);
-//        });
-//
-//        profileButton.setOnClickListener(v -> {
-//            setActive(profileButton);
-//            setInactive(friendsButton);
-//            setInactive(homeButton);
-//            navController.navigate(R.id.profileFragment);
-//        });
     }
 
     private void setActive(View view) {
@@ -138,10 +118,10 @@ public class NavFragment extends Fragment {
 
         lp.width = 0;                    // use weight
         lp.height = (int) (110 * d);     // 140dp for all active buttons
-        lp.weight = 1f;
+        lp.weight = 0.4f;
         view.setLayoutParams(lp);
 
-        Log.d("NavFragment", "New dimensions: width=0 (weight=1), height=120dp");
+        Log.d("NavFragment", "New dimensions: width=0 (weight=0.4), height=110dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
@@ -197,12 +177,12 @@ public class NavFragment extends Fragment {
 
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
-        lp.width = (int) (115 * d);      // 130dp
+        lp.width = 0;
         lp.height = (int) (100 * d);     // 120dp for all inactive buttons
-        lp.weight = 0f;
+        lp.weight = 0.3f;
         view.setLayoutParams(lp);
 
-        Log.d("NavFragment", "Set to inactive: width=0 (weight=1), height=120dp");
+        Log.d("NavFragment", "Set to inactive: width=0 (weight=0.3), height=100dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
