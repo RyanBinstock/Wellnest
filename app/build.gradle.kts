@@ -50,6 +50,31 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.material)
 
+    // Compose BOM
+    implementation(platform(libs.compose.bom))
+    androidTestImplementation(platform(libs.compose.bom))
+
+    // Core Compose
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.material3)
+
+//    implementation(libs.blurView)
+    implementation("com.github.Dimezis:BlurView:version-3.2.0")
+
+    // Activity integration (setContent { ... })
+    implementation(libs.activity.compose)
+
+    // Tooling
+    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+
+    // UI tests
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
+
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)

@@ -1,11 +1,11 @@
 [versions]
-# Core Android + Build
+# Core Android  Build
 agp = "8.13.0"
 appcompat = "1.7.1"
 activity = "1.11.0"
 constraintlayout = "2.2.1"
 
-# Firebase + Google
+# Firebase  Google
 firebaseBom = "34.3.0"
 
 # Navigation
@@ -13,6 +13,15 @@ navigation = "2.9.5"
 
 # Material3
 material = "1.13.0"
+
+
+# Jetpack Compose
+# BOM: bump from official docs when needed
+composeBom = "2024.08.00"
+# Compiler extension: align with your Kotlin version
+composeCompiler = "1.5.13"
+
+blurView = "1.6.6"
 
 # Unit test frameworks
 junit4 = "4.13.2"
@@ -74,6 +83,21 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 androidx-fragment-testing = { group = "androidx.fragment", name = "fragment-testing", version.ref = "fragmentTesting" }
 androidx-espresso-contrib = { group = "androidx.test.espresso", name = "espresso-contrib", version.ref = "espressoContrib" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
+
+
+# Jetpack Compose
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime" }
+compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity" }
+
+blurView = { group = "com.eightbitlab", name = "blurview", version.ref = "blurView" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
