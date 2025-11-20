@@ -136,7 +136,7 @@
                 app:layout_constraintBottom_toBottomOf="@+id/difficultyCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/difficultyCard" />
-            <!--      draw three circles here for difficulty (active dot is green, unactive dot is only white stroke)      -->
+            <!--     TODO: draw three circles here for difficulty (active dot is green, unactive dot is only white stroke)      -->
 
             <TextView
                 android:id="@+id/textView"
