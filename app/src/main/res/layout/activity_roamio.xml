@@ -96,6 +96,7 @@
         app:wl_trackColor="#B9D9B9" />
 
     <eightbitlab.com.blurview.BlurView
+        android:id="@+id/roamio_blurView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/wl_space_s"
@@ -139,7 +140,7 @@
             <!--     TODO: draw three circles here for difficulty (active dot is green, unactive dot is only white stroke)      -->
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/walkTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_semibold"
@@ -150,7 +151,7 @@
                 app:layout_constraintTop_toBottomOf="@id/difficultyCard" />
 
             <TextView
-                android:id="@+id/textView2"
+                android:id="@+id/walkDescription"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:ellipsize="end"
@@ -158,11 +159,12 @@
                 android:maxLines="5"
                 android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                 android:textColor="#FFFFFF"
-                app:layout_constraintTop_toBottomOf="@+id/textView"
+                app:layout_constraintTop_toBottomOf="@+id/walkTitle"
                 tools:ignore="HardcodedText"
                 tools:layout_editor_absoluteX="20dp" />
 
             <Button
+                android:id="@+id/walkButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/wl_space_m"
@@ -171,8 +173,8 @@
                 android:includeFontPadding="false"
                 android:padding="@dimen/wl_space_l"
                 android:text="Navigate to Walk"
-                android:textSize="30sp"
-                app:layout_constraintTop_toBottomOf="@id/textView2"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@id/walkDescription"
                 tools:layout_editor_absoluteX="20dp" />
 
             <ImageView

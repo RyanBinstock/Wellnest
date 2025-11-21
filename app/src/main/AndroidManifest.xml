@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Wellnest">
         <service android:name="com.code.wlu.cp470.wellnest.utils.MusicService" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -33,6 +34,12 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Wellnest" />
-     </application>
+
+        <activity
+            android:name=".ui.roamio.RoamioActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
+    </application>
 
 </manifest>
