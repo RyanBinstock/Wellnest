@@ -53,6 +53,7 @@ dependencies {
     // Compose BOM
     implementation(platform(libs.compose.bom))
     implementation(libs.activity)
+    implementation(libs.androidx.espresso.intents)
     androidTestImplementation(platform(libs.compose.bom))
 
     // Core Compose

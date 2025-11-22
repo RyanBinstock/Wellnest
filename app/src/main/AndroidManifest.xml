@@ -42,6 +42,11 @@
             android:exported="false"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Wellnest" />
+        <activity
+            android:name=".ui.components.CarouselDemoActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
     </application>
 
 </manifest>

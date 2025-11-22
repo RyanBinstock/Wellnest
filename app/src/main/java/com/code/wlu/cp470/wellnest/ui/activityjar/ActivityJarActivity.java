@@ -5,12 +5,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 
 import com.code.wlu.cp470.wellnest.R;
@@ -29,7 +25,7 @@ public class ActivityJarActivity extends AppCompatActivity {
         View decorView = getWindow().getDecorView();
 
         // Reuse the existing fragment layout as Activity content to minimize changes
-        setContentView(R.layout.activity_jar);
+        setContentView(R.layout.activity_activity_jar);
 
         // Ensure layout extends behind system bars; do NOT use FULLSCREEN so status icons remain visible
         decorView.setSystemUiVisibility(
