@@ -47,4 +47,11 @@
     <color name="wl_progress_track_alt">#E3F2FD</color> <!-- Alternative lighter track -->
     <color name="wl_progress_fill_alt">#2196F3</color> <!-- Alternative brighter blue -->
     <color name="wl_progress_success">#4CAF50</color> <!-- Green for completion -->
+
+    <!-- Activity Jar Name Pill Colors -->
+    <color name="pill_explore">#C76C3C</color>
+    <color name="pill_nightlife">#2B243F</color>
+    <color name="pill_play">#7E9B3C</color>
+    <color name="pill_cozy">#5E4A93</color>
+    <color name="pill_culture">#A95B4E</color>
 </resources>

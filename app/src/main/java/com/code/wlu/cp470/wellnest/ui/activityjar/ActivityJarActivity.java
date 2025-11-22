@@ -3,6 +3,7 @@ package com.code.wlu.cp470.wellnest.ui.activityjar;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -36,19 +37,35 @@ public class ActivityJarActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );
 
-        // Enter transition (the caller fragment also applies this)
         try {
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         } catch (Exception ignored) {
         }
 
-        ImageView btnExplore = findViewById(R.id.btnExplore);
-        btnExplore.setOnClickListener(v -> {
-            Log.i("Explore", "Explore button clicked");
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager.beginTransaction()
-                    .replace(R.id.activity_jar_root, new activityJarSelection())
-                    .commit();
+        ImageView btnExplore   = findViewById(R.id.btnExplore);
+        ImageView btnNightlife = findViewById(R.id.btnNightlife);
+        ImageView btnPlay      = findViewById(R.id.btnPlay);
+        ImageView btnCozy      = findViewById(R.id.btnCozy);
+        ImageView btnCulture   = findViewById(R.id.btnCulture);
+        btnExplore.setOnClickListener(v -> openSelection(0));   // Explore card
+        btnNightlife.setOnClickListener(v -> openSelection(1)); // Nightlife card
+        btnPlay.setOnClickListener(v -> openSelection(2));      // Play card
+        btnCozy.setOnClickListener(v -> openSelection(3));      // Cozy card
+        btnCulture.setOnClickListener(v -> openSelection(4));   // Culture card
+
+        Button btnHome = findViewById(R.id.btnHome);
+        btnHome.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         });
+
+    }
+
+    private void openSelection(int startIndex) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.activity_jar_root, activityJarSelection.newInstance(startIndex))
+                .addToBackStack(null)
+                .commit();
     }
 }

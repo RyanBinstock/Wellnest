@@ -197,7 +197,6 @@
 
     </LinearLayout>
 
-    <!-- 🐦 HUMMINGBIRD -->
     <ImageView
         android:id="@+id/imgBird"
         android:layout_width="96dp"

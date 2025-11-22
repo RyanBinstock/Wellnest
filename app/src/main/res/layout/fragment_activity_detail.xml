@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background image -->
+    <ImageView
+        android:id="@+id/imgActivityBg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Top name pill, centered -->
+    <TextView
+        android:id="@+id/txtActivityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="12dp"
+        android:background="@drawable/bg_activity_name_pill"
+        android:text="Activity Name"
+        android:textColor="@android:color/white"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:includeFontPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Details panel (same width %, centered horizontally & vertically
+         between title and bottom buttons) -->
+    <LinearLayout
+        android:id="@+id/panelDetails"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="#66000000"
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintTop_toBottomOf="@id/txtActivityName"
+        app:layout_constraintBottom_toTopOf="@id/btnBackToCategories"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_percent="0.55"
+        app:layout_constraintVertical_bias="0.5">
+
+    <!-- Example content -->
+    <TextView
+        android:id="@+id/txtLabelName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:textColor="@android:color/white"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginBottom="30dp"/>
+
+        <TextView
+            android:id="@+id/txtLabelWhere"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Where"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_marginBottom="30dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txtLabelWhen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="When"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_marginBottom="40dp"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/txtLabelDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+    <!-- Add Where / When / Description etc. here -->
+</LinearLayout>
+
+
+    <!-- Bottom-right “Back to Categories” pill -->
+<Button
+    android:id="@+id/btnBackToCategories"
+    android:layout_width="wrap_content"
+    android:layout_height="44dp"
+    android:background="@drawable/bg_home_button"
+    android:paddingHorizontal="24dp"
+    android:text="Back to Categories"
+    android:textAllCaps="false"
+    android:textStyle="bold"
+    android:textColor="@android:color/black"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:layout_marginEnd="24dp"
+    android:layout_marginBottom="24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
