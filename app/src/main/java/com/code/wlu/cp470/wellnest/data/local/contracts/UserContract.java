@@ -28,8 +28,8 @@ public final class UserContract {
     }
 
     // =========================
-//  global_score
-// =========================
+    //  global_score
+    // =========================
     public static final class GlobalScore {
         public static final String TABLE = "global_score";
 
