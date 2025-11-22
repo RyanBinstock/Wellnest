@@ -70,7 +70,7 @@ public class RoamioContract {
 
         public static final class Col {
             public static final String UID = "uid";
-            public static final String STATUS = "status";
+            public static final String STATUS = "status"; //ACTIVE or PAUSED
             public static final String STARTED_AT = "startedAt";
             public static final String START_STEP_COUNT
                     = "startStepCount";
