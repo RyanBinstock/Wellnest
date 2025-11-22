@@ -55,4 +55,9 @@
     <string name="start_task">Start Task</string>
     <string name="end_task">End Task</string>
     <string name="snaptask_loading_message">Evaluating your snap...</string>
+    <string name="cozy">Cozy</string>
+    <string name="explore">Explore</string>
+    <string name="nightlife">Nightlife</string>
+    <string name="play">Play</string>
+    <string name="culture">Culture</string>
 </resources>

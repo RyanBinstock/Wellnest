@@ -52,6 +52,7 @@ dependencies {
 
     // Compose BOM
     implementation(platform(libs.compose.bom))
+    implementation(libs.activity)
     androidTestImplementation(platform(libs.compose.bom))
 
     // Core Compose
