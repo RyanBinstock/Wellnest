@@ -1,5 +1,7 @@
 package com.code.wlu.cp470.wellnest.ui.nav;
 
+import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,7 +38,7 @@ public class NavFragment extends Fragment {
         args.putString("page", page);
         setArguments(args);
         Log.w("NavFragment", "Using deprecated constructor with page=" + page +
-              ". Consider using no-arg constructor with setArguments() instead.");
+                ". Consider using no-arg constructor with setArguments() instead.");
     }
 
     @Override
@@ -136,55 +138,24 @@ public class NavFragment extends Fragment {
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
 
-        // Log current dimensions before change
-        Log.d("NavFragment", "Current dimensions: width=" + lp.width / d + "dp, height=" + lp.height / d + "dp");
-
-        lp.width = 0;                    // use weight
-        lp.height = (int) (110 * d);     // 140dp for all active buttons
+        lp.width = 0;
         lp.weight = 0.4f;
+        lp.height = WRAP_CONTENT;
         view.setLayoutParams(lp);
-
-        Log.d("NavFragment", "New dimensions: width=0 (weight=0.4), height=110dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
         ImageView text = view.findViewById(R.id.nav_item_home_text);
 
         bg.setImageResource(R.drawable.nav_card_active);
-        icon.setTranslationY(-60);
+        icon.setTranslationY(-120);
 
-        // Scale up with bottom pivot so bottoms align
-        view.post(() -> {
-            view.setPivotY(view.getHeight());
-            view.animate()
-                    .scaleX(1.12f)
-                    .scaleY(1.12f)
-                    .setDuration(180)
-                    .start();
-        });
-
-        // Check parent clipping
-        ViewGroup parent = (ViewGroup) view.getParent();
-        if (parent != null) {
-            Log.d("NavFragment", "Parent clipChildren: " + !parent.getClipChildren());
-            Log.d("NavFragment", "Parent height: " + parent.getHeight() / d + "dp");
-        }
 
         if (view.getId() == R.id.navbar_home_button) {
             text.setVisibility(View.VISIBLE);
-            Log.d("NavFragment", "Home text visibility: VISIBLE");
         } else {
             text.setVisibility(View.GONE);
-            Log.d("NavFragment", buttonName + " text visibility: GONE");
         }
-
-        // Check if icon might be clipped
-        view.post(() -> {
-            int viewHeight = view.getHeight();
-            float iconTop = icon.getY();
-            Log.d("NavFragment", "After layout - View height: " + viewHeight / d + "dp");
-            Log.d("NavFragment", "After layout - Icon top position: " + iconTop / d + "dp");
-        });
     }
 
     private void setInactive(View view) {
@@ -196,16 +167,12 @@ public class NavFragment extends Fragment {
         else if (view.getId() == R.id.navbar_home_button) buttonName = "home";
         else if (view.getId() == R.id.navbar_profile_button) buttonName = "profile";
 
-        Log.d("NavFragment", "--- Deactivating " + buttonName + " button ---");
-
         LinearLayout.LayoutParams lp =
                 (LinearLayout.LayoutParams) view.getLayoutParams();
         lp.width = 0;
-        lp.height = (int) (100 * d);     // 120dp for all inactive buttons
         lp.weight = 0.3f;
+        lp.height = WRAP_CONTENT;
         view.setLayoutParams(lp);
-
-        Log.d("NavFragment", "Set to inactive: width=0 (weight=0.3), height=100dp");
 
         ImageView bg = view.findViewById(R.id.nav_item_bg);
         ImageView icon = view.findViewById(R.id.nav_item_icon);
@@ -213,18 +180,6 @@ public class NavFragment extends Fragment {
 
         text.setVisibility(View.GONE);
         bg.setImageResource(R.drawable.nav_card_inactive);
-        icon.setTranslationY(0);
-
-        // Reset scale with bottom pivot
-        view.post(() -> {
-            view.setPivotY(view.getHeight());
-            view.animate()
-                    .scaleX(1f)
-                    .scaleY(1f)
-                    .setDuration(180)
-                    .start();
-        });
-
-        Log.d("NavFragment", "Icon translationY reset to: 0dp");
+        icon.setTranslationY(-10);
     }
 }

@@ -7,29 +7,29 @@
     android:clipToPadding="false"
     android:gravity="bottom|center"
     android:orientation="horizontal"
-    android:paddingTop="30dp"
+    android:paddingTop="0dp"
     android:paddingBottom="0dp">
 
     <include
         android:id="@+id/navbar_friends_button"
         layout="@layout/fragment_navbar_item"
         android:layout_width="0dp"
-        android:layout_height="@dimen/nav_item_inactive_height"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="0.3" />
 
     <include
         android:id="@+id/navbar_home_button"
         layout="@layout/fragment_navbar_item"
         android:layout_width="0dp"
-        android:layout_height="@dimen/nav_item_inactive_height"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="0.4" />
 
     <include
         android:id="@+id/navbar_profile_button"
         layout="@layout/fragment_navbar_item"
         android:layout_width="0dp"
-        android:layout_height="@dimen/nav_item_inactive_height"
-        android:layout_weight="1" />
+        android:layout_height="wrap_content"
+        android:layout_weight="0.3" />
 
 </LinearLayout>
 
