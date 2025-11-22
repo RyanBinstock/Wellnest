@@ -5,30 +5,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.data.ActivityJarModels;
 
 import java.util.List;
 
 public class ActivitiesPagerAdapter
         extends RecyclerView.Adapter<ActivitiesPagerAdapter.CardViewHolder> {
 
-    public interface OnCardClickListener {
-        void onCardClick(int position);
+    public interface OnActivityClickListener {
+        void onActivityClicked(ActivityJarModels.Activity activity);
     }
 
-    private final List<Integer> cardResIds;
     private final LayoutInflater inflater;
-    private final OnCardClickListener clickListener;
+    private final List<ActivityJarModels.Activity> activities;
+    private final OnActivityClickListener clickListener;
 
     public ActivitiesPagerAdapter(Context context,
-                                  List<Integer> cardResIds,
-                                  OnCardClickListener clickListener) {
-        this.cardResIds = cardResIds;
+                                  List<ActivityJarModels.Activity> activities,
+                                  OnActivityClickListener clickListener) {
         this.inflater = LayoutInflater.from(context);
+        this.activities = activities;
         this.clickListener = clickListener;
     }
 
@@ -41,27 +43,36 @@ public class ActivitiesPagerAdapter
 
     @Override
     public void onBindViewHolder(@NonNull CardViewHolder holder, int position) {
-        int resId = cardResIds.get(position);
-        holder.imgBackground.setImageResource(resId);
+        ActivityJarModels.Activity activity = activities.get(position);
+
+        holder.txtEmoji.setText(activity.emoji);
+        holder.txtName.setText(activity.name);
+        holder.txtDescription.setText(activity.description);
 
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) {
-                clickListener.onCardClick(position);
+                clickListener.onActivityClicked(activity);
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return cardResIds.size();
+        return activities.size();
     }
 
     static class CardViewHolder extends RecyclerView.ViewHolder {
         final ImageView imgBackground;
+        final TextView txtEmoji;
+        final TextView txtName;
+        final TextView txtDescription;
 
         CardViewHolder(@NonNull View itemView) {
             super(itemView);
             imgBackground = itemView.findViewById(R.id.imgCardBackground);
+            txtEmoji = itemView.findViewById(R.id.emoji_tv);
+            txtName = itemView.findViewById(R.id.activityName_tv);
+            txtDescription = itemView.findViewById(R.id.description_tv);
         }
     }
 }

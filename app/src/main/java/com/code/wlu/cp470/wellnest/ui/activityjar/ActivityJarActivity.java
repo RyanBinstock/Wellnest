@@ -61,10 +61,11 @@ public class ActivityJarActivity extends AppCompatActivity {
 
     }
 
-    private void openSelection(int startIndex) {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.activity_jar_root, activityJarSelection.newInstance(startIndex))
+    private void openSelection(int categoryIndex) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.activity_jar_root,
+                        activityJarSelection.newInstance(categoryIndex))
                 .addToBackStack(null)
                 .commit();
     }
