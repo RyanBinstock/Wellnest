@@ -1,19 +1,22 @@
 package com.code.wlu.cp470.wellnest.ui.home;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 
 public class HomeFragment extends Fragment {
     @Nullable
@@ -30,61 +33,67 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         TextView scoreText = view.findViewById(R.id.scoreText);
-//        UiTextEffects.applyVerticalGradient(
-//                scoreText,
-//                R.color.wl_scoreText_gradientEnd,
-//                R.color.wl_scoreText_gradientStart);
 
         // Add modular micro app cards to home fragment
         FragmentManager fm = getChildFragmentManager();
         ViewGroup container = view.findViewById(R.id.cardsContainer);
 
-        addCard(container,
-                getChildFragmentManager(),
-                MicroAppCardFragment.newInstance(
-                        "SnapTask", "Snappy",
-                        R.drawable.microappcard_snaptask,
-                        "wellnest://snaptask"));
+        addCardView(container,
+                "SnapTask", "Snappy",
+                R.drawable.microappcard_snaptask,
+                "wellnest://snaptask");
 
-        addCard(container,
-                getChildFragmentManager(),
-                MicroAppCardFragment.newInstance(
-                        "ActivityJar", "Zippy",
-                        R.drawable.microappcard_activityjar,
-                        "wellnest://activityjar"));
+        addCardView(container,
+                "ActivityJar", "Zippy",
+                R.drawable.microappcard_activityjar,
+                "wellnest://activityjar");
 
-        addCard(container,
-                getChildFragmentManager(),
-                MicroAppCardFragment.newInstance(
-                        "Roamio", "Rico",
-                        R.drawable.microappcard_roamio,
-                        "wellnest://roamio"));
+        addCardView(container,
+                "Roamio", "Rico",
+                R.drawable.microappcard_roamio,
+                "wellnest://roamio");
 
+        // Add navbar to bottom
+        com.code.wlu.cp470.wellnest.ui.nav.NavFragment navFragment = new com.code.wlu.cp470.wellnest.ui.nav.NavFragment();
+        Bundle navArgs = new Bundle();
+        navArgs.putString("page", "home");
+        navFragment.setArguments(navArgs);
+        fm.beginTransaction()
+                .replace(R.id.home_navbar_container, navFragment)
+                .commit();
     }
 
     /*
     Helper function for adding modular micro app cards to home fragment
      */
-    private void addCard(ViewGroup parent,
-                         FragmentManager fm,
-                         Fragment fragment) {
-        // Create a holder for the child fragment
-        FrameLayout holder = new FrameLayout(requireContext());
-        int viewId = View.generateViewId();
-        holder.setId(viewId);
+    private void addCardView(ViewGroup parent,
+                             String title,
+                             String subtitle,
+                             int bgRes,
+                             String deepLink) {
 
-        // Layout params for vertical stacking
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = (int) (getResources().getDisplayMetrics().density * 12); // 12dp
-        holder.setLayoutParams(lp);
+        View cardView = getLayoutInflater()
+                .inflate(R.layout.fragment_microapp_card, parent, false);
 
-        parent.addView(holder);
+        TextView titleTv = cardView.findViewById(R.id.title);
+        TextView subtitleTv = cardView.findViewById(R.id.subtitle);
+        ImageView bg = cardView.findViewById(R.id.bgImage);
+        View cardRoot = cardView.findViewById(R.id.cardRoot);
 
-        fm.beginTransaction()
-                .setReorderingAllowed(true)
-                .replace(viewId, fragment)
-                .commit();
+        titleTv.setText(title);
+        subtitleTv.setText(subtitle);
+        if (bgRes != 0) bg.setImageResource(bgRes);
+
+        UiClickEffects.setOnClickWithPulse(cardRoot, R.raw.game_start_effect, v -> {
+            if (deepLink != null && !deepLink.isEmpty()) {
+                try {
+                    NavController nav = Navigation.findNavController(v);
+                    nav.navigate(Uri.parse(deepLink));
+                } catch (Exception ignored) {
+                }
+            }
+        });
+
+        parent.addView(cardView);
     }
 }

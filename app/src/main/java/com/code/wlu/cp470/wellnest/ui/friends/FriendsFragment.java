@@ -11,6 +11,7 @@ import android.widget.ImageButton;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -60,12 +61,21 @@ public class FriendsFragment extends Fragment {
 
         viewModel.getAcceptedFriends().observe(getViewLifecycleOwner(), adapter::updateData);
 
-        UiClickEffects.setOnClickWithPulse(searchSendButton, v -> {
+        UiClickEffects.setOnClickWithPulse(searchSendButton, R.raw.message_effect, v -> {
             String email = searchEditText.getText().toString();
             viewModel.addFriend(email);
 
             searchEditText.setText("");
         });
+
+        FragmentManager fm = getChildFragmentManager();
+        com.code.wlu.cp470.wellnest.ui.nav.NavFragment navFragment = new com.code.wlu.cp470.wellnest.ui.nav.NavFragment();
+        Bundle navArgs = new Bundle();
+        navArgs.putString("page", "friends");
+        navFragment.setArguments(navArgs);
+        fm.beginTransaction()
+                .replace(R.id.friends_navbar_container, navFragment)
+                .commit();
 
     }
 }

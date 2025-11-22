@@ -88,7 +88,7 @@ app/
    │  │  │  ├─ home/                             # HomeFragment, MicroAppCardFragment
    │  │  │  ├─ auth/                             # AuthFragment (login/register)
    │  │  │  ├─ welcome/                          # Welcome/onboarding screens
-   │  │  │  ├─ snaptask/                         # SnapTaskFragment (micro‑app)
+   │  │  │  ├─ snaptask/                         # SnapTask micro‑app (Activity‑based: SnapTaskActivity, SnapTaskDetailActivity; SnapTaskFragment = thin launcher)
    │  │  │  ├─ activityjar/                      # ActivityJarFragment (micro‑app)
    │  │  │  ├─ roamio/                           # RoamioFragment (micro‑app)
    │  │  │  └─ effects/                          # UI helper effects (touch, text, shake, click)
@@ -104,11 +104,39 @@ app/
    └─ androidTest/java/...                       # Instrumented tests (Espresso, SQLite, etc.)
 ```
 
+### App Architecture (Hybrid)
+
+- Main app uses a single-activity, Fragment-based navigation model.
+- Micro apps use an Activity-based architecture for modularity and isolation.
+- SnapTask is Activity-based:
+  - [SnapTaskActivity](app/src/main/java/com/code/wlu/cp470/wellnest/ui/snaptask/SnapTaskActivity.java)
+  - [SnapTaskDetailActivity](app/src/main/java/com/code/wlu/cp470/wellnest/ui/snaptask/SnapTaskDetailActivity.java)
+  - [SnapTaskFragment](app/src/main/java/com/code/wlu/cp470/wellnest/ui/snaptask/SnapTaskFragment.java) acts as a thin launcher stub for nav compatibility.
+
+### Micro Apps: SnapTask
+
+- Intent-based navigation with `Bundle` extras between Activities
+- Custom transition animations for smooth UI flow
+- Proper Activity lifecycle management and state preservation
+- ViewModel pattern maintained for data persistence
+- Activities registered in [AndroidManifest.xml](app/src/main/AndroidManifest.xml)
+
+#### Technical implementation details
+
+- Launcher stub pattern: `Fragment` launches the micro app `Activity` via `Intent`
+- Back stack handling integrates cleanly with the main app
+- Memory optimized for Activity-based flow
+
+#### Developer guide: micro apps
+
+- New micro apps should follow the Activity-based pattern used by SnapTask.
+- Use SnapTask as a reference implementation when adding future micro apps.
+
 ### Where to put new code
 
-* **New screens / components** → `ui/<feature>/` as a `Fragment` + XML layout.
+* **New screens / components** → Main app: `Fragment` + XML under `ui/<feature>/`. Micro apps (e.g., SnapTask): Activity‑based under `ui/<microapp>/` with `Activity` screens and an optional thin launcher `Fragment` for navigation compatibility.
 * **Shared UI helpers** → `ui/effects/` or create a `ui/components/` package for reusable views.
-* **Navigation** → add destinations/actions in `res/navigation/nav_graph.xml`.
+* **Navigation** → For in‑app fragments, add destinations/actions in `res/navigation/nav_graph.xml` (SafeArgs). For micro apps, use Intent‑based navigation between `Activity` screens with `Bundle` extras.
 * **Database** → add schemas and sql queries to `data/local/contracts/{relavent contract class}`  and create data manipulation methods in `data/local/managers/{relavent manager class}`.
 * **Auth / remote** → SignIn and SignUp logic is in `data/auth/AuthRepository.java`.
 * **ViewModels** → `viewmodel/` (one per screen or feature).
@@ -192,7 +220,7 @@ We address these challenges through the following design patterns:
 ### General guidance
 
 * Follow Material 3; prefer ConstraintLayout. Keep view hierarchies shallow.
-* Use Navigation SafeArgs for argument passing between fragments.
+* Use Navigation SafeArgs for fragment‑to‑fragment arguments; for micro apps use Intent `Bundle` extras between `Activity` screens.
 * Keep ViewModels UI‑only; data work goes in repositories/DAOs.
 * One responsibility per class/file; keep files readable (<300–400 lines is a good heuristic).
 
@@ -217,7 +245,8 @@ We address these challenges through the following design patterns:
 ## 11) FAQs
 
 * **Where do I add a new micro‑app?**
-  * Create a fragment under `ui/<microapp>/`, add nav entry, add a card in `HomeFragment` if needed.
+  * Prefer Activity‑based micro apps. Create a package under `ui/<microapp>/` with one or more `Activity` screens; add an optional launcher `Fragment` for navigation compatibility; start via `Intent` from `HomeFragment`/cards; register Activities in `AndroidManifest.xml`.
+  * Use SnapTask as the reference implementation.
 
 * **Where are the database tables?**
   * SQLite database schemas and SQL queries are under `data/local/contracts/`.

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Outer gradient border -->
+    <item>
+        <shape android:shape="rectangle">
+            <!-- radius only on bottom -->
+            <corners
+                android:bottomLeftRadius="32dp"
+                android:bottomRightRadius="32dp"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp" />
+
+            <!-- gradient that will show as the border -->
+            <gradient
+                android:angle="270"
+                android:centerColor="#FFFFFFFF"
+                android:endColor="#00FFFFFF"
+                android:startColor="#00FFFFFF" />
+        </shape>
+    </item>
+
+    <!-- Inner solid fill (inset leaves border visible) -->
+    <item
+        android:insetLeft="10dp"
+        android:insetRight="10dp"
+        android:insetBottom="10dp">
+        <shape android:shape="rectangle">
+            <corners
+                android:bottomLeftRadius="30dp"
+                android:bottomRightRadius="30dp"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp" />
+
+            <solid android:color="#F3CC74" />  <!-- your main header color -->
+        </shape>
+    </item>
+
+</layer-list>

@@ -49,7 +49,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.MyViewHold
         holder.score.setText(String.valueOf(friend.getScore()));
 
         // Remove
-        UiClickEffects.setOnClickWithPulse(holder.remove_friend_button, v -> {
+        UiClickEffects.setOnClickWithPulse(holder.remove_friend_button, R.raw.ui_click_effect, v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
             String uid = items.get(pos).getUid();
@@ -61,7 +61,7 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.MyViewHold
         if ("pending".equals(mode)) {
             holder.accept_friend_button.setVisibility(View.VISIBLE);
             holder.score.setVisibility(View.INVISIBLE);
-            UiClickEffects.setOnClickWithPulse(holder.accept_friend_button, v -> {
+            UiClickEffects.setOnClickWithPulse(holder.accept_friend_button, R.raw.happy_ping, v -> {
                 int pos = holder.getBindingAdapterPosition();
                 if (pos == RecyclerView.NO_POSITION) return;
                 String uid = items.get(pos).getUid();

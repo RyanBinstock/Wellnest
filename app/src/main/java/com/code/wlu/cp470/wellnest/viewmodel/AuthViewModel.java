@@ -25,16 +25,19 @@ public class AuthViewModel extends AndroidViewModel {
     private final MutableLiveData<String> error = new MutableLiveData<>();
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> loginResult = new MutableLiveData<>();
+    Context context;
+    UserManager local;
+    FirebaseUserManager remote;
 
     public AuthViewModel(Application app) {
         super(app);
-        Context context = app.getApplicationContext();
+        context = app.getApplicationContext();
 
         this.dbHelper = new WellnestDatabaseHelper(context);
         this.db = dbHelper.getWritableDatabase();
 
-        UserManager local = new UserManager(db);
-        FirebaseUserManager remote = new FirebaseUserManager();
+        this.local = new UserManager(db);
+        this.remote = new FirebaseUserManager();
 
         UserRepository userRepo = new UserRepository(context, local, remote);
 
@@ -81,12 +84,56 @@ public class AuthViewModel extends AndroidViewModel {
     }
 
     public void signOut() {
-        loading.setValue(true);
+        // Fix: Use postValue instead of setValue since this method can be called from background threads
+        loading.postValue(true);
         Executors.newSingleThreadExecutor().execute(() -> {
             repo.signOut();
             loading.postValue(false);
         });
     }
+
+    public boolean deleteAccount() {
+        loading.setValue(true);
+        UserRepository userRepo = new UserRepository(context, local, remote);
+        try {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                userRepo.deleteUserProfile();
+                repo.deleteAccount();
+                signOut();
+                loading.postValue(false);
+            });
+        } catch (Exception e) {
+            error.postValue(e.getMessage());
+            loading.postValue(false);
+            return false;
+        }
+        return true;
+    }
+    
+    public void deleteAccountWithPassword(String password, DeleteAccountCallback callback) {
+        loading.postValue(true);
+        UserRepository userRepo = new UserRepository(context, local, remote);
+        
+        Executors.newSingleThreadExecutor().execute(() -> {
+            // Use the proper deleteAccountWithPassword method from AuthRepository
+            repo.deleteAccountWithPassword(password, (result, error) -> {
+                if (error != null) {
+                    loading.postValue(false);
+                    callback.onComplete(false, error);
+                } else {
+                    // Successfully deleted from Firebase, now clean up local data
+                    userRepo.deleteUserProfile();
+                    loading.postValue(false);
+                    callback.onComplete(true, null);
+                }
+            });
+        });
+    }
+    
+    public interface DeleteAccountCallback {
+        void onComplete(boolean success, Exception error);
+    }
+
 
     @Override
     protected void onCleared() {

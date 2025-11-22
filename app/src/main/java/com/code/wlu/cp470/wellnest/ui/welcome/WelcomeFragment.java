@@ -72,7 +72,7 @@ public class WelcomeFragment extends Fragment {
 
         Button btnGetStarted = view.findViewById(R.id.btnGetStarted);
         if (btnGetStarted != null) {
-            UiClickEffects.setOnClickWithPulse(btnGetStarted, v -> {
+            UiClickEffects.setOnClickWithPulse(btnGetStarted, R.raw.happy_ping, v -> {
                 var action = WelcomeFragmentDirections.actionWelcomeToAuth();
                 action.setStartMode("signup");
                 NavHostFragment.findNavController(this).navigate(action);

@@ -12,14 +12,41 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Wellnest">
         <activity
+            android:name=".ui.activityjar.ActivityJarActivity"
+            android:exported="false" />
+
+        <service android:name=".utils.MusicService" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.snaptask.SnapTaskActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
+        <activity
+            android:name=".ui.snaptask.SnapTaskDetailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
+        <activity
+            android:name=".ui.roamio.RoamioActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
+        <activity
+            android:name=".ui.components.CarouselDemoActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Wellnest" />
     </application>
 
 </manifest>

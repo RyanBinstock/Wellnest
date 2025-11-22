@@ -50,12 +50,40 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.material)
 
+    // Compose BOM
+    implementation(platform(libs.compose.bom))
+    implementation(libs.activity)
+    implementation(libs.androidx.espresso.intents)
+    androidTestImplementation(platform(libs.compose.bom))
+
+    // Core Compose
+    implementation(libs.compose.ui)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.material3)
+
+//    implementation(libs.blurView)
+    implementation("com.github.Dimezis:BlurView:version-3.2.0")
+
+    // Activity integration (setContent { ... })
+    implementation(libs.activity.compose)
+
+    // Tooling
+    debugImplementation(libs.compose.ui.tooling)
+    implementation(libs.compose.ui.tooling.preview)
+
+    // UI tests
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    debugImplementation(libs.compose.ui.test.manifest)
+
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.androidx.espresso.contrib)
+    implementation(libs.firebase.database)
 
     // Unit tests
     testImplementation(libs.junit4)
@@ -73,5 +101,6 @@ dependencies {
     androidTestImplementation(libs.androidx.test.rules)       // 1.5.0
     androidTestImplementation(libs.androidx.test.ext.junit)   // 1.1.5
     androidTestImplementation(libs.espresso.core)             // 3.5.1
-    implementation("com.google.protobuf:protobuf-javalite:3.25.5")
+    implementation(libs.protobuf.javalite)
+    implementation(libs.okhttp3.okhttp)
 }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Small phones (320dp smallest width) - Scale down text by ~10% -->
+    
+    <!-- Typography sizes -->
+    <dimen name="wl_text_huge">36sp</dimen>
+    <dimen name="wl_text_xlarge">29sp</dimen>
+    <dimen name="wl_text_large">22sp</dimen>
+    <dimen name="wl_text_medium">18sp</dimen>
+    <dimen name="wl_text_body">14sp</dimen>
+    <dimen name="wl_text_small">13sp</dimen>
+    <dimen name="wl_text_tiny">11sp</dimen>
+
+    <!-- Specific text sizes -->
+    <dimen name="wl_text_home_score">50sp</dimen>
+    <dimen name="wl_text_welcome_title">36sp</dimen>
+    <dimen name="wl_text_snap_task_button">27sp</dimen>
+    <dimen name="wl_text_snap_task_label">18sp</dimen>
+
+    <!-- Component dimensions -->
+    <dimen name="wl_button_height">44dp</dimen>
+    <dimen name="wl_button_height_small">36dp</dimen>
+    <dimen name="wl_button_height_large">52dp</dimen>
+    
+    <!-- Icon sizes -->
+    <dimen name="wl_icon_tiny">14dp</dimen>
+    <dimen name="wl_icon_small">18dp</dimen>
+    <dimen name="wl_icon_medium">36dp</dimen>
+    <dimen name="wl_icon_large">54dp</dimen>
+    <dimen name="wl_icon_xlarge">72dp</dimen>
+
+    <!-- Card dimensions -->
+    <dimen name="wl_card_height_small">54dp</dimen>
+    <dimen name="wl_card_height_medium">72dp</dimen>
+    <dimen name="wl_card_height_large">108dp</dimen>
+    <dimen name="wl_card_height_xlarge">135dp</dimen>
+
+    <!-- Navbar dimensions -->
+    <dimen name="nav_item_inactive_width">117dp</dimen>
+    <dimen name="nav_item_inactive_height">108dp</dimen>
+    <dimen name="nav_item_active_width">135dp</dimen>
+    <dimen name="nav_item_active_height">117dp</dimen>
+    <dimen name="nav_text_height">54dp</dimen>
+
+    <!-- Snap Task specific -->
+    <dimen name="snap_task_back_button_width">117dp</dimen>
+    <dimen name="snap_task_back_button_height">40dp</dimen>
+    <dimen name="snap_task_card_width">180dp</dimen>
+    <dimen name="snap_task_hero_width">135dp</dimen>
+    <dimen name="snap_task_hero_height">135dp</dimen>
+
+    <!-- Friends screen -->
+    <dimen name="friend_card_height">72dp</dimen>
+    <dimen name="friend_search_height">63dp</dimen>
+    <dimen name="friend_send_button_width">54dp</dimen>
+    <dimen name="friends_title_height">27dp</dimen>
+
+    <!-- Profile screen -->
+    <dimen name="profile_input_width">180dp</dimen>
+    
+    <!-- Home screen -->
+    <dimen name="home_oval_width">270dp</dimen>
+
+</resources>

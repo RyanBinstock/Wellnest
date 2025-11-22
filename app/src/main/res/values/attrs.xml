@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- Custom attributes for WellnestProgressBar -->
+    <declare-styleable name="WellnestProgressBar">
+        <!-- Progress value (0-max) -->
+        <attr name="wl_progress" format="integer" />
+        
+        <!-- Maximum value for progress -->
+        <attr name="wl_max" format="integer" />
+        
+        <!-- Whether to show indeterminate progress -->
+        <attr name="wl_indeterminate" format="boolean" />
+        
+        <!-- Progress bar fill color -->
+        <attr name="wl_progressColor" format="color" />
+        
+        <!-- Track (background) color -->
+        <attr name="wl_trackColor" format="color" />
+        
+        <!-- Corner radius for rounded ends -->
+        <attr name="wl_cornerRadius" format="dimension" />
+        
+        <!-- Height of the progress bar -->
+        <attr name="wl_progressHeight" format="dimension" />
+        
+        <!-- Duration of progress animation in milliseconds -->
+        <attr name="wl_animationDuration" format="integer" />
+    </declare-styleable>
+    <!-- Custom attributes for WellnestCarouselView -->
+    <declare-styleable name="WellnestCarouselView">
+        <!-- Margin between pages -->
+        <attr name="carousel_page_margin" format="dimension" />
+        
+        <!-- Number of offscreen pages to keep in memory -->
+        <attr name="carousel_offscreen_limit" format="integer" />
+        
+        <!-- Scale factor for side items (0.0 - 1.0) -->
+        <attr name="carousel_side_scale" format="float" />
+        
+        <!-- Alpha value for side items (0.0 - 1.0) -->
+        <attr name="carousel_side_alpha" format="float" />
+        
+        <!-- Whether to apply blur effect to side items -->
+        <attr name="carousel_blur_enabled" format="boolean" />
+        
+        <!-- Whether to auto-play the carousel -->
+        <attr name="carousel_auto_play" format="boolean" />
+        
+        <!-- Delay in milliseconds for auto-play -->
+        <attr name="carousel_auto_play_delay" format="integer" />
+        
+        <!-- Visual effect style -->
+        <attr name="carousel_effect" format="enum">
+            <enum name="depth" value="0" />
+            <enum name="stack" value="1" />
+            <enum name="fade" value="2" />
+        </attr>
+    </declare-styleable>
+    
+</resources>
