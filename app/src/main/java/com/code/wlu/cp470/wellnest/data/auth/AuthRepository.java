@@ -1,9 +1,13 @@
 package com.code.wlu.cp470.wellnest.data.auth;
 
 import android.content.Context;
+import android.util.Log;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
 import com.code.wlu.cp470.wellnest.data.UserRepository;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
+import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -42,7 +46,7 @@ public class AuthRepository {
      * Convenience overload if you only have managers here.
      * Pass your concrete implementations that implement UserInterface (e.g., UserManager, FirebaseUserManager).
      */
-    public AuthRepository(Context context, UserInterface localManager, UserInterface remoteManager) {
+    public AuthRepository(Context context, UserManager localManager, FirebaseUserManager remoteManager) {
         this(context, new UserRepository(context.getApplicationContext(), localManager, remoteManager));
     }
 
@@ -76,10 +80,14 @@ public class AuthRepository {
                     }
                     // Ensure Firestore doc exists (no-op if present)
                     String uid = u.getUid();
-                    userRepo.firebaseHasUserProfile(uid, email);
-                    persistLocalUser(uid, u.getDisplayName(), email);
-                    userRepo.ensureGlobalScore(uid);
-                    cb.onResult(u, null);
+
+                    // Make sure the doc exists without blocking the UI thread
+                    bootstrapUserDocument(uid, u.getDisplayName(), email, (v, e2) -> {
+                        // even if this fails, keep the user signed in; you can retry later
+                        persistLocalUser(uid, u.getDisplayName(), email);
+                        userRepo.ensureGlobalScore(uid);
+                        cb.onResult(u, null);
+                    });
                 });
     }
 
@@ -144,6 +152,61 @@ public class AuthRepository {
 
     public void signOut() {
         auth.signOut();
+
+    }
+
+    public void deleteAccount() {
+        FirebaseUser user = currentUser();
+        if (user == null) {
+            Log.e("AuthRepository", "No user to delete");
+            return;
+        }
+        
+        // DEBUG: Log the issue with current implementation
+        Log.d("AuthRepository", "Attempting to delete account for: " + user.getEmail());
+        Log.e("AuthRepository", "BUG: Using UID instead of password for reauthentication - this will fail!");
+        
+        // Temporary fix: Skip reauthentication and delete directly
+        // NOTE: This will only work if the user recently signed in (within ~5 minutes)
+        // For production, you should prompt for password or use recent auth
+        user.delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("AuthRepository", "User account deleted successfully.");
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("AuthRepository", "Error deleting user account", e);
+                    // If deletion fails due to stale auth, log specific message
+                    if (e.getMessage() != null && e.getMessage().contains("reauthenticate")) {
+                        Log.e("AuthRepository", "User needs to reauthenticate. Implement password prompt dialog.");
+                    }
+                });
+    }
+    
+    // Proper implementation with password parameter (for future use)
+    public void deleteAccountWithPassword(String password, Callback<Void> callback) {
+        FirebaseUser user = currentUser();
+        if (user == null) {
+            callback.onResult(null, new Exception("No user logged in"));
+            return;
+        }
+        
+        AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(), password);
+        user.reauthenticate(cred)
+                .addOnSuccessListener(v -> {
+                    user.delete()
+                            .addOnSuccessListener(aVoid -> {
+                                Log.d("AuthRepository", "User account deleted successfully.");
+                                callback.onResult(null, null);
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w("AuthRepository", "Error deleting user account", e);
+                                callback.onResult(null, e);
+                            });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("AuthRepository", "Reauthentication failed", e);
+                    callback.onResult(null, new Exception("Invalid password"));
+                });
     }
 
     public interface Callback<T> {

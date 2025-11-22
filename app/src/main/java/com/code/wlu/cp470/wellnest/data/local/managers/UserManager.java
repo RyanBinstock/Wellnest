@@ -6,7 +6,9 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
+import com.code.wlu.cp470.wellnest.data.UserModels.Score;
+import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ import java.util.List;
  * <p>
  * This version implements UserInterface with normalized return shapes.
  */
-public final class UserManager implements UserInterface {
+public final class UserManager {
     private final SQLiteDatabase db;
 
     public UserManager(SQLiteDatabase db) {
@@ -81,7 +83,7 @@ public final class UserManager implements UserInterface {
     /**
      * Returns current user’s UID.
      */
-    private String currentUid() {
+    public String currentUid() {
         try (Cursor cursor = db.query(
                 UserContract.UserProfile.TABLE,
                 new String[]{UserContract.UserProfile.Col.UID},
@@ -89,8 +91,9 @@ public final class UserManager implements UserInterface {
         )) {
             if (cursor.moveToFirst()) {
                 return cursor.getString(0);
+            } else {
+                throw new IllegalStateException("No current user");
             }
-            return null;
         }
     }
 
@@ -155,7 +158,7 @@ public final class UserManager implements UserInterface {
      * Convenience: load {uid, name, email} as a structured object or null if missing.
      * If both uid and email are provided, uid is prioritized.
      */
-    public UserInterface.UserProfile getUserProfile(String uid, String email) {
+    public UserProfile getUserProfile(String uid, String email) {
         Cursor c = null;
         try {
             String selection = null;
@@ -186,7 +189,7 @@ public final class UserManager implements UserInterface {
             );
             if (!c.moveToFirst()) return null;
 
-            return new UserInterface.UserProfile(
+            return new UserProfile(
                     c.getString(0), // uid
                     c.getString(1), // name
                     c.getString(2)  // email (may be null)
@@ -195,6 +198,15 @@ public final class UserManager implements UserInterface {
         } finally {
             if (c != null) c.close();
         }
+    }
+
+    public boolean deleteUserProfile() {
+        int rows = db.delete(
+                UserContract.UserProfile.TABLE,
+                null,
+                null
+        );
+        return rows > 0;
     }
 
     // ----------------------------------------------------------------------
@@ -366,8 +378,8 @@ public final class UserManager implements UserInterface {
     }
 
     // --- LIST ALL ---
-    public java.util.List<UserInterface.ScoreEntry> listAllGlobalScores() {
-        java.util.List<UserInterface.ScoreEntry> list = new java.util.ArrayList<>();
+    public java.util.List<Score> listAllGlobalScores() {
+        java.util.List<Score> list = new java.util.ArrayList<>();
         Cursor c = null;
         try {
             c = db.query(
@@ -377,7 +389,7 @@ public final class UserManager implements UserInterface {
                     UserContract.GlobalScore.Col.SCORE + " DESC"
             );
             while (c.moveToNext()) {
-                list.add(new UserInterface.ScoreEntry(c.getString(0), c.getInt(1)));
+                list.add(new Score(c.getString(0), c.getInt(1)));
             }
         } finally {
             if (c != null) c.close();
@@ -574,16 +586,20 @@ public final class UserManager implements UserInterface {
     /**
      * Returns a list containing all the user's friends.
      */
-    public List<UserInterface.Friend> getFriends() {
-        List<UserInterface.Friend> friends = new ArrayList<>();
+    public List<Friend> getFriends() {
+        List<Friend> friends = new ArrayList<>();
+        String TABLENAME = UserContract.Friends.TABLE + " INNER JOIN " + UserContract.GlobalScore.TABLE +
+                " ON " + UserContract.Friends.TABLE + "." + UserContract.Friends.Col.FRIEND_UID +
+                " = " + UserContract.GlobalScore.TABLE + "." + UserContract.GlobalScore.Col.UID;
         Cursor c = null;
         try {
             c = db.query(
-                    UserContract.Friends.TABLE,
+                    TABLENAME,
                     new String[]{
                             UserContract.Friends.Col.FRIEND_UID,
                             UserContract.Friends.Col.FRIEND_NAME,
-                            UserContract.Friends.Col.FRIEND_STATUS
+                            UserContract.Friends.Col.FRIEND_STATUS,
+                            UserContract.GlobalScore.Col.SCORE
                     },
                     null, null, null, null,
                     UserContract.Friends.Col.FRIEND_NAME + " COLLATE NOCASE ASC"
@@ -596,7 +612,9 @@ public final class UserManager implements UserInterface {
                         c.getColumnIndexOrThrow(UserContract.Friends.Col.FRIEND_NAME));
                 String status = c.getString(
                         c.getColumnIndexOrThrow(UserContract.Friends.Col.FRIEND_STATUS));
-                friends.add(new UserInterface.Friend(uid, name, status));
+                int score = c.getInt(
+                        c.getColumnIndexOrThrow(UserContract.GlobalScore.Col.SCORE));
+                friends.add(new Friend(uid, name, status, score));
             }
         } finally {
             if (c != null) c.close();

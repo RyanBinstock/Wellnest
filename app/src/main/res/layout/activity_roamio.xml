@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <eightbitlab.com.blurview.BlurTarget
+        android:id="@+id/roamio_bg_blurTarget"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/roamio_bg" />
+    </eightbitlab.com.blurview.BlurTarget>
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/toucanVertGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.3" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/toucanHorzGuide"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <ImageView
+        android:id="@+id/roamioCharacter"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/toucan_baby"
+        app:layout_constraintBottom_toBottomOf="@id/toucanHorzGuide"
+        app:layout_constraintStart_toStartOf="@id/toucanVertGuide" />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-18dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/character_shadow"
+        app:layout_constraintEnd_toEndOf="@id/roamioCharacter"
+        app:layout_constraintStart_toStartOf="@id/roamioCharacter"
+        app:layout_constraintTop_toBottomOf="@id/roamioCharacter" />
+
+    <ImageView
+        android:id="@+id/roamioScoreboard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:src="@drawable/roamio_scoreboard" />
+
+    <TextView
+        android:id="@+id/roamio_score_text"
+        style="@style/TextAppearance.Wellnest.Scorecard.Roamio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:text="1584"
+        app:layout_constraintBottom_toBottomOf="@+id/roamioScoreboard"
+        app:layout_constraintEnd_toEndOf="@+id/roamioScoreboard"
+        app:layout_constraintStart_toStartOf="@+id/roamioScoreboard"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/roamioDailyProgressText"
+        style="@style/TextAppearance.Wellnest.MicroApp.ProgressText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-20dp"
+        android:gravity="center"
+        android:includeFontPadding="false"
+        android:shadowColor="#38000000"
+        android:shadowDy="3"
+        android:shadowRadius="5"
+        android:text="@string/daily_progress"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/roamioScoreboard" />
+
+    <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+        android:id="@+id/roamioProgressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/wl_space_xl"
+        android:layout_marginTop="@dimen/wl_space_s"
+        app:layout_constraintTop_toBottomOf="@id/roamioDailyProgressText"
+        app:wl_progressColor="#59C060"
+        app:wl_trackColor="#B9D9B9" />
+
+    <eightbitlab.com.blurview.BlurView
+        android:id="@+id/roamio_blurView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/wl_space_s"
+        android:layout_marginTop="@dimen/wl_space_m"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/roamioProgressBar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roamio_card"
+            android:padding="20dp"
+            app:layout_constraintTop_toBottomOf="@id/roamioProgressBar">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/difficultyCard"
+                android:layout_width="150dp"
+                android:layout_height="40dp"
+                app:cardBackgroundColor="#51FFFFFF"
+                app:cardCornerRadius="100dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/difficultyText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/wl_space_s"
+                android:fontFamily="@font/poppins_regular"
+                android:gravity="center"
+                android:includeFontPadding="false"
+                android:text="Difficulty"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="@+id/difficultyCard"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/difficultyCard" />
+            <!--     TODO: draw three circles here for difficulty (active dot is green, unactive dot is only white stroke)      -->
+
+            <TextView
+                android:id="@+id/walkTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:text="Templin Gardens - \nFergus"
+                android:textColor="#FFFFFF"
+                android:textSize="30sp"
+                app:layout_constraintStart_toStartOf="@+id/difficultyCard"
+                app:layout_constraintTop_toBottomOf="@id/difficultyCard" />
+
+            <TextView
+                android:id="@+id/walkDescription"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_light"
+                android:maxLines="5"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                android:textColor="#FFFFFF"
+                app:layout_constraintTop_toBottomOf="@+id/walkTitle"
+                tools:ignore="HardcodedText"
+                tools:layout_editor_absoluteX="20dp" />
+
+            <Button
+                android:id="@+id/walkButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/wl_space_m"
+                android:backgroundTint="#73966F"
+                android:fontFamily="@font/poppins_semibold"
+                android:includeFontPadding="false"
+                android:padding="@dimen/wl_space_l"
+                android:text="Navigate to Walk"
+                android:textSize="25sp"
+                app:layout_constraintTop_toBottomOf="@id/walkDescription"
+                tools:layout_editor_absoluteX="20dp" />
+
+            <ImageView
+                android:id="@+id/roamio_card_info_button"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:backgroundTint="#00FFFFFF"
+                android:src="@drawable/roamio_card_info_button_bg"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </eightbitlab.com.blurview.BlurView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

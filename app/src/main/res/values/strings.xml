@@ -42,4 +42,30 @@
     <string name="slide_4_text">Join a community of people turning small steps into lasting change your adventure starts now.</string>
 
     <string name="home">Home</string>
+    <string name="friends">Friends</string>
+    <string name="enter_friends_email_hint">Enter Friends Email</string>
+    <string name="remove_friend">Remove Friend</string>
+    <string name="accept_friend">Accept Friend</string>
+    <string name="friend_not_found">Friend not found</string>
+    <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
+    <string name="task_finished">Finished</string>
+    <string name="task_unfinished">Unfinished</string>
+    <string name="daily_progress">Daily Progress</string>
+    <string name="home_button_text">Home</string>
+    <string name="start_task">Start Task</string>
+    <string name="end_task">End Task</string>
+    <string name="snaptask_loading_message">Evaluating your snap...</string>
+    <string name="cozy">Cozy</string>
+    <string name="explore">Explore</string>
+    <string name="nightlife">Nightlife</string>
+    <string name="play">Play</string>
+    <string name="culture">Culture</string>
+    <string name="loremIpsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string-array name="activity_titles">
+        <item>Explore</item>
+        <item>Nightlife</item>
+        <item>Play</item>
+        <item>Cozy</item>
+        <item>Culture</item>
+    </string-array>
 </resources>

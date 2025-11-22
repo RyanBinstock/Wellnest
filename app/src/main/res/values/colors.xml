@@ -7,6 +7,7 @@
 
     <!-- Surface & text -->
     <color name="wl_surface">#FFFFFFFF</color>
+    <color name="wl_surface_yellow">#EFCD85</color>
     <color name="wl_onSurface">#3C3C3C</color>
     <color name="wl_onSurfaceSecondary">#7A7A7A</color>
     <color name="wl_surfaceTranslucent">#80FFFFFF</color>
@@ -39,4 +40,18 @@
     <!-- Home background gradient (top sky → bottom grass) -->
     <color name="wl_home_bg_top">#C9F1FF</color>
     <color name="wl_home_bg_bottom">#E9FFE6</color>
+
+    <!-- Progress bar colors (matching the design image) -->
+    <color name="wl_progress_track">#5D84C5</color> <!-- Light blue/cyan outer track -->
+    <color name="wl_progress_fill">#EBF2FF</color> <!-- Darker blue progress fill -->
+    <color name="wl_progress_track_alt">#E3F2FD</color> <!-- Alternative lighter track -->
+    <color name="wl_progress_fill_alt">#2196F3</color> <!-- Alternative brighter blue -->
+    <color name="wl_progress_success">#4CAF50</color> <!-- Green for completion -->
+
+    <!-- Activity Jar Name Pill Colors -->
+    <color name="pill_explore">#C76C3C</color>
+    <color name="pill_nightlife">#2B243F</color>
+    <color name="pill_play">#7E9B3C</color>
+    <color name="pill_cozy">#5E4A93</color>
+    <color name="pill_culture">#A95B4E</color>
 </resources>

@@ -5,21 +5,19 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.code.wlu.cp470.wellnest.data.UserInterface;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
+import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.Transaction;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,549 +26,300 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Firestore implementation of UserInterface.
+ * Firestore manager (synchronous). Call every method from a background thread.
  * <p>
- * Storage layout (per user):
- * users/{uid}/user_profile/{uid}
- * users/{uid}/global_score/1           { score: INT }
- * users/{uid}/streak/1                 { count: INT }
- * users/{uid}/friends/{friend_uid}     { friend_uid, friend_name, friend_status }
- * users/{uid}/badges/{badge_uid}       { badge_uid }
- * <p>
- * NOTE: All methods are synchronous via Tasks.await(). Call from a background thread.
+ * Schema used here:
+ * users/{uid}  (root document)
+ * - NAME (UserContract.UserProfile.Col.NAME)
+ * - EMAIL (UserContract.UserProfile.Col.EMAIL)
+ * - GLOBAL_SCORE (UserContract.GlobalScore.Col.SCORE)   // optional
+ * - STREAK (UserContract.Streak.Col.COUNT)              // optional
+ * friends/{friendUid} (subcollection)
+ * - FRIEND_UID
+ * - FRIEND_NAME
+ * - FRIEND_STATUS ("pending" | "accepted")
  */
-public class FirebaseUserManager implements UserInterface {
+public class FirebaseUserManager {
 
     private static final String TAG = "FirebaseUserManager";
+    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    private final FirebaseFirestore db;
-    private final FirebaseAuth auth;
-    /**
-     * Optional override for acting user UID (else currentUser.uid is used).
-     */
-    @Nullable
-    private final String fixedUid;
-
-    public FirebaseUserManager() {
-        this(null);
-    }
-
-    public FirebaseUserManager(@Nullable String fixedUid) {
-        this.db = FirebaseFirestore.getInstance();
-        this.auth = FirebaseAuth.getInstance();
-        this.fixedUid = fixedUid;
-    }
-
-    // ---------------------- helpers ----------------------
+    // ---------------------------------------------------------------------
+    // Helpers
+    // ---------------------------------------------------------------------
 
     private static boolean awaitOk(Task<?> t) {
         try {
             Tasks.await(t);
             return true;
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "awaitOk failed", e);
+        } catch (ExecutionException e) {
+            Throwable c = e.getCause();
+            if (c instanceof FirebaseFirestoreException) {
+                FirebaseFirestoreException f = (FirebaseFirestoreException) c;
+                Log.e(TAG, "awaitOk failed: " + f.getCode() + " / " + f.getMessage(), f);
+            } else {
+                Log.e(TAG, "awaitOk failed (exec)", e);
+            }
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.e(TAG, "awaitOk interrupted", e);
             return false;
         }
     }
 
-    private static @Nullable DocumentSnapshot awaitDoc(Task<DocumentSnapshot> t) {
+    // ---------------------------------------------------------------------
+    // User profile (root: users/{uid})
+    // ---------------------------------------------------------------------
+
+    /**
+     * Upsert root user doc with name/email (does not overwrite score/streak).
+     */
+    public boolean upsertUserProfile(@NonNull String uid,
+                                     @NonNull String name,
+                                     @NonNull String email) {
+        if (uid.isEmpty() || name.isEmpty() || email.isEmpty()) {
+            throw new IllegalArgumentException("uid, name, and email cannot be empty");
+        }
+        DocumentReference userDoc = db.collection("users").document(uid);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(UserContract.UserProfile.Col.NAME, name);
+        data.put(UserContract.UserProfile.Col.EMAIL, email);
+
+        Log.d(TAG, "upsertUserProfile: " + data);
+        boolean ok = awaitOk(userDoc.set(data, SetOptions.merge()));
+        Log.d(TAG, "upsertUserProfile success: " + ok);
+        return ok;
+    }
+
+    /**
+     * True if the root users/{uid} exists or a users query by email finds a match.
+     */
+    public boolean hasUserProfile(@Nullable String uid, @Nullable String email)
+            throws ExecutionException, InterruptedException {
+        CollectionReference users = db.collection("users");
+
+        if (uid == null && email == null) {
+            throw new IllegalArgumentException("uid and email cannot both be null");
+        }
+        if (uid != null) {
+            if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+            DocumentSnapshot userDoc = Tasks.await(users.document(uid).get());
+            return userDoc != null && userDoc.exists();
+        } else {
+            if (email == null || email.isEmpty())
+                throw new IllegalArgumentException("email cannot be empty");
+            QuerySnapshot snap = Tasks.await(
+                    users.whereEqualTo(UserContract.UserProfile.Col.EMAIL, email).get());
+            return snap != null && !snap.isEmpty();
+        }
+    }
+
+    /**
+     * Fetch a user either by uid (preferred) or by email. Returns null if not found.
+     */
+    @Nullable
+    public UserProfile getUser(@Nullable String uid, @Nullable String email)
+            throws ExecutionException, InterruptedException {
+        CollectionReference users = db.collection("users");
+        DocumentSnapshot doc;
+
+        if (uid == null && email == null) {
+            throw new IllegalArgumentException("uid and email cannot both be null");
+        }
+
+        if (uid != null) {
+            if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+            doc = Tasks.await(users.document(uid).get());
+        } else {
+            if (email == null || email.isEmpty())
+                throw new IllegalArgumentException("email cannot be empty");
+            Query q = users.whereEqualTo(UserContract.UserProfile.Col.EMAIL, email);
+            QuerySnapshot qs = Tasks.await(q.get());
+            if (qs == null || qs.isEmpty()) return null;
+            doc = qs.getDocuments().get(0);
+        }
+
+        if (doc == null || !doc.exists()) return null;
+
+        String outUid = doc.getId(); // use document id as uid
+        String outName = doc.getString(UserContract.UserProfile.Col.NAME);
+        String outEmail = doc.getString(UserContract.UserProfile.Col.EMAIL);
+        return new UserProfile(outUid, outName, outEmail);
+    }
+
+    public boolean deleteUserProfile(@NonNull String uid) {
         try {
-            return Tasks.await(t);
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "awaitDoc failed", e);
-            return null;
+            FirebaseFirestore.getInstance()
+                    .collection("user_profiles")
+                    .document(uid)
+                    .delete();
+            return true;
+        } catch (Exception e) {
+            Log.e("FirebaseUserManager", "deleteUserProfile failed", e);
+            return false;
         }
     }
 
-    private static @Nullable QuerySnapshot awaitQuery(Task<QuerySnapshot> t) {
-        try {
-            return Tasks.await(t);
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "awaitQuery failed", e);
-            return null;
-        }
-    }
 
-    private static @Nullable String asString(Object v) {
-        return v == null ? null : v.toString();
-    }
-
-    private static @NonNull String asStringOr(Object v, String fallback) {
-        return v == null ? fallback : v.toString();
-    }
-
-    private String requireUid() {
-        if (fixedUid != null && !fixedUid.isEmpty()) return fixedUid;
-        FirebaseUser u = auth.getCurrentUser();
-        if (u == null || u.getUid() == null) {
-            throw new IllegalStateException("No signed-in FirebaseUser; cannot resolve UID.");
-        }
-        return u.getUid();
-    }
-
-    private DocumentReference userRoot() {
-        return db.collection("users").document(requireUid());
-    }
-
-    // ---------------------- user_profile ----------------------
-
-    private CollectionReference col(String tableName) {
-        // Store each table as a subcollection under the user doc
-        return userRoot().collection(tableName);
-    }
-
-    private DocumentReference singleton(CollectionReference col) {
-        // Mirror local "CHECK(id=1)" singletons by using docId "1"
-        return col.document("1");
-    }
-
-    @Override
-    public boolean upsertUserProfile(String uid, String name, String email) {
-        if (uid == null || uid.isEmpty()) return false;
-
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.UserProfile.Col.UID, uid);
-        doc.put(UserContract.UserProfile.Col.NAME, name);
-        doc.put(UserContract.UserProfile.Col.EMAIL, email);
-
-        return awaitOk(col(UserContract.UserProfile.TABLE).document(uid).set(doc));
-    }
-
-    @Override
-    public boolean hasUserProfile(String uid, String email) {
-        if (uid != null && !uid.isEmpty()) {
-            DocumentSnapshot snap = awaitDoc(col(UserContract.UserProfile.TABLE).document(uid).get());
-            return snap != null && snap.exists();
-        }
-        if (email != null && !email.isEmpty()) {
-            QuerySnapshot q = awaitQuery(
-                    col(UserContract.UserProfile.TABLE).whereEqualTo(UserContract.UserProfile.Col.EMAIL, email).limit(1).get()
-            );
-            return q != null && !q.isEmpty();
-        }
-        return false;
-    }
-
-    @Override
-    public String getUserName(String uid) {
-        if (uid == null || uid.isEmpty()) return null;
-        DocumentSnapshot snap = awaitDoc(col(UserContract.UserProfile.TABLE).document(uid).get());
-        if (snap == null || !snap.exists()) return null;
-        Object v = snap.get(UserContract.UserProfile.Col.NAME);
-        return v == null ? null : v.toString();
-    }
-
-    @Override
-    public String getUserEmail(String uid) {
-        if (uid == null || uid.isEmpty()) return null;
-        DocumentSnapshot snap = awaitDoc(col(UserContract.UserProfile.TABLE).document(uid).get());
-        if (snap == null || !snap.exists()) return null;
-        Object v = snap.get(UserContract.UserProfile.Col.EMAIL);
-        return v == null ? null : v.toString();
-    }
-
-    @Override
-    public UserProfile getUserProfile(String uid, String email) {
-        if (uid != null && !uid.isEmpty()) {
-            DocumentSnapshot snap = awaitDoc(
-                    col(UserContract.UserProfile.TABLE).document(uid).get()
-            );
-            if (snap != null && snap.exists()) {
-                return new UserProfile(
-                        uid,
-                        asString(snap.get(UserContract.UserProfile.Col.NAME)),
-                        asString(snap.get(UserContract.UserProfile.Col.EMAIL))
-                );
-            }
-        } else if (email != null && !email.isEmpty()) {
-            QuerySnapshot q = awaitQuery(
-                    col(UserContract.UserProfile.TABLE)
-                            .whereEqualTo(UserContract.UserProfile.Col.EMAIL, email)
-                            .limit(1)
-                            .get()
-            );
-            if (q != null && !q.isEmpty()) {
-                DocumentSnapshot snap = q.getDocuments().get(0);
-                String foundUid = asString(snap.get(UserContract.UserProfile.Col.UID));
-                String name = asString(snap.get(UserContract.UserProfile.Col.NAME));
-                String mail = asString(snap.get(UserContract.UserProfile.Col.EMAIL));
-                return new UserProfile(foundUid, name, mail);
-            }
-        }
-        return null;
-    }
-
-    // ---------------------- global_score (multi-row keyed by UID) ----------------------
-
-    private DocumentReference globalScoreDoc(String uid) {
-        return col(UserContract.GlobalScore.TABLE).document(uid);
-    }
-
-    private @Nullable Integer readScoreSync(String uid) {
-        DocumentSnapshot snap = awaitDoc(globalScoreDoc(uid).get());
-        if (snap == null || !snap.exists()) return null;
-        Number n = (Number) snap.get(UserContract.GlobalScore.Col.SCORE);
+    // Optional convenience methods for score/streak on root user doc
+    public Integer getGlobalScore(@NonNull String uid) throws ExecutionException, InterruptedException {
+        DocumentSnapshot d = Tasks.await(db.collection("users").document(uid).get());
+        if (d == null || !d.exists()) return null;
+        Number n = (Number) d.get(UserContract.GlobalScore.Col.SCORE);
         return (n == null) ? null : n.intValue();
     }
 
-    @Override
-    public java.util.Map<String, Integer> getGlobalScores(java.util.Collection<String> uids) {
-        Map<String, Integer> out = new HashMap<>();
-        if (uids == null || uids.isEmpty()) return out;
+    public boolean setGlobalScore(@NonNull String uid, int score) {
+        if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+        DocumentReference userDoc = db.collection("users").document(uid);
+        Map<String, Object> data = new HashMap<>();
+        data.put(UserContract.GlobalScore.Col.SCORE, score);
+        return awaitOk(userDoc.set(data, SetOptions.merge()));
+    }
 
-        // Firestore whereIn supports up to 10 values; chunk if larger.
-        final int LIMIT = 10;
-        List<String> bucket = new ArrayList<>(LIMIT);
+    public Integer getStreak(@NonNull String uid) throws ExecutionException, InterruptedException {
+        DocumentSnapshot d = Tasks.await(db.collection("users").document(uid).get());
+        if (d == null || !d.exists()) return null;
+        Number n = (Number) d.get(UserContract.Streak.Col.COUNT);
+        return (n == null) ? null : n.intValue();
+    }
 
-        for (String uid : uids) {
-            if (uid == null || uid.isEmpty()) continue;
-            bucket.add(uid);
-            if (bucket.size() == LIMIT) {
-                QuerySnapshot q = awaitQuery(col(UserContract.GlobalScore.TABLE)
-                        .whereIn(UserContract.GlobalScore.Col.UID, new ArrayList<>(bucket))
-                        .get());
-                if (q != null) {
-                    for (DocumentSnapshot d : q.getDocuments()) {
-                        String id = d.getId();
-                        Number n = (Number) d.get(UserContract.GlobalScore.Col.SCORE);
-                        if (id != null && n != null) out.put(id, n.intValue());
+    public boolean setStreak(@NonNull String uid, int count) {
+        if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+        DocumentReference userDoc = db.collection("users").document(uid);
+        Map<String, Object> data = new HashMap<>();
+        data.put(UserContract.Streak.Col.COUNT, count);
+        return awaitOk(userDoc.set(data, SetOptions.merge()));
+    }
+
+    // ---------------------------------------------------------------------
+    // Friends: users/{ownerUid}/friends/{friendUid}
+    // ---------------------------------------------------------------------
+
+    /**
+     * Inserts/merges a friend entry with default status=pending.
+     */
+    public boolean addFriendRequest(@NonNull String ownerUid,
+                                    @NonNull String friendUid,
+                                    @NonNull String friendName) {
+        if (ownerUid.isEmpty() || friendUid.isEmpty())
+            throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
+
+        DocumentReference friendDoc = db.collection("users")
+                .document(ownerUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(friendUid);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
+        data.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+        data.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
+
+        return awaitOk(friendDoc.set(data, SetOptions.merge()));
+    }
+
+    /**
+     * Sets status=accepted for the friend entry.
+     */
+    public boolean acceptFriend(@NonNull String ownerUid, @NonNull String friendUid) {
+        if (ownerUid.isEmpty() || friendUid.isEmpty())
+            throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
+
+        DocumentReference friendDoc = db.collection("users")
+                .document(ownerUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(friendUid);
+
+        Map<String, Object> update = new HashMap<>();
+        update.put(UserContract.Friends.Col.FRIEND_STATUS, "accepted");
+
+        return awaitOk(friendDoc.update(update));
+    }
+
+    /**
+     * Deletes the friend entry.
+     */
+    public boolean removeFriend(@NonNull String ownerUid, @NonNull String friendUid) {
+        if (ownerUid.isEmpty() || friendUid.isEmpty())
+            throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
+
+        DocumentReference friendDoc = db.collection("users")
+                .document(ownerUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(friendUid);
+
+        return awaitOk(friendDoc.delete());
+    }
+
+    /**
+     * Returns the owner's friends list, enriching with each friend's GLOBAL_SCORE
+     * from their root user doc (if present). Missing scores default to 0.
+     */
+    public List<Friend> getFriends(@NonNull String ownerUid) {
+        List<Friend> out = new ArrayList<>();
+        if (ownerUid.isEmpty()) return out;
+
+        CollectionReference friendsCol = db.collection("users")
+                .document(ownerUid)
+                .collection(UserContract.Friends.TABLE);
+
+        try {
+            QuerySnapshot friendsSnap = Tasks.await(friendsCol.get());
+            if (friendsSnap == null) return out;
+
+            // Map of friendUid → Friend object
+            Map<String, Friend> map = new HashMap<>();
+            List<Task<DocumentSnapshot>> pendingUserGets = new ArrayList<>();
+
+            for (DocumentSnapshot d : friendsSnap.getDocuments()) {
+                String uid = d.getString(UserContract.Friends.Col.FRIEND_UID);
+                String name = d.getString(UserContract.Friends.Col.FRIEND_NAME);
+                String status = d.getString(UserContract.Friends.Col.FRIEND_STATUS);
+                if (uid == null) continue;
+                if (status == null) status = "pending";
+                map.put(uid, new Friend(uid, name, status, 0));
+
+                // Fetch root user doc later to read their score
+                pendingUserGets.add(db.collection("users").document(uid).get());
+            }
+
+            if (!pendingUserGets.isEmpty()) {
+                List<Object> results = Tasks.await(Tasks.whenAllSuccess(pendingUserGets));
+                for (Object obj : results) {
+                    DocumentSnapshot ud = (DocumentSnapshot) obj;
+                    if (ud != null && ud.exists()) {
+                        String fid = ud.getId();
+                        Number n = (Number) ud.get(UserContract.GlobalScore.Col.SCORE);
+                        int score = (n == null) ? 0 : n.intValue();
+                        Friend f = map.get(fid);
+                        if (f != null) f.setScore(score);
                     }
                 }
-                bucket.clear();
             }
-        }
-        if (!bucket.isEmpty()) {
-            QuerySnapshot q = awaitQuery(col(UserContract.GlobalScore.TABLE)
-                    .whereIn(UserContract.GlobalScore.Col.UID, new ArrayList<>(bucket))
-                    .get());
-            if (q != null) {
-                for (DocumentSnapshot d : q.getDocuments()) {
-                    String id = d.getId();
-                    Number n = (Number) d.get(UserContract.GlobalScore.Col.SCORE);
-                    if (id != null && n != null) out.put(id, n.intValue());
-                }
-            }
+
+            out.addAll(map.values());
+        } catch (ExecutionException | InterruptedException e) {
+            Log.e(TAG, "getFriends failed", e);
+            Thread.currentThread().interrupt();
         }
         return out;
     }
 
-    @Override
-    public java.util.List<UserInterface.ScoreEntry> listAllGlobalScores() {
-        QuerySnapshot q = awaitQuery(col(UserContract.GlobalScore.TABLE).get());
-        List<UserInterface.ScoreEntry> list = new ArrayList<>();
-        if (q == null) return list;
-        for (DocumentSnapshot d : q.getDocuments()) {
-            String uid = d.getId();
-            Number n = (Number) d.get(UserContract.GlobalScore.Col.SCORE);
-            list.add(new UserInterface.ScoreEntry(uid, n == null ? 0 : n.intValue()));
-        }
-        return list;
-    }
 
-    // ---- CREATE ----
-    @Override
-    public boolean createGlobalScore(int initialScore) {
-        String uid = requireUid();
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.GlobalScore.Col.UID, uid);
-        doc.put(UserContract.GlobalScore.Col.SCORE, Math.max(0, initialScore));
-        return awaitOk(globalScoreDoc(uid).set(doc));
-    }
-
-    @Override
-    public boolean createGlobalScore(String uid, int initialScore) {
-        if (uid == null || uid.isEmpty()) return false;
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.GlobalScore.Col.UID, uid);
-        doc.put(UserContract.GlobalScore.Col.SCORE, Math.max(0, initialScore));
-        return awaitOk(globalScoreDoc(uid).set(doc));
-    }
-
-    @Override
-    public boolean ensureGlobalScore(String uid) {
-        if (uid == null || uid.isEmpty()) return false;
-        // Merge will create if missing, keep existing otherwise.
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.GlobalScore.Col.UID, uid);
-        doc.put(UserContract.GlobalScore.Col.SCORE, 0);
-        return awaitOk(globalScoreDoc(uid).set(doc, SetOptions.merge()));
-    }
-
-    // ---- UPDATE ----
-    @Override
-    public int getGlobalScore() {
-        String uid = requireUid();
-        Integer v = readScoreSync(uid);
-        return (v == null) ? 0 : v;
-    }
-
-    @Override
-    public @Nullable Integer getGlobalScore(String uid) {
-        if (uid == null || uid.isEmpty()) return null;
-        return readScoreSync(uid);
-    }
-
-    @Override
-    public boolean setGlobalScore(String uid, int newScore) {
-        if (uid == null || uid.isEmpty()) return false;
-        Map<String, Object> body = new HashMap<>();
-        body.put(UserContract.GlobalScore.Col.UID, uid);
-        body.put(UserContract.GlobalScore.Col.SCORE, Math.max(0, newScore));
-        // set() acts as upsert (create/replace)
-        return awaitOk(globalScoreDoc(uid).set(body));
-    }
-
-    @Override
-    public int addToGlobalScore(String uid, int delta) {
-        if (uid == null || uid.isEmpty()) return 0;
-        DocumentReference ref = globalScoreDoc(uid);
-        try {
-            return Tasks.await(db.runTransaction((Transaction.Function<Integer>) tx -> {
-                DocumentSnapshot s = tx.get(ref);
-                int cur = 0;
-                if (s.exists()) {
-                    Number n = (Number) s.get(UserContract.GlobalScore.Col.SCORE);
-                    cur = (n == null) ? 0 : n.intValue();
-                }
-                int next = cur + delta;
-                if (next < 0) next = 0;
-                Map<String, Object> upd = new HashMap<>();
-                upd.put(UserContract.GlobalScore.Col.UID, uid);
-                upd.put(UserContract.GlobalScore.Col.SCORE, next);
-                tx.set(ref, upd);
-                return next;
-            }));
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "addToGlobalScore txn failed", e);
-            // Best-effort fallback: atomic increment (may create missing doc w/ merge)
-            Map<String, Object> merge = new HashMap<>();
-            merge.put(UserContract.GlobalScore.Col.UID, uid);
-            awaitOk(ref.set(merge, SetOptions.merge()));
-            awaitOk(ref.update(UserContract.GlobalScore.Col.SCORE, FieldValue.increment(delta)));
-            Integer v = readScoreSync(uid);
-            return (v == null) ? 0 : Math.max(0, v);
-        }
-    }
-
-    // ---- DELETE ----
-    @Override
-    public boolean deleteGlobalScore() {
-        return deleteGlobalScore(requireUid());
-    }
-
-    @Override
-    public boolean deleteGlobalScore(String uid) {
-        if (uid == null || uid.isEmpty()) return false;
-        return awaitOk(globalScoreDoc(uid).delete());
-    }
-
-    @Override
-    public int deleteGlobalScores(java.util.Collection<String> uids) {
-        if (uids == null || uids.isEmpty()) return 0;
-        int deleted = 0;
-        WriteBatch batch = db.batch();
-        int ops = 0;
-
-        for (String uid : uids) {
-            if (uid == null || uid.isEmpty()) continue;
-            batch.delete(globalScoreDoc(uid));
-            ops++;
-            // Commit periodically to respect batch limit (500)
-            if (ops == 450) {
-                if (awaitOk(batch.commit())) deleted += ops;
-                batch = db.batch();
-                ops = 0;
-            }
-        }
-        if (ops > 0 && awaitOk(batch.commit())) deleted += ops;
-        return deleted;
-    }
-
-
-    // ---------------------- streak ----------------------
-
-    @Override
-    public boolean setGlobalScore(int newScore) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(UserContract.GlobalScore.Col.SCORE, Math.max(0, newScore));
-        return awaitOk(singleton(col(UserContract.GlobalScore.TABLE)).set(body));
-    }
-
-    @Override
-    public int addToGlobalScore(int delta) {
-        DocumentReference ref = singleton(col(UserContract.GlobalScore.TABLE));
-        try {
-            return Tasks.await(db.runTransaction((Transaction.Function<Integer>) tx -> {
-                DocumentSnapshot s = tx.get(ref);
-                int cur = 0;
-                if (s.exists()) {
-                    Number n = (Number) s.get(UserContract.GlobalScore.Col.SCORE);
-                    cur = (n == null) ? 0 : n.intValue();
-                }
-                int next = cur + delta;
-                if (next < 0) next = 0;
-                Map<String, Object> upd = new HashMap<>();
-                upd.put(UserContract.GlobalScore.Col.SCORE, next);
-                tx.set(ref, upd);
-                return next;
-            }));
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "addToGlobalScore txn failed", e);
-            // Fallback: non-transactional increment (best-effort)
-            awaitOk(ref.update(UserContract.GlobalScore.Col.SCORE, FieldValue.increment(delta)));
-            return getGlobalScore();
-        }
-    }
-
-    @Override
-    public int getStreakCount() {
-        DocumentSnapshot snap = awaitDoc(singleton(col(UserContract.Streak.TABLE)).get());
-        if (snap != null && snap.exists()) {
-            Number n = (Number) snap.get(UserContract.Streak.Col.COUNT);
-            return n == null ? 0 : n.intValue();
-        }
-        Map<String, Object> init = new HashMap<>();
-        init.put(UserContract.Streak.Col.COUNT, 0);
-        awaitOk(singleton(col(UserContract.Streak.TABLE)).set(init));
-        return 0;
-    }
-
-    @Override
-    public boolean setStreakCount(int newCount) {
-        Map<String, Object> body = new HashMap<>();
-        body.put(UserContract.Streak.Col.COUNT, Math.max(0, newCount));
-        return awaitOk(singleton(col(UserContract.Streak.TABLE)).set(body));
-    }
-
-    // ---------------------- friends ----------------------
-
-    @Override
-    public int incrementStreak() {
-        DocumentReference ref = singleton(col(UserContract.Streak.TABLE));
-        try {
-            return Tasks.await(db.runTransaction((Transaction.Function<Integer>) tx -> {
-                DocumentSnapshot s = tx.get(ref);
-                int cur = 0;
-                if (s.exists()) {
-                    Number n = (Number) s.get(UserContract.Streak.Col.COUNT);
-                    cur = (n == null) ? 0 : n.intValue();
-                }
-                int next = cur + 1;
-                Map<String, Object> upd = new HashMap<>();
-                upd.put(UserContract.Streak.Col.COUNT, next);
-                tx.set(ref, upd);
-                return next;
-            }));
-        } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "incrementStreak txn failed", e);
-            awaitOk(ref.update(UserContract.Streak.Col.COUNT, FieldValue.increment(1)));
-            return getStreakCount();
-        }
-    }
-
-    @Override
-    public boolean resetStreak() {
-        Map<String, Object> body = new HashMap<>();
-        body.put(UserContract.Streak.Col.COUNT, 0);
-        return awaitOk(singleton(col(UserContract.Streak.TABLE)).set(body));
-    }
-
-    @Override
-    public boolean upsertFriend(String friendUid, String friendName) {
-        if (friendUid == null || friendUid.isEmpty()) return false;
-
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
-        doc.put(UserContract.Friends.Col.FRIEND_NAME, friendName == null ? "" : friendName);
-        // Keep existing status if present; otherwise default to "pending"
-        DocumentReference ref = col(UserContract.Friends.TABLE).document(friendUid);
-        DocumentSnapshot existing = awaitDoc(ref.get());
-        String status = "pending";
-        if (existing != null && existing.exists()) {
-            Object s = existing.get(UserContract.Friends.Col.FRIEND_STATUS);
-            if (s != null) status = s.toString();
-        }
-        doc.put(UserContract.Friends.Col.FRIEND_STATUS, status);
-        return awaitOk(ref.set(doc));
-    }
-
-    @Override
-    public boolean removeFriend(String friendUid) {
-        if (friendUid == null || friendUid.isEmpty()) return false;
-        return awaitOk(col(UserContract.Friends.TABLE).document(friendUid).delete());
-    }
-
-    @Override
-    public boolean acceptFriend(String friendUid) {
-        if (friendUid == null || friendUid.isEmpty()) return false;
-        return awaitOk(col(UserContract.Friends.TABLE)
-                .document(friendUid)
-                .update(UserContract.Friends.Col.FRIEND_STATUS, "accepted"));
-    }
-
-    @Override
-    public boolean denyFriend(String friendUid) {
-        // Per spec: we do NOT track denied; just remove the row.
-        return removeFriend(friendUid);
-    }
-
-    // ---------------------- badges ----------------------
-
-    @Override
-    public boolean isFriend(String friendUid) {
-        if (friendUid == null || friendUid.isEmpty()) return false;
-        DocumentSnapshot snap = awaitDoc(col(UserContract.Friends.TABLE).document(friendUid).get());
-        return snap != null && snap.exists();
-    }
-
-    @Override
-    public List<Friend> getFriends() {
-        QuerySnapshot q = awaitQuery(col(UserContract.Friends.TABLE).get());
-        List<Friend> out = new ArrayList<>();
-        if (q == null) return out;
-        for (DocumentSnapshot d : q.getDocuments()) {
-            String uid = asString(d.get(UserContract.Friends.Col.FRIEND_UID));
-            String name = asString(d.get(UserContract.Friends.Col.FRIEND_NAME));
-            String status = asStringOr(d.get(UserContract.Friends.Col.FRIEND_STATUS), "pending");
-            out.add(new Friend(uid, name, status));
-        }
-        return out;
-    }
-
-    @Override
-    public boolean addBadge(String badgeId) {
-        if (badgeId == null || badgeId.isEmpty()) return false;
-        Map<String, Object> doc = new HashMap<>();
-        doc.put(UserContract.Badges.Col.BADGE_ID, badgeId);
-        return awaitOk(col(UserContract.Badges.TABLE).document(badgeId).set(doc));
-    }
-
-    @Override
-    public boolean removeBadge(String badgeId) {
-        if (badgeId == null || badgeId.isEmpty()) return false;
-        return awaitOk(col(UserContract.Badges.TABLE).document(badgeId).delete());
-    }
-
-    // ---------------------- utils ----------------------
-
-    @Override
-    public boolean hasBadge(String badgeId) {
-        if (badgeId == null || badgeId.isEmpty()) return false;
-        DocumentSnapshot snap = awaitDoc(col(UserContract.Badges.TABLE).document(badgeId).get());
-        return snap != null && snap.exists();
-    }
-
-    @Override
-    public List<String> listBadges() {
-        QuerySnapshot q = awaitQuery(col(UserContract.Badges.TABLE).get());
-        List<String> ids = new ArrayList<>();
-        if (q == null) return ids;
-        for (DocumentSnapshot d : q.getDocuments()) {
-            // Mirror local: primary key is badge_uid; we also store doc id == badge_uid
-            String id = asString(d.get(UserContract.Badges.Col.BADGE_ID));
-            if (id == null || id.isEmpty()) id = d.getId();
-            if (id != null) ids.add(id);
-        }
-        return ids;
+    // ---------------------------------------------------------------------
+    // Optional helper: find a user's UID by email (first match).
+    // ---------------------------------------------------------------------
+    @Nullable
+    public String findUidByEmail(@NonNull String email)
+            throws ExecutionException, InterruptedException {
+        if (email.isEmpty()) return null;
+        QuerySnapshot qs = Tasks.await(db.collection("users")
+                .whereEqualTo(UserContract.UserProfile.Col.EMAIL, email)
+                .limit(1)
+                .get());
+        if (qs == null || qs.isEmpty()) return null;
+        return qs.getDocuments().get(0).getId();
     }
 }

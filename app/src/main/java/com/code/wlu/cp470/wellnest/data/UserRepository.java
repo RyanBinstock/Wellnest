@@ -1,11 +1,22 @@
 package com.code.wlu.cp470.wellnest.data;
 
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+import android.widget.Toast;
 
-import java.util.ArrayList;
+import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
+import com.code.wlu.cp470.wellnest.data.UserModels.Score;
+import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
+import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
+
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Frontend-facing repository:
@@ -15,16 +26,16 @@ import java.util.Map;
  * Threading: Firestore calls are synchronous in your FirebaseUserManager (Tasks.await);
  * call sync methods off the main thread.
  */
-public final class UserRepository implements UserInterface {
+public final class UserRepository {
 
     private static final String PREFS = "user_repo_prefs";
     private static final String KEY_LAST_GLOBAL_PUSH_DAY = "last_global_push_epoch_day";
 
-    private final UserInterface local;   // SQLite UserManager
-    private final UserInterface remote;  // FirebaseUserManager
+    private final UserManager local;   // SQLite UserManager
+    private final FirebaseUserManager remote;  // FirebaseUserManager
     private final SharedPreferences prefs;
 
-    public UserRepository(Context context, UserInterface localManager, UserInterface remoteManager) {
+    public UserRepository(Context context, UserManager localManager, FirebaseUserManager remoteManager) {
         if (context == null) throw new IllegalArgumentException("context == null");
         if (localManager == null) throw new IllegalArgumentException("localManager == null");
         if (remoteManager == null) throw new IllegalArgumentException("remoteManager == null");
@@ -38,232 +49,218 @@ public final class UserRepository implements UserInterface {
     // Sync helpers
     // ------------------------------------------------------------
 
-    /**
-     * Push local global score → Firestore at most once per (UTC-ish) day.
-     */
-    public boolean pushLocalGlobalScoreToCloud() {
-        long todayEpochDay = System.currentTimeMillis() / 86_400_000L; // avoid java.time
-        long last = prefs.getLong(KEY_LAST_GLOBAL_PUSH_DAY, Long.MIN_VALUE);
-        if (last == todayEpochDay) return false; // already pushed today
-
-        int localScore = local.getGlobalScore(); // 0 if missing by contract
-        boolean ok = remote.setGlobalScore(localScore); // upsert current user’s score
-        if (ok) {
-            prefs.edit().putLong(KEY_LAST_GLOBAL_PUSH_DAY, todayEpochDay).apply();
-        }
-        return ok;
-    }
-
-    /**
-     * Pull friends' scores from Firestore and upsert into local global_score.
-     * Runs every time the user opens the app.
-     *
-     * @return number of friend rows upserted in local.
-     */
-    public int refreshFriendsScoresFromCloud() {
-        List<UserInterface.Friend> friends = local.getFriends(); // normalized DTOs
-        ArrayList<String> acceptedUids = new ArrayList<>();
-        if (friends != null) {
-            for (UserInterface.Friend f : friends) {
-                if (f == null || f.uid == null) continue;
-                // only accepted friends for leaderboard
-                if (f.status == null || "accepted".equalsIgnoreCase(f.status)) {
-                    acceptedUids.add(f.uid);
-                }
-            }
-        }
-        if (acceptedUids.isEmpty()) return 0;
-
-        Map<String, Integer> cloudScores = remote.getGlobalScores(acceptedUids); // missing UIDs omitted
-        int upserts = 0;
-        if (cloudScores != null) {
-            for (Map.Entry<String, Integer> e : cloudScores.entrySet()) {
-                String uid = e.getKey();
-                Integer score = e.getValue();
-                if (uid == null || score == null) continue;
-                // setGlobalScore(uid, …) is specified to create if missing (normalized contract)
-                if (local.setGlobalScore(uid, score)) {
-                    upserts++;
-                }
-            }
-        }
-        return upserts;
-    }
 
     // ------------------------------------------------------------
-    // UserInterface delegation (LOCAL only)
+    // Method delegation
     // ------------------------------------------------------------
 
-    // user_profile
-    @Override
     public boolean upsertUserProfile(String uid, String name, String email) {
         return local.upsertUserProfile(uid, name, email);
     }
 
-    @Override
+
     public boolean hasUserProfile(String uid, String email) {
         return local.hasUserProfile(uid, email);
     }
 
-    public boolean firebaseHasUserProfile(String uid, String email) {
+    public boolean firebaseHasUserProfile(String uid, String email) throws ExecutionException, InterruptedException {
         return remote.hasUserProfile(uid, email);
     }
 
-    @Override
-    public String getUserName(String uid) {
+
+    public String getUserName() {
+        String uid = local.currentUid();
         return local.getUserName(uid);
     }
 
-    @Override
-    public String getUserEmail(String uid) {
+
+    public String getUserEmail() {
+        String uid = local.currentUid();
         return local.getUserEmail(uid);
     }
 
-    @Override
-    public UserProfile getUserProfile(String uid, String email) {
+
+    public UserProfile getUser(String uid, String email) {
         return local.getUserProfile(uid, email);
     }
 
+    public void deleteUserProfile() {
+        String uid = local.currentUid();
+        boolean localSuccess = local.deleteUserProfile();
+        if (!localSuccess) {
+            throw new IllegalStateException("Failed to delete local user profile");
+        }
+        boolean remoteSuccess = remote.deleteUserProfile(uid);
+        if (!remoteSuccess) {
+            throw new IllegalStateException("Failed to delete remote user profile");
+        }
+    }
+
     // global score (reads/writes used by UI go to LOCAL)
-    @Override
+
     public int getGlobalScore() {
         return local.getGlobalScore();
     }
 
-    @Override
+
     public Integer getGlobalScore(String uid) {
         return local.getGlobalScore(uid);
     }
 
-    @Override
+
     public Map<String, Integer> getGlobalScores(java.util.Collection<String> uids) {
         return local.getGlobalScores(uids);
     }
 
-    @Override
-    public List<ScoreEntry> listAllGlobalScores() {
+
+    public List<Score> listAllGlobalScores() {
         return local.listAllGlobalScores();
     }
 
-    @Override
+
     public boolean createGlobalScore(int initialScore) {
         return local.createGlobalScore(initialScore);
     }
 
-    @Override
+
     public boolean createGlobalScore(String uid, int initialScore) {
         return local.createGlobalScore(uid, initialScore);
     }
 
-    @Override
+
     public boolean ensureGlobalScore(String uid) {
         return local.ensureGlobalScore(uid);
     }
 
-    @Override
+
     public boolean setGlobalScore(int newScore) {
         return local.setGlobalScore(newScore);
     }
 
-    @Override
+
     public boolean setGlobalScore(String uid, int newScore) {
         return local.setGlobalScore(uid, newScore);
     }
 
-    @Override
+
     public int addToGlobalScore(int delta) {
         return local.addToGlobalScore(delta);
     }
 
-    @Override
+
     public int addToGlobalScore(String uid, int delta) {
         return local.addToGlobalScore(uid, delta);
     }
 
-    @Override
+
     public boolean deleteGlobalScore() {
         return local.deleteGlobalScore();
     }
 
-    @Override
+
     public boolean deleteGlobalScore(String uid) {
         return local.deleteGlobalScore(uid);
     }
 
-    @Override
+
     public int deleteGlobalScores(java.util.Collection<String> uids) {
         return local.deleteGlobalScores(uids);
     }
 
     // streak
-    @Override
+
     public int getStreakCount() {
         return local.getStreakCount();
     }
 
-    @Override
+
     public boolean setStreakCount(int newCount) {
         return local.setStreakCount(newCount);
     }
 
-    @Override
+
     public int incrementStreak() {
         return local.incrementStreak();
     }
 
-    @Override
+
     public boolean resetStreak() {
         return local.resetStreak();
     }
 
     // friends
-    @Override
+
+    public boolean addFriendByEmail(String email) throws ExecutionException, InterruptedException {
+        String ownerUid = local.currentUid();
+        UserProfile profile = remote.getUser(null, email);
+        String uid = profile.getUid();
+        String name = profile.getName();
+        boolean localSuccess = local.upsertFriend(uid, name);
+        boolean remoteSuccess = remote.addFriendRequest(ownerUid, uid, name);
+        return localSuccess && remoteSuccess;
+    }
+
+
     public boolean upsertFriend(String friendUid, String friendName) {
         return local.upsertFriend(friendUid, friendName);
     }
 
-    @Override
+    public boolean addFriend(String email) throws ExecutionException, InterruptedException {
+        UserProfile Friend = remote.getUser(null, email);
+        if (Friend == null) {
+            Toast.makeText(getApplicationContext(), R.string.friend_not_found, Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        String friendUid = Friend.getUid();
+        String friendName = Friend.getName();
+        boolean localSuccess = local.upsertFriend(friendUid, friendName);
+        boolean remoteSuccess = remote.addFriendRequest(local.currentUid(), friendUid, friendName);
+        Log.d("UserRepository", "addFriend: localSuccess=" + localSuccess + ", remoteSuccess=" + remoteSuccess);
+        return localSuccess && remoteSuccess;
+    }
+
+
     public boolean removeFriend(String friendUid) {
         return local.removeFriend(friendUid);
     }
 
-    @Override
+
     public boolean acceptFriend(String friendUid) {
         return local.acceptFriend(friendUid);
     }
 
-    @Override
+
     public boolean denyFriend(String friendUid) {
         return local.denyFriend(friendUid);
     }
 
-    @Override
+
     public boolean isFriend(String friendUid) {
         return local.isFriend(friendUid);
     }
 
-    @Override
+
     public List<Friend> getFriends() {
         return local.getFriends();
     }
 
     // badges
-    @Override
+
     public boolean addBadge(String badgeId) {
         return local.addBadge(badgeId);
     }
 
-    @Override
+
     public boolean removeBadge(String badgeId) {
         return local.removeBadge(badgeId);
     }
 
-    @Override
+
     public boolean hasBadge(String badgeId) {
         return local.hasBadge(badgeId);
     }
 
-    @Override
+
     public List<String> listBadges() {
         return local.listBadges();
     }
