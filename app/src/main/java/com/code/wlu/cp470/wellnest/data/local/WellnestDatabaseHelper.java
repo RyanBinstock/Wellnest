@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract;
 import com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract;
 import com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
@@ -41,6 +42,9 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(RoamioContract.Roamio_Score.SQL_CREATE);
         db.execSQL(RoamioContract.Walk_Sessions.SQL_INDEXES);
         db.execSQL(RoamioContract.Current_Walk.SQL_INDEXES);
+
+        //ACTIVITY JAR DOMAIN
+        db.execSQL(ActivityJarContract.Activity_Jar_Score.SQL_CREATE);
     }
 
     @Override
@@ -60,6 +64,8 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Roamio_Score.TABLE);
             db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Walk_Sessions.TABLE);
             db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Current_Walk.TABLE);
+
+            db.execSQL("DROP TABLE IF EXISTS " + ActivityJarContract.Activity_Jar_Score.TABLE);
 
             onCreate(db); // recreate tables
             db.setTransactionSuccessful();
