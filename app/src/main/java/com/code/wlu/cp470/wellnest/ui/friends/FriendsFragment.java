@@ -69,8 +69,12 @@ public class FriendsFragment extends Fragment {
         });
 
         FragmentManager fm = getChildFragmentManager();
+        com.code.wlu.cp470.wellnest.ui.nav.NavFragment navFragment = new com.code.wlu.cp470.wellnest.ui.nav.NavFragment();
+        Bundle navArgs = new Bundle();
+        navArgs.putString("page", "friends");
+        navFragment.setArguments(navArgs);
         fm.beginTransaction()
-                .replace(R.id.friends_navbar_container, new com.code.wlu.cp470.wellnest.ui.nav.NavFragment("friends"))
+                .replace(R.id.friends_navbar_container, navFragment)
                 .commit();
 
     }
