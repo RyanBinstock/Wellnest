@@ -24,8 +24,31 @@ public class NavFragment extends Fragment {
     private String page;
     private NavController navController;
 
+    // Required empty public constructor
+    public NavFragment() {
+    }
+
+    // Convenience constructor for backward compatibility
+    // NOTE: This constructor should be avoided as it won't survive fragment recreation
+    @Deprecated
     public NavFragment(String page) {
-        this.page = page;
+        Bundle args = new Bundle();
+        args.putString("page", page);
+        setArguments(args);
+        Log.w("NavFragment", "Using deprecated constructor with page=" + page +
+              ". Consider using no-arg constructor with setArguments() instead.");
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        Bundle args = getArguments();
+        if (args != null) {
+            page = args.getString("page", "home");
+        } else {
+            page = "home";
+        }
+        Log.d("NavFragment", "onCreate: page=" + page + ", args=" + args);
     }
 
     @Nullable

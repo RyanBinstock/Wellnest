@@ -54,9 +54,12 @@ public class HomeFragment extends Fragment {
                 "wellnest://roamio");
 
         // Add navbar to bottom
+        com.code.wlu.cp470.wellnest.ui.nav.NavFragment navFragment = new com.code.wlu.cp470.wellnest.ui.nav.NavFragment();
+        Bundle navArgs = new Bundle();
+        navArgs.putString("page", "home");
+        navFragment.setArguments(navArgs);
         fm.beginTransaction()
-                .replace(R.id.home_navbar_container,
-                        new com.code.wlu.cp470.wellnest.ui.nav.NavFragment("home"))
+                .replace(R.id.home_navbar_container, navFragment)
                 .commit();
     }
 
