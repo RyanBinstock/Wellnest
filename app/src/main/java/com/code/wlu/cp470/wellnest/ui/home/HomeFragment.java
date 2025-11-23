@@ -1,5 +1,6 @@
 package com.code.wlu.cp470.wellnest.ui.home;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +17,11 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
+import com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarManager;
+import com.code.wlu.cp470.wellnest.data.local.managers.RoamioManager;
+import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 
 public class HomeFragment extends Fragment {
@@ -33,6 +39,19 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         TextView scoreText = view.findViewById(R.id.scoreText);
+
+        WellnestDatabaseHelper dbHelper = new WellnestDatabaseHelper(getActivity().getApplicationContext());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        UserManager userManager = new UserManager(db);
+        SnapTaskManager snapTaskManager = new SnapTaskManager(db);
+        ActivityJarManager activityJarManager = new ActivityJarManager(db);
+        RoamioManager roamioManager = new RoamioManager(db);
+
+        int score = (int) snapTaskManager.getSnapTaskScore() + (int) activityJarManager.getActivityJarScore() + (int) roamioManager.getRoamioScore().getScore();
+        String uid = userManager.currentUid();
+        scoreText.setText(String.valueOf(score));
+        userManager.setGlobalScore(uid, score);
+
 
         // Add modular micro app cards to home fragment
         FragmentManager fm = getChildFragmentManager();

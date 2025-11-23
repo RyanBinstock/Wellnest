@@ -23,4 +23,29 @@ public class ActivityJarContract {
                         Col.SCORE + " INTEGER NOT NULL DEFAULT 0" +
                         ")";
     }
+
+    // =========================
+    //  activity_jar_cache
+    // =========================
+
+    public static final class ActivityJarCache {
+        private ActivityJarCache() {}
+
+        public static final String TABLE = "activity_jar_cache";
+
+        public static final class Col {
+            public static final String ID = "id";
+            public static final String JSON_DATA = "json_data";
+            public static final String TIMESTAMP = "timestamp";
+            public static final String WEATHER_SUMMARY = "weather_summary";
+        }
+
+        public static final String SQL_CREATE =
+                "CREATE TABLE " + TABLE + "(" +
+                        Col.ID + " INTEGER PRIMARY KEY, " +
+                        Col.JSON_DATA + " TEXT, " +
+                        Col.TIMESTAMP + " INTEGER, " +
+                        Col.WEATHER_SUMMARY + " TEXT" +
+                        ")";
+    }
 }

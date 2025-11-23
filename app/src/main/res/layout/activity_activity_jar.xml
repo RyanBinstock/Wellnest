@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_jar_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -15,10 +13,10 @@
         android:adjustViewBounds="true"
         android:scaleType="fitXY"
         android:src="@drawable/bg_jar_scene"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- SCORE SIGN -->
     <ImageView
@@ -29,25 +27,24 @@
         android:adjustViewBounds="true"
         android:scaleType="fitCenter"
         android:src="@drawable/jar_scoreboard"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- SCORE TEXT (centered on sign) -->
     <TextView
         android:id="@+id/txtScore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:includeFontPadding="false"
         android:text="6,582"
         android:textColor="@android:color/white"
         android:textSize="64sp"
         android:textStyle="bold"
-        android:includeFontPadding="false"
-        app:layout_constraintTop_toTopOf="@id/scoreSign"
         app:layout_constraintBottom_toBottomOf="@id/scoreSign"
+        app:layout_constraintEnd_toEndOf="@id/scoreSign"
         app:layout_constraintStart_toStartOf="@id/scoreSign"
-        app:layout_constraintEnd_toEndOf="@id/scoreSign"/>
+        app:layout_constraintTop_toTopOf="@id/scoreSign" />
 
     <!-- CATEGORY BUTTONS CONTAINER -->
     <LinearLayout
@@ -79,13 +76,13 @@
                 android:id="@+id/txtExplore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="80dp"
+                android:includeFontPadding="false"
                 android:text="@string/explore"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="80dp"/>
+                android:textStyle="bold" />
         </FrameLayout>
 
         <!-- NIGHTLIFE -->
@@ -106,13 +103,13 @@
                 android:id="@+id/txtNightlife"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="80dp"
+                android:includeFontPadding="false"
                 android:text="@string/nightlife"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="80dp"/>
+                android:textStyle="bold" />
         </FrameLayout>
 
         <!-- PLAY -->
@@ -133,13 +130,13 @@
                 android:id="@+id/txtPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="80dp"
+                android:includeFontPadding="false"
                 android:text="@string/play"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="80dp"/>
+                android:textStyle="bold" />
         </FrameLayout>
 
         <!-- COZY -->
@@ -160,13 +157,13 @@
                 android:id="@+id/txtCozy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="80dp"
+                android:includeFontPadding="false"
                 android:text="@string/cozy"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="80dp"/>
+                android:textStyle="bold" />
         </FrameLayout>
 
         <!-- CULTURE -->
@@ -186,13 +183,13 @@
                 android:id="@+id/txtCulture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="80dp"
+                android:includeFontPadding="false"
                 android:text="@string/culture"
                 android:textColor="@android:color/white"
                 android:textSize="30sp"
-                android:textStyle="bold"
-                android:includeFontPadding="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="80dp"/>
+                android:textStyle="bold" />
         </FrameLayout>
 
     </LinearLayout>
@@ -201,29 +198,33 @@
         android:id="@+id/imgBird"
         android:layout_width="96dp"
         android:layout_height="wrap_content"
-        android:src="@drawable/jar_bird"
-        android:adjustViewBounds="true"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="60dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:adjustViewBounds="true"
+        android:src="@drawable/jar_bird"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- ⬅ HOME PILL BUTTON -->
-    <Button
-        android:id="@+id/btnHome"
-        android:layout_width="120dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_home_button"
-        android:elevation="4dp"
-        android:includeFontPadding="false"
-        android:text="@string/home"
-        android:textColor="@android:color/black"
-        android:textSize="16sp"
-        android:textStyle="bold"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/activity_jar_back_button"
+        android:layout_width="@dimen/snap_task_back_button_width"
+        android:layout_height="@dimen/snap_task_back_button_height"
+        android:layout_margin="@dimen/wl_space_l"
+        android:background="#FFFFFF"
+        android:clickable="true"
+        app:cardCornerRadius="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            style="@style/TextAppearance.Wellnest.MicroApp.HomeButtonActivityJar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/home_button_text" />
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

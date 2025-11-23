@@ -148,6 +148,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
+        android:layout_marginBottom="@dimen/wl_space_xl"
         android:clipChildren="false"
         android:clipToPadding="false"
         android:gravity="center"
