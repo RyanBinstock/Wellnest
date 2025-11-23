@@ -1,17 +1,16 @@
 package com.code.wlu.cp470.wellnest.ui.activityjar;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.code.wlu.cp470.wellnest.R;
 
@@ -20,9 +19,10 @@ import java.util.List;
 
 public class activityJarSelection extends Fragment {
 
+    private static final String ARG_START_INDEX = "start_index";
     private ViewPager2 viewPager;
     private ActivitiesPagerAdapter adapter;
-    private static final String ARG_START_INDEX = "start_index";
+
     public static activityJarSelection newInstance(int startIndex) {
         activityJarSelection fragment = new activityJarSelection();
         Bundle args = new Bundle();
@@ -39,7 +39,7 @@ public class activityJarSelection extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_activity_jar_selection, container, false);
 
-        viewPager = view.findViewById(R.id.vpActivities);
+        viewPager = view.findViewById(R.id.vpActivities); // this is being replaced by the carousel
 
         ImageView btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
@@ -52,19 +52,19 @@ public class activityJarSelection extends Fragment {
         });
 
         List<Integer> cards = Arrays.asList(
-                R.drawable.card_explore,
-                R.drawable.card_nightlife,
-                R.drawable.card_play,
-                R.drawable.card_cozy,
-                R.drawable.card_culture
+                R.drawable.activity_bg_1,
+                R.drawable.activity_bg_2,
+                R.drawable.activity_bg_3,
+                R.drawable.activity_bg_4,
+                R.drawable.activity_bg_5
         );
 
         adapter = new ActivitiesPagerAdapter(
-                        requireContext(),
-                        cards,
-                        position -> {
-                            openActivityDetail(position);
-                        });
+                requireContext(),
+                cards,
+                position -> {
+                    openActivityDetail(position);
+                });
         viewPager.setAdapter(adapter);
         viewPager.setOffscreenPageLimit(3);
 
@@ -98,7 +98,7 @@ public class activityJarSelection extends Fragment {
         return view;
     }
 
-    private void openActivityDetail(int index){
+    private void openActivityDetail(int index) {
         requireActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()

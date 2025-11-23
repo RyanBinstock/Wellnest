@@ -51,17 +51,16 @@
         app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
     <!-- MIDDLE: area for swipeable cards -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/vpActivities"
-        android:layout_width="0dp"
+    <com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView
+        android:id="@+id/carousel"
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="16dp"
+        app:carousel_auto_play="true"
+        app:carousel_blur_enabled="true"
+        app:carousel_offscreen_limit="2"
+        app:carousel_side_alpha="0.6"
+        app:carousel_side_scale="0.8"
         app:layout_constraintBottom_toTopOf="@id/txtTapHint"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtTitleYour" />
 
     <!-- HINT UNDER CARDS -->
@@ -77,8 +76,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/btnRandomDice"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/vpActivities" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!-- RANDOM DICE BUTTON (bottom-left) -->
     <ImageView

@@ -23,8 +23,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
@@ -247,32 +250,46 @@ public final class WellnestAiClient {
      * 4. Synthesizes results into categorized recommendations
      * <p>
      * Each activity includes:
+     * - Emoji: Emoji representing the activity
      * - Title: Name of the activity
-     * - Why: Explanation of why it's recommended
+     * - Description: Brief description of the activity
+     * - Address: Address of the activity (if available)
      * - Tag: Whether it's best for "solo", "friends", or "family"
      * - URL: Link to more information
      *
-     * @param locationName Human-readable location name (e.g., "Toronto, ON")
-     * @param latitude     Location latitude for weather lookup
-     * @param longitude    Location longitude for weather lookup
-     * @param isoDate      Date in ISO format (e.g., "2024-01-15")
-     * @param timeOfDay    Time period (e.g., "morning", "afternoon", "evening")
-     * @return JSON string with categorized activity recommendations
+     * @return Map of {@link ActivityJarModels.Category} to a list of {@link ActivityJarModels.Activity}
      * @throws IOException If network requests fail or data cannot be retrieved
      */
-    public static String planThingsToDo(String locationName,
-                                        double latitude,
-                                        double longitude,
-                                        String isoDate,
-                                        String timeOfDay) throws IOException {
+    public static Map<ActivityJarModels.Category, List<ActivityJarModels.Activity>> planThingsToDo(
+            Context context) throws IOException, JSONException {
+
+        if (!hasLocationPermission(context)) {
+            Log.e(TAG, "planThingsToDo: Location permission not granted");
+            throw new IOException("Location permission not granted");
+        }
+
+        // Get current location
+        Location location = getCurrentLocation(context);
+        if (location == null) {
+            Log.e(TAG, "planThingsToDo: Unable to obtain current location");
+            return null;
+        }
+
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+
+        String isoDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
         // Fetch current weather conditions for the location
         String weatherSummary = fetchWeatherSummary(latitude, longitude);
+        String locationName = getLocationName(context, latitude, longitude);
+
 
         // Generate a targeted search query using AI
         String searchPrompt = String.format(Locale.US,
-                "Create a single concise web search query for interesting things to do in %s on %s in the %s, " +
+                "Create a single concise web search query for interesting things to do in %s on %s, " +
                         "considering the weather: %s. Focus on current, local options. Return ONLY the query text.",
-                locationName, isoDate, timeOfDay, weatherSummary);
+                locationName, isoDate, weatherSummary);
         String query = askNanoForQuery(searchPrompt);
 
         // Search the web for relevant activities
@@ -283,18 +300,79 @@ public final class WellnestAiClient {
                 "Using the Tavily results (JSON below) and the context, return ONLY a JSON object with exactly these top-level keys: " +
                         "[\"Explore\",\"Nightlife\",\"Play\",\"Cozy\",\"Culture\"]. " +
                         "Each key maps to an array of 3–10 objects with this exact shape:\n" +
-                        "{\"title\": string, \"why\": string, \"tag\": \"solo\"|\"friends\"|\"family\", \"url\": string}\n\n" +
+                        "{\"emoji\": String, " +
+                        "\"title\": string, " +
+                        "\"description\": string, " +
+                        "\"address\": string, " +
+                        "\"tags\": \"solo\",\"friends\",\"family\", " +
+                        "\"url\": string}\n\n" +
                         "Rules:\n" +
                         "- For each idea, choose ONE source URL from the Tavily results (prefer the official site). Output a full http(s) URL.\n" +
-                        "- Make ideas feasible given the date/time/weather.\n\n" +
+                        "- Make ideas feasible given the date/time/weather.\n" +
+                        "- You can give an activity one or more of the three tags.\n" +
+                        "- The emoji field should contain EXACTLY ONE EMOJI that best represents the activity\n\n" +
                         "Context:\n" +
                         "location: " + locationName + "\n" +
-                        "date: " + isoDate + "\n" +
-                        "time_of_day: " + timeOfDay + "\n" +
+                        "dateTime: " + isoDate + "\n" +
                         "weather: " + weatherSummary + "\n\n" +
                         "Tavily JSON:\n" + tavilyResults.toString();
 
-        return askNanoForStrictJson(synthPrompt);
+        String jsonResponse = askNanoForStrictJson(synthPrompt);
+
+        JSONObject root;
+        try {
+            root = new JSONObject(jsonResponse);
+        } catch (Exception e) {
+            Log.e(TAG, "planThingsToDo: Failed to parse GPT response JSON", e);
+            return null;
+        }
+
+        Map<ActivityJarModels.Category, List<ActivityJarModels.Activity>> byCategory =
+                new EnumMap<>(ActivityJarModels.Category.class);
+
+        for (ActivityJarModels.Category category : ActivityJarModels.Category.values()) {
+
+            if (!root.has(category.name())) continue;
+
+            JSONArray activitiesArray = root.getJSONArray(category.name());
+            List<ActivityJarModels.Activity> activities = new ArrayList<>();
+
+            for (int i = 0; i < activitiesArray.length(); i++) {
+                JSONObject a = activitiesArray.getJSONObject(i);
+
+                String emoji = a.optString("emoji");
+                String title = a.optString("title");
+                String description = a.optString("description");
+                String address = a.optString("address");
+                String url = a.optString("url");
+
+                JSONArray tagsJson = a.optJSONArray("tags");
+                String[] tags = new String[tagsJson != null ? tagsJson.length() : 0];
+
+                if (tagsJson != null) {
+                    for (int t = 0; t < tagsJson.length(); t++) {
+                        tags[t] = tagsJson.getString(t);
+                    }
+                }
+
+                ActivityJarModels.Activity activity =
+                        new ActivityJarModels.Activity(
+                                category.name(),
+                                emoji,
+                                title,
+                                description,
+                                address,
+                                tags,
+                                url
+                        );
+
+                activities.add(activity);
+            }
+
+            byCategory.put(category, activities);
+        }
+
+        return byCategory;
     }
 
     /**
@@ -330,7 +408,7 @@ public final class WellnestAiClient {
      * - Returns null if GPT response parsing fails
      * - Returns null if distance calculation fails
      *
-     * @param context Android Context for location services and geocoding
+     * @param context  Android Context for location services and geocoding
      * @param callback Optional callback for progress updates (can be null)
      * @return Walk object with all attributes set, or null on error
      */
@@ -359,7 +437,7 @@ public final class WellnestAiClient {
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
-        Log.d(TAG, String.format(Locale.US, "pickWalkAndStory: Got location: %.6f, %.6f", latitude, longitude));
+        Log.d(TAG, String.format(Locale.CANADA, "pickWalkAndStory: Got location: %.6f, %.6f", latitude, longitude));
 
         if (callback != null) callback.onProgress(20, "Identifying neighborhood...");
 

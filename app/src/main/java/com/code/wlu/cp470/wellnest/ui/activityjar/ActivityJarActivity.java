@@ -1,12 +1,11 @@
 package com.code.wlu.cp470.wellnest.ui.activityjar;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentManager;
 
@@ -42,18 +41,18 @@ public class ActivityJarActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
 
-        ImageView btnExplore   = findViewById(R.id.btnExplore);
+        ImageView btnExplore = findViewById(R.id.btnExplore);
         ImageView btnNightlife = findViewById(R.id.btnNightlife);
-        ImageView btnPlay      = findViewById(R.id.btnPlay);
-        ImageView btnCozy      = findViewById(R.id.btnCozy);
-        ImageView btnCulture   = findViewById(R.id.btnCulture);
+        ImageView btnPlay = findViewById(R.id.btnPlay);
+        ImageView btnCozy = findViewById(R.id.btnCozy);
+        ImageView btnCulture = findViewById(R.id.btnCulture);
         btnExplore.setOnClickListener(v -> openSelection(0));   // Explore card
         btnNightlife.setOnClickListener(v -> openSelection(1)); // Nightlife card
         btnPlay.setOnClickListener(v -> openSelection(2));      // Play card
         btnCozy.setOnClickListener(v -> openSelection(3));      // Cozy card
         btnCulture.setOnClickListener(v -> openSelection(4));   // Culture card
 
-        Button btnHome = findViewById(R.id.btnHome);
+        CardView btnHome = findViewById(R.id.activity_jar_back_button);
         btnHome.setOnClickListener(v -> {
             finish();
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
