@@ -68,4 +68,14 @@
         <item>Cozy</item>
         <item>Culture</item>
     </string-array>
+    
+    <!-- Roamio loading overlay strings -->
+    <string name="roamio_loading_title">Loading Your Walk</string>
+    <string name="roamio_loading_message">Finding your perfect walk...</string>
+    <string name="roamio_loading_message_2">Analyzing nearby locations…</string>
+    <string name="roamio_loading_message_3">Creating your adventure…</string>
+    <string name="loading_overlay_description">Loading overlay, please wait</string>
+    <string name="loading_character_description">Loading character</string>
+    <string name="loading_progress_description">Loading progress indicator</string>
+    <string name="loading_percentage_description">Loading percentage</string>
 </resources>

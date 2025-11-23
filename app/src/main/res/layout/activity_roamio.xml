@@ -55,7 +55,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
-        android:src="@drawable/roamio_scoreboard" />
+        android:src="@drawable/roamio_scoreboard"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/roamio_score_text"
@@ -137,7 +139,40 @@
                 app:layout_constraintBottom_toBottomOf="@+id/difficultyCard"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/difficultyCard" />
-            <!--     TODO: draw three circles here for difficulty (active dot is green, unactive dot is only white stroke)      -->
+
+            <LinearLayout
+                android:id="@+id/difficultyDotsContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/wl_space_m"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="@+id/difficultyCard"
+                app:layout_constraintEnd_toEndOf="@+id/difficultyCard"
+                app:layout_constraintTop_toTopOf="@+id/difficultyCard">
+
+                <View
+                    android:id="@+id/difficultyDot1"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_circle"
+                    android:backgroundTint="#59C060" />
+
+                <View
+                    android:id="@+id/difficultyDot2"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:layout_marginEnd="6dp"
+                    android:background="@drawable/bg_circle"
+                    android:backgroundTint="#FFFFFF" />
+
+                <View
+                    android:id="@+id/difficultyDot3"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/bg_circle"
+                    android:backgroundTint="#FFFFFF" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/walkTitle"
@@ -189,5 +224,10 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </eightbitlab.com.blurview.BlurView>
 
+    <!-- Loading overlay - appears on top of all content -->
+    <include
+        android:id="@+id/roamioLoadingOverlay"
+        layout="@layout/overlay_roamio_loading"
+        android:visibility="gone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

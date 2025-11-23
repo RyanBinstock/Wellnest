@@ -45,6 +45,7 @@ fragmentTesting = "1.6.2"
 espressoContrib = "3.7.0"
 firebaseDatabase = "22.0.1"
 espressoIntents = "3.7.0"
+playServicesLocation = "21.3.0"
 
 [libraries]
 # AndroidX Core
@@ -100,6 +101,7 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 
 blurView = { group = "com.eightbitlab", name = "blurview", version.ref = "blurView" }
 androidx-espresso-intents = { group = "androidx.test.espresso", name = "espresso-intents", version.ref = "espressoIntents" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
