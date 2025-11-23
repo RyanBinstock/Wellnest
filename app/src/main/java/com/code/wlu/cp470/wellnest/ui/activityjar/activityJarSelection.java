@@ -10,18 +10,28 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.data.ActivityJarModels;
+import com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView;
+import com.code.wlu.cp470.wellnest.viewmodel.ActivityJarViewModel;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class activityJarSelection extends Fragment {
 
     private static final String ARG_START_INDEX = "start_index";
-    private ViewPager2 viewPager;
-    private ActivitiesPagerAdapter adapter;
+    private WellnestCarouselView carouselView;
+    private ActivityCarouselAdapter adapter;
+    private ActivityJarViewModel viewModel;
+    private ProgressBar loadingProgressBar;
 
     public static activityJarSelection newInstance(int startIndex) {
         activityJarSelection fragment = new activityJarSelection();
@@ -39,7 +49,10 @@ public class activityJarSelection extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_activity_jar_selection, container, false);
 
-        viewPager = view.findViewById(R.id.vpActivities); // this is being replaced by the carousel
+        carouselView = view.findViewById(R.id.carousel);
+        loadingProgressBar = view.findViewById(R.id.loadingProgressBar);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(ActivityJarViewModel.class);
 
         ImageView btnBack = view.findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
@@ -51,42 +64,80 @@ public class activityJarSelection extends Fragment {
             }
         });
 
-        List<Integer> cards = Arrays.asList(
-                R.drawable.activity_bg_1,
-                R.drawable.activity_bg_2,
-                R.drawable.activity_bg_3,
-                R.drawable.activity_bg_4,
-                R.drawable.activity_bg_5
-        );
-
-        adapter = new ActivitiesPagerAdapter(
-                requireContext(),
-                cards,
-                position -> {
-                    openActivityDetail(position);
-                });
-        viewPager.setAdapter(adapter);
-        viewPager.setOffscreenPageLimit(3);
+        adapter = new ActivityCarouselAdapter(activity -> {
+            ActivityInfoDialog dialog = ActivityInfoDialog.newInstance(activity);
+            dialog.setOnActivityAcceptListener(() -> {
+                viewModel.acceptActivity(activity);
+                Toast.makeText(requireContext(), "Accepted! +50 points", Toast.LENGTH_SHORT).show();
+            });
+            dialog.show(getChildFragmentManager(), "ActivityInfoDialog");
+        });
+        carouselView.setAdapter(adapter);
 
         int startIndex = 0;
         if (getArguments() != null) {
             startIndex = getArguments().getInt(ARG_START_INDEX, 0);
         }
 
-        if (startIndex < 0) startIndex = 0;
-        if (startIndex >= adapter.getItemCount()) {
-            startIndex = adapter.getItemCount() - 1;
-        }
+        // Observe ViewModel
+        viewModel.getActivities().observe(getViewLifecycleOwner(), map -> {
+            android.util.Log.d("ActivityJarSelection", "Observer: activities updated. Map is " + (map != null ? "present" : "null"));
+            if (map != null) {
+                List<ActivityJarModels.Activity> allActivities = new ArrayList<>();
+                // Flatten the map for the carousel for now, or filter based on selection
+                // The original code passed an index which seemed to map to categories
+                // 0: Explore, 1: Nightlife, 2: Play, 3: Cozy, 4: Culture
+                
+                ActivityJarModels.Category selectedCategory = getCategoryByIndex(getArguments() != null ? getArguments().getInt(ARG_START_INDEX, 0) : 0);
+                
+                if (map.containsKey(selectedCategory)) {
+                    allActivities.addAll(map.get(selectedCategory));
+                } else {
+                    // Fallback: add all if specific category empty or not found
+                    for (List<ActivityJarModels.Activity> list : map.values()) {
+                        allActivities.addAll(list);
+                    }
+                }
+                
+                adapter.setActivities(allActivities);
+            }
+        });
 
-        viewPager.setCurrentItem(startIndex, false);
+        viewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
+            android.util.Log.d("ActivityJarSelection", "Observer: isLoading = " + isLoading);
+            loadingProgressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            carouselView.setVisibility(isLoading ? View.GONE : View.VISIBLE);
+        });
+
+        viewModel.getError().observe(getViewLifecycleOwner(), error -> {
+            if (error != null) {
+                android.util.Log.e("ActivityJarSelection", "Observer: error = " + error);
+                Toast.makeText(requireContext(), error, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // Load data
+        viewModel.loadActivities();
 
         ImageView btnDice = view.findViewById(R.id.btnRandomDice);
         btnDice.setOnClickListener(v -> {
             int count = adapter.getItemCount();
             if (count == 0) return;
             int randomIndex = new java.util.Random().nextInt(count);
-            viewPager.setCurrentItem(randomIndex, true);
-            openActivityDetail(randomIndex);
+            
+            // Scroll to the item
+            carouselView.getViewPager().setCurrentItem(randomIndex, true);
+            
+            // Open the dialog for the random activity
+            ActivityJarModels.Activity randomActivity = adapter.getItem(randomIndex);
+            if (randomActivity != null) {
+                ActivityInfoDialog dialog = ActivityInfoDialog.newInstance(randomActivity);
+                dialog.setOnActivityAcceptListener(() -> {
+                    viewModel.acceptActivity(randomActivity);
+                    Toast.makeText(requireContext(), "Accepted! +50 points", Toast.LENGTH_SHORT).show();
+                });
+                dialog.show(getChildFragmentManager(), "ActivityInfoDialog");
+            }
         });
 
         ImageView btnFilters = view.findViewById(R.id.btnFilters);
@@ -98,19 +149,13 @@ public class activityJarSelection extends Fragment {
         return view;
     }
 
-    private void openActivityDetail(int index) {
-        requireActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .setCustomAnimations(
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left,
-                        R.anim.slide_in_left,
-                        R.anim.slide_out_right
-                )
-                .replace(R.id.activity_jar_root,
-                        ActivityDetailFragment.newInstance(index))
-                .addToBackStack(null)
-                .commit();
+    private ActivityJarModels.Category getCategoryByIndex(int index) {
+        switch (index) {
+            case 1: return ActivityJarModels.Category.Nightlife;
+            case 2: return ActivityJarModels.Category.Play;
+            case 3: return ActivityJarModels.Category.Cozy;
+            case 4: return ActivityJarModels.Category.Culture;
+            default: return ActivityJarModels.Category.Explore;
+        }
     }
 }

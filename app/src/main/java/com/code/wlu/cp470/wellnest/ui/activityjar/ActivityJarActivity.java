@@ -4,14 +4,24 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.code.wlu.cp470.wellnest.R;
+import com.code.wlu.cp470.wellnest.viewmodel.ActivityJarViewModel;
+
+import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ActivityJarActivity extends AppCompatActivity {
+
+    private ActivityJarViewModel viewModel;
+    private TextView txtScore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +51,15 @@ public class ActivityJarActivity extends AppCompatActivity {
         } catch (Exception ignored) {
         }
 
+        txtScore = findViewById(R.id.txtScore);
+        viewModel = new ViewModelProvider(this).get(ActivityJarViewModel.class);
+
+        viewModel.getScore().observe(this, score -> {
+            if (score != null) {
+                updateScoreWithAnimation(score);
+            }
+        });
+
         ImageView btnExplore = findViewById(R.id.btnExplore);
         ImageView btnNightlife = findViewById(R.id.btnNightlife);
         ImageView btnPlay = findViewById(R.id.btnPlay);
@@ -66,5 +85,19 @@ public class ActivityJarActivity extends AppCompatActivity {
                 .replace(R.id.activity_jar_root, activityJarSelection.newInstance(startIndex))
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void updateScoreWithAnimation(int newScore) {
+        txtScore.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .withEndAction(() -> {
+                    txtScore.setText(NumberFormat.getNumberInstance(Locale.US).format(newScore));
+                    txtScore.animate()
+                            .alpha(1f)
+                            .setDuration(200)
+                            .start();
+                })
+                .start();
     }
 }

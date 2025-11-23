@@ -111,10 +111,10 @@ public final class WellnestAiClient {
      * - Periodic ping to keep connection alive
      */
     private static final OkHttpClient http = new OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(40, TimeUnit.SECONDS)
-            .readTimeout(60, TimeUnit.SECONDS)
-            .callTimeout(120, TimeUnit.SECONDS)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .readTimeout(120, TimeUnit.SECONDS)
+            .callTimeout(180, TimeUnit.SECONDS)
             .retryOnConnectionFailure(true)
             .pingInterval(15, TimeUnit.SECONDS)
             .build();
@@ -263,17 +263,21 @@ public final class WellnestAiClient {
     public static Map<ActivityJarModels.Category, List<ActivityJarModels.Activity>> planThingsToDo(
             Context context) throws IOException, JSONException {
 
+        Log.d(TAG, "planThingsToDo: Starting...");
+
         if (!hasLocationPermission(context)) {
             Log.e(TAG, "planThingsToDo: Location permission not granted");
             throw new IOException("Location permission not granted");
         }
 
         // Get current location
+        Log.d(TAG, "planThingsToDo: Getting location...");
         Location location = getCurrentLocation(context);
         if (location == null) {
             Log.e(TAG, "planThingsToDo: Unable to obtain current location");
             return null;
         }
+        Log.d(TAG, "planThingsToDo: Location obtained: " + location.getLatitude() + ", " + location.getLongitude());
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
@@ -281,41 +285,64 @@ public final class WellnestAiClient {
         String isoDate = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
         // Fetch current weather conditions for the location
+        Log.d(TAG, "planThingsToDo: Fetching weather...");
         String weatherSummary = fetchWeatherSummary(latitude, longitude);
         String locationName = getLocationName(context, latitude, longitude);
+        Log.d(TAG, "planThingsToDo: Weather: " + weatherSummary + ", Location: " + locationName);
 
 
         // Generate a targeted search query using AI
-        String searchPrompt = String.format(Locale.US,
-                "Create a single concise web search query for interesting things to do in %s on %s, " +
-                        "considering the weather: %s. Focus on current, local options. Return ONLY the query text.",
+        Log.d(TAG, "planThingsToDo: Asking Nano for query...");
+        String query = String.format(Locale.US,
+                "Best local things to do in %s on %s considering %s. " +
+                        "Include outdoor hikes and nature spots, nightlife bars and live music, " +
+                        "active recreation like sports or arcades, cozy coffee shops or chill " +
+                        "indoor spaces, and cultural places like museums or notable restaurants. " +
+                        "Use current, official sources.",
                 locationName, isoDate, weatherSummary);
-        String query = askNanoForQuery(searchPrompt);
+
 
         // Search the web for relevant activities
+        Log.d(TAG, "planThingsToDo: Searching Tavily...");
         JSONObject tavilyResults = tavilySearch(query);
+        Log.d(TAG, "planThingsToDo: Tavily search complete");
 
         // Synthesize search results into categorized recommendations
+        Log.d(TAG, "planThingsToDo: Synthesizing results...");
         String synthPrompt =
-                "Using the Tavily results (JSON below) and the context, return ONLY a JSON object with exactly these top-level keys: " +
-                        "[\"Explore\",\"Nightlife\",\"Play\",\"Cozy\",\"Culture\"]. " +
-                        "Each key maps to an array of 3–10 objects with this exact shape:\n" +
-                        "{\"emoji\": String, " +
-                        "\"title\": string, " +
-                        "\"description\": string, " +
-                        "\"address\": string, " +
-                        "\"tags\": \"solo\",\"friends\",\"family\", " +
-                        "\"url\": string}\n\n" +
+                "Using the Tavily results (JSON below) and the context, return ONLY a valid JSON object with exactly these top-level keys: " +
+                        "[\"Explore\",\"Nightlife\",\"Play\",\"Cozy\",\"Culture\"]. No commentary.\n\n" +
+
+                        "Each key maps to an array of 3–5 objects with this exact shape:\n" +
+                        "{\n" +
+                        "  \"emoji\": string,\n" +
+                        "  \"title\": string,\n" +
+                        "  \"description\": string,\n" +
+                        "  \"address\": string,\n" +
+                        "  \"tags\": [\"solo\",\"friends\",\"family\"],\n" +
+                        "  \"url\": string\n" +
+                        "}\n\n" +
+
+                        "CATEGORY DEFINITIONS (STRICT):\n" +
+                        "- Explore: Outdoor, adventure-style activities (hikes, trails, viewpoints, nature walks, scenic exploration)\n" +
+                        "- Nightlife: After-dark social activities (bars, lounges, live music, nightlife venues, late-night events)\n" +
+                        "- Play: Active & recreational fun (sports, arcades, bowling, mini golf, physical games)\n" +
+                        "- Cozy: Relaxed, low-energy comfort activities (coffee shops, reading spots, at-home vibes, calm spaces)\n" +
+                        "- Culture: Intellectual & culinary experiences (museums, galleries, cultural sites, notable restaurants)\n\n" +
+
                         "Rules:\n" +
-                        "- For each idea, choose ONE source URL from the Tavily results (prefer the official site). Output a full http(s) URL.\n" +
-                        "- Make ideas feasible given the date/time/weather.\n" +
-                        "- You can give an activity one or more of the three tags.\n" +
-                        "- The emoji field should contain EXACTLY ONE EMOJI that best represents the activity\n\n" +
+                        "- Choose ONE source URL per activity from Tavily results (prefer official sites). Use full http(s) URLs.\n" +
+                        "- Activities must be realistic given the provided dateTime and weather.\n" +
+                        "- Tags may include one or more of: solo, friends, family.\n" +
+                        "- The emoji field must contain EXACTLY ONE emoji that best represents the activity.\n" +
+                        "- Do not invent places not justified by Tavily data.\n\n" +
+
                         "Context:\n" +
                         "location: " + locationName + "\n" +
                         "dateTime: " + isoDate + "\n" +
                         "weather: " + weatherSummary + "\n\n" +
                         "Tavily JSON:\n" + tavilyResults.toString();
+
 
         String jsonResponse = askNanoForStrictJson(synthPrompt);
 
@@ -746,7 +773,7 @@ public final class WellnestAiClient {
                     .put("search_depth", "basic")
                     .put("include_answer", true)
                     .put("include_images", false)
-                    .put("max_results", 6);
+                    .put("max_results", 12);
 
             RequestBody body = RequestBody.create(payload.toString(), JSON);
             Request req = new Request.Builder()

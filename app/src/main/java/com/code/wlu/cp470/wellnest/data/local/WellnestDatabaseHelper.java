@@ -11,7 +11,7 @@ import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
 
 public class WellnestDatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "wellnest.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public WellnestDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -45,33 +45,31 @@ public class WellnestDatabaseHelper extends SQLiteOpenHelper {
 
         //ACTIVITY JAR DOMAIN
         db.execSQL(ActivityJarContract.Activity_Jar_Score.SQL_CREATE);
+        db.execSQL(ActivityJarContract.ActivityJarCache.SQL_CREATE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 2) {
+            db.execSQL(ActivityJarContract.ActivityJarCache.SQL_CREATE);
+        }
+        // For future versions, add more if blocks or switch case
+        // For development, if you want to wipe data on every upgrade, you can keep the old logic,
+        // but typically onUpgrade should migrate data.
+        // The previous implementation wiped everything, which is fine for dev but maybe not what we want long term.
+        // However, to respect the existing pattern if it was intended for dev:
+        /*
         // for development, just wipe the data
         db.beginTransaction();
         try {
             db.execSQL("DROP TABLE IF EXISTS " + UserContract.Badges.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + UserContract.Friends.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + UserContract.Streak.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + UserContract.GlobalScore.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + UserContract.UserProfile.TABLE);
-
-            db.execSQL("DROP TABLE IF EXISTS " + SnapTaskContract.Tasks.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + SnapTaskContract.SnapTask_Score.TABLE);
-
-            db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Roamio_Score.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Walk_Sessions.TABLE);
-            db.execSQL("DROP TABLE IF EXISTS " + RoamioContract.Current_Walk.TABLE);
-
-            db.execSQL("DROP TABLE IF EXISTS " + ActivityJarContract.Activity_Jar_Score.TABLE);
-
+            // ... drop all other tables ...
             onCreate(db); // recreate tables
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+        */
     }
 
     /**

@@ -64,19 +64,21 @@
                 android:elevation="7dp"
                 android:includeFontPadding="false"
                 android:text="🧭"
-                android:textSize="100sp" />
+                android:textSize="80sp" />
 
             <TextView
                 android:id="@+id/activityName_tv"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
+                android:layout_marginHorizontal="35dp"
                 android:layout_marginTop="@dimen/wl_space_s"
                 android:elevation="7dp"
                 android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
                 android:includeFontPadding="false"
                 android:text="Activity"
-                android:textSize="30sp" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <TextView
@@ -92,7 +94,7 @@
             android:maxLines="3"
             android:text="@string/loremIpsum"
             android:textColor="#FFFFFF"
-            android:textSize="20sp"
+            android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="@+id/imgCardBackground"
             app:layout_constraintStart_toStartOf="@+id/imgCardBackground" />
 

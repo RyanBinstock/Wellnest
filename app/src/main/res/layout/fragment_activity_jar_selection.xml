@@ -35,7 +35,6 @@
         android:id="@+id/txtTitleYour"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
         android:fontFamily="@font/poppins_extrabold"
         android:includeFontPadding="false"
@@ -47,6 +46,7 @@
         android:textAllCaps="true"
         android:textColor="@android:color/white"
         android:textSize="60sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
@@ -55,20 +55,30 @@
         android:id="@+id/carousel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:carousel_auto_play="true"
+        app:carousel_auto_play="false"
         app:carousel_blur_enabled="true"
-        app:carousel_offscreen_limit="2"
+        app:carousel_offscreen_limit="4"
         app:carousel_side_alpha="0.6"
         app:carousel_side_scale="0.8"
         app:layout_constraintBottom_toTopOf="@id/txtTapHint"
         app:layout_constraintTop_toBottomOf="@id/txtTitleYour" />
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/carousel"
+        app:layout_constraintEnd_toEndOf="@id/carousel"
+        app:layout_constraintStart_toStartOf="@id/carousel"
+        app:layout_constraintTop_toTopOf="@id/carousel" />
 
     <!-- HINT UNDER CARDS -->
     <TextView
         android:id="@+id/txtTapHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="72dp"
+        android:layout_marginBottom="25dp"
         android:includeFontPadding="false"
         android:text="Click a card to view that activity"
         android:textColor="@android:color/white"
@@ -81,7 +91,7 @@
     <!-- RANDOM DICE BUTTON (bottom-left) -->
     <ImageView
         android:id="@+id/btnRandomDice"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginBottom="24dp"
@@ -96,13 +106,14 @@
     <ImageView
         android:id="@+id/btnFilters"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="24dp"
         android:adjustViewBounds="true"
         android:clickable="true"
         android:focusable="true"
         android:src="@drawable/ic_filters"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

@@ -18,6 +18,7 @@ import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseSnapTaskManager;
+import com.code.wlu.cp470.wellnest.utils.ActivityJarPrefetcher;
 import com.code.wlu.cp470.wellnest.utils.MusicService;
 
 import java.time.Instant;
@@ -106,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d(TAG, "onCreate: same day as last check, skipping snap task sync");
         }
+
+        // Prefetch Activity Jar activities in background
+        new Thread(() -> {
+            ActivityJarPrefetcher.prefetchActivities(getApplicationContext());
+        }).start();
     }
 
     @Override
