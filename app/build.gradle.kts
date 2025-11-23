@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.androidx.espresso.contrib)
     implementation(libs.firebase.database)
+    
+    // Google Play Services - Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Unit tests
     testImplementation(libs.junit4)

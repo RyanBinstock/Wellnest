@@ -1,6 +1,9 @@
 package com.code.wlu.cp470.wellnest.data.auth;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.code.wlu.cp470.wellnest.data.UserRepository;
@@ -28,10 +31,13 @@ import java.util.Map;
  * Call sync helpers (e.g., pushLocalGlobalScoreToCloud / refreshFriendsScoresFromCloud) from app startup flows as needed.
  */
 public class AuthRepository {
+
+    public static String PREFS = "user_prefs";
     private final FirebaseAuth auth;
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final UserRepository userRepo;
+    SharedPreferences prefs;
 
     /**
      * Preferred: inject a ready UserRepository (constructed with your LOCAL + REMOTE managers).
@@ -40,6 +46,7 @@ public class AuthRepository {
         this.auth = FirebaseAuth.getInstance();
         this.context = context.getApplicationContext();
         this.userRepo = userRepository;
+        prefs = context.getSharedPreferences(PREFS, MODE_PRIVATE);
     }
 
     /**
@@ -48,6 +55,7 @@ public class AuthRepository {
      */
     public AuthRepository(Context context, UserManager localManager, FirebaseUserManager remoteManager) {
         this(context, new UserRepository(context.getApplicationContext(), localManager, remoteManager));
+        prefs = context.getSharedPreferences(PREFS, MODE_PRIVATE);
     }
 
     private String mapAuthError(Exception e) {
@@ -67,6 +75,7 @@ public class AuthRepository {
     }
 
     public void signIn(String email, String password, Callback<FirebaseUser> cb) {
+        final String[] uid = new String[1];
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(t -> {
                     if (!t.isSuccessful()) {
@@ -79,16 +88,19 @@ public class AuthRepository {
                         return;
                     }
                     // Ensure Firestore doc exists (no-op if present)
-                    String uid = u.getUid();
+                    uid[0] = u.getUid();
 
                     // Make sure the doc exists without blocking the UI thread
-                    bootstrapUserDocument(uid, u.getDisplayName(), email, (v, e2) -> {
+                    bootstrapUserDocument(uid[0], u.getDisplayName(), email, (v, e2) -> {
                         // even if this fails, keep the user signed in; you can retry later
-                        persistLocalUser(uid, u.getDisplayName(), email);
-                        userRepo.ensureGlobalScore(uid);
+                        persistLocalUser(uid[0], u.getDisplayName(), email);
+                        userRepo.ensureGlobalScore(uid[0]);
                         cb.onResult(u, null);
                     });
                 });
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("uid", uid[0]);
+        editor.apply();
     }
 
     public void signUp(String name, String email, String password, Callback<FirebaseUser> cb) {
@@ -122,6 +134,10 @@ public class AuthRepository {
                         cb.onResult(user, null);
                     });
                 });
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("uid", currentUser().getUid());
+        editor.apply();
+
     }
 
     private void persistLocalUser(String uid, String displayName, String email) {
@@ -161,11 +177,11 @@ public class AuthRepository {
             Log.e("AuthRepository", "No user to delete");
             return;
         }
-        
+
         // DEBUG: Log the issue with current implementation
         Log.d("AuthRepository", "Attempting to delete account for: " + user.getEmail());
         Log.e("AuthRepository", "BUG: Using UID instead of password for reauthentication - this will fail!");
-        
+
         // Temporary fix: Skip reauthentication and delete directly
         // NOTE: This will only work if the user recently signed in (within ~5 minutes)
         // For production, you should prompt for password or use recent auth
@@ -181,7 +197,7 @@ public class AuthRepository {
                     }
                 });
     }
-    
+
     // Proper implementation with password parameter (for future use)
     public void deleteAccountWithPassword(String password, Callback<Void> callback) {
         FirebaseUser user = currentUser();
@@ -189,7 +205,7 @@ public class AuthRepository {
             callback.onResult(null, new Exception("No user logged in"));
             return;
         }
-        
+
         AuthCredential cred = EmailAuthProvider.getCredential(user.getEmail(), password);
         user.reauthenticate(cred)
                 .addOnSuccessListener(v -> {

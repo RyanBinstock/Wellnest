@@ -1,30 +1,31 @@
 package com.code.wlu.cp470.wellnest.data;
 
 public class RoamioModels {
-    public static final class WalkSession {
+    public static final class Walk {
         private String uid;
-        private int startedAt;
-        private int endedAt;
-        private int steps;
+        private String name;
+        private String story;
+        private String start_address;
+        private String end_address;
         private float distanceMeters;
-        private int pointsAwarded;
-        private String status;
+        private boolean completed;
 
-        public WalkSession(
+
+        public Walk(
                 String uid,
-                int startedAt,
-                int endedAt,
-                int steps,
+                String name,
+                String story,
+                String start_address,
+                String end_address,
                 float distanceMeters,
-                int pointsAwarded,
-                String status) {
+                boolean completed) {
             this.uid = uid;
-            this.startedAt = startedAt;
-            this.endedAt = endedAt;
-            this.steps = steps;
+            this.name = name;
+            this.story = story;
+            this.start_address = start_address;
+            this.end_address = end_address;
             this.distanceMeters = distanceMeters;
-            this.pointsAwarded = pointsAwarded;
-            this.status = status;
+            this.completed = completed;
         }
 
         public String getUid() {
@@ -35,28 +36,36 @@ public class RoamioModels {
             this.uid = uid;
         }
 
-        public int getStartedAt() {
-            return startedAt;
+        public String getName() {
+            return name;
         }
 
-        public void setStartedAt(int startedAt) {
-            this.startedAt = startedAt;
+        public void setName(String name) {
+            this.name = name;
         }
 
-        public int getEndedAt() {
-            return endedAt;
+        public String getStory() {
+            return story;
         }
 
-        public void setEndedAt(int endedAt) {
-            this.endedAt = endedAt;
+        public void setStory(String story) {
+            this.story = story;
         }
 
-        public int getSteps() {
-            return steps;
+        public String getStartAddress() {
+            return start_address;
         }
 
-        public void setSteps(int steps) {
-            this.steps = steps;
+        public void setStartAddress(String address) {
+            this.start_address = address;
+        }
+
+        public String getEndAddress() {
+            return end_address;
+        }
+
+        public void setEndAddress(String address) {
+            this.end_address = address;
         }
 
         public float getDistanceMeters() {
@@ -67,118 +76,17 @@ public class RoamioModels {
             this.distanceMeters = distanceMeters;
         }
 
-        public int getPointsAwarded() {
-            return pointsAwarded;
+        public boolean isCompleted() {
+            return completed;
         }
 
-        public void setPointsAwarded(int pointsAwarded) {
-            this.pointsAwarded = pointsAwarded;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus() {
-            this.status = status;
-        }
-    }
-
-    public static final class CurrentWalk {
-        private String uid;
-        private String status;
-        private int startedAt;
-        private int startStepCount;
-        private int startElapsedRealtimeMs;
-        private int lastUpdatedMs;
-        private int lastKnownSteps;
-        private float lastKnownDistanceMeters;    // Last known distance in meters
-
-        public CurrentWalk(
-            String uid,
-            String status,
-            int startedAt,
-            int startStepCount,
-            int startElapsedRealtimeMs,
-            int lastUpdatedMs,
-            int lastKnownSteps,
-            float lastKnownDistanceMeters) {
-            this.uid = uid;
-            this.status = status;
-            this.startedAt = startedAt;
-            this.startStepCount = startStepCount;
-            this.startElapsedRealtimeMs = startElapsedRealtimeMs;
-            this.lastUpdatedMs = lastUpdatedMs;
-            this.lastKnownSteps = lastKnownSteps;
-            this.lastKnownDistanceMeters = lastKnownDistanceMeters;
-        }
-
-        public String getUid() {
-            return uid;
-        }
-
-        public void setUid(String uid) {
-            this.uid = uid;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
-
-        public int getStartedAt() {
-            return startedAt;
-        }
-
-        public void setStartedAt(int startedAt) {
-            this.startedAt = startedAt;
-        }
-
-        public int getStartStepCount() {
-            return startStepCount;
-        }
-
-        public void setStartStepCount(int startStepCount) {
-            this.startStepCount = startStepCount;
-        }
-
-        public int getStartElapsedRealtimeMs() {
-            return startElapsedRealtimeMs;
-        }
-
-        public void setStartElapsedRealtimeMs(int startElapsedRealtimeMs) {
-            this.startElapsedRealtimeMs = startElapsedRealtimeMs;
-        }
-
-        public int getLastUpdatedMs() {
-            return lastUpdatedMs;
-        }
-
-        public void setLastUpdatedMs(int lastUpdatedMs) {
-            this.lastUpdatedMs = lastUpdatedMs;
-        }
-
-        public int getLastKnownSteps() {
-            return lastKnownSteps;
-        }
-
-        public void setLastKnownSteps(int lastKnownSteps) {
-            this.lastKnownSteps = lastKnownSteps;
-        }
-
-        public float getLastKnownDistanceMeters() {
-            return lastKnownDistanceMeters;
-        }
-
-        public void setLastKnownDistanceM(int lastKnownDistanceMeters) {
-            this.lastKnownDistanceMeters = lastKnownDistanceMeters;
+        public void setCompleted(boolean completed) {
+            this.completed = completed;
         }
     }
 
     public static final class RoamioScore {
+
         private String uid;
         private int score;
 
