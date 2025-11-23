@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Roamio Loading Overlay
+     Full-screen overlay displayed while fetching walk data from the API
+     Features a semi-transparent green card with loading animation -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/roamioLoadingOverlay"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clickable="true"
+    android:contentDescription="@string/loading_overlay_description"
+    android:focusable="true">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/roamio_loading_bg" />
+
+    <!-- Centered Loading Card -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/loadingCard"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="@drawable/bg_roamio_loading_card"
+        android:elevation="8dp"
+        android:padding="@dimen/wl_space_xl">
+
+        <!-- Content Container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Optional Character Image -->
+            <ImageView
+                android:id="@+id/loadingCharacter"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_marginBottom="@dimen/wl_space_m"
+                android:contentDescription="@string/loading_character_description"
+                android:visibility="gone" />
+
+            <!-- Loading Title -->
+            <TextView
+                android:id="@+id/loadingTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/roamio_loading_title"
+                android:fontFamily="@font/poppins_semibold"
+                android:gravity="center"
+                android:text="@string/roamio_loading_title"
+                android:textAlignment="center"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp" />
+
+            <!-- Loading Message -->
+            <TextView
+                android:id="@+id/loadingMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/wl_space_xs"
+                android:contentDescription="@string/roamio_loading_message"
+                android:fontFamily="@font/poppins_light"
+                android:gravity="center"
+                android:text="@string/roamio_loading_message"
+                android:textAlignment="center"
+                android:textColor="#E6FFFFFF"
+                android:textSize="16sp" />
+
+            <!-- Progress Bar -->
+            <com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+                android:id="@+id/loadingProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:layout_marginTop="@dimen/wl_space_l"
+                android:contentDescription="@string/loading_progress_description"
+                app:wl_cornerRadius="@dimen/wl_radius_pill"
+                app:wl_indeterminate="false"
+                app:wl_progressColor="#59C060"
+                app:wl_progressHeight="28dp"
+                app:wl_trackColor="#B9D9B9" />
+
+            <!-- Progress Percentage -->
+            <TextView
+                android:id="@+id/progressPercentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/wl_space_xs"
+                android:contentDescription="@string/loading_percentage_description"
+                android:fontFamily="@font/poppins_medium"
+                android:gravity="center"
+                android:text="0%"
+                android:textAlignment="center"
+                android:textColor="#CCFFFFFF"
+                android:textSize="14sp"
+                android:visibility="visible" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

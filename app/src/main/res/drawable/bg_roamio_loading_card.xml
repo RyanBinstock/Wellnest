@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Roamio Loading Card Background
+     Semi-transparent green with rounded corners for the Roamio brand -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    
+    <!-- 90% opacity green background (#318B36 at 90% = #E6318B36) -->
+    <solid android:color="#E6318B36" />
+    
+    <!-- Rounded corners -->
+    <corners android:radius="24dp" />
+    
+</shape>

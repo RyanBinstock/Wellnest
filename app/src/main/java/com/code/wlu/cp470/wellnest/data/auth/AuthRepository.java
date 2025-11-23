@@ -46,6 +46,7 @@ public class AuthRepository {
         this.auth = FirebaseAuth.getInstance();
         this.context = context.getApplicationContext();
         this.userRepo = userRepository;
+        prefs = context.getSharedPreferences(PREFS, MODE_PRIVATE);
     }
 
     /**
@@ -74,6 +75,7 @@ public class AuthRepository {
     }
 
     public void signIn(String email, String password, Callback<FirebaseUser> cb) {
+        final String[] uid = new String[1];
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(t -> {
                     if (!t.isSuccessful()) {
@@ -86,18 +88,18 @@ public class AuthRepository {
                         return;
                     }
                     // Ensure Firestore doc exists (no-op if present)
-                    String uid = u.getUid();
+                    uid[0] = u.getUid();
 
                     // Make sure the doc exists without blocking the UI thread
-                    bootstrapUserDocument(uid, u.getDisplayName(), email, (v, e2) -> {
+                    bootstrapUserDocument(uid[0], u.getDisplayName(), email, (v, e2) -> {
                         // even if this fails, keep the user signed in; you can retry later
-                        persistLocalUser(uid, u.getDisplayName(), email);
-                        userRepo.ensureGlobalScore(uid);
+                        persistLocalUser(uid[0], u.getDisplayName(), email);
+                        userRepo.ensureGlobalScore(uid[0]);
                         cb.onResult(u, null);
                     });
                 });
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("uid", currentUser().getUid());
+        editor.putString("uid", uid[0]);
         editor.apply();
     }
 

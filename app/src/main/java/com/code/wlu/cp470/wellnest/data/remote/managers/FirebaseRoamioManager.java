@@ -2,11 +2,16 @@ package com.code.wlu.cp470.wellnest.data.remote.managers;
 
 import android.util.Log;
 
+import com.code.wlu.cp470.wellnest.data.RoamioModels;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseRoamioManager {
@@ -38,30 +43,46 @@ public class FirebaseRoamioManager {
         }
     }
 
-    public boolean upsertScore(String uid, int score) {
-        Task<?> t = db.collection("users")
-                .document(uid)
-                .set(new java.util.HashMap<String, Object>() {{
-                    put("roamio_score", score);
-                }}, com.google.firebase.firestore.SetOptions.merge());
+    public boolean upsertScore(RoamioModels.RoamioScore roamioScore) {
+        if (roamioScore == null || roamioScore.getUid() == null) return false;
 
-        return awaitOk(t);
+        DocumentReference ref = db
+                .collection("users")
+                .document(roamioScore.getUid())
+                .collection("microapp_scores")
+                .document("roamio");
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("score", roamioScore.getScore());
+
+        return awaitOk(ref.set(data));
     }
 
-    public int getScore(String uid) {
-        Task<com.google.firebase.firestore.DocumentSnapshot> t =
-                db.collection("users").document(uid).get();
+    public RoamioModels.RoamioScore getScore(String uid) {
 
-        if (!awaitOk(t)) return 0;
+        DocumentReference ref = db
+                .collection("users")
+                .document(uid)
+                .collection("microapp_scores")
+                .document("roamio");
 
         try {
-            com.google.firebase.firestore.DocumentSnapshot doc = Tasks.await(t);
-            Long val = doc.getLong("roamio_score");
-            return val != null ? val.intValue() : 0;
+            Task<DocumentSnapshot> task = ref.get();
+            if (!awaitOk(task)) return new RoamioModels.RoamioScore(uid, 0);
+
+            DocumentSnapshot snap = task.getResult();
+
+            if (snap != null && snap.exists()) {
+                Long val = snap.getLong("score");
+                int score = val != null ? val.intValue() : 0;
+                return new RoamioModels.RoamioScore(uid, score);
+            }
+
         } catch (Exception e) {
             Log.e(TAG, "getScore failed", e);
-            return 0;
         }
+
+        return new RoamioModels.RoamioScore(uid, 0);
     }
 
 }
