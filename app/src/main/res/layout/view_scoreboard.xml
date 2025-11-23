@@ -37,7 +37,7 @@
                     android:includeFontPadding="false"
                     android:text="Rank"
                     android:textColor="#FFFFFF"
-                    android:textSize="@dimen/wl_text_title"
+                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -52,7 +52,7 @@
                     android:includeFontPadding="false"
                     android:text="Score"
                     android:textColor="#FFFFFF"
-                    android:textSize="@dimen/wl_text_title"
+                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -60,14 +60,14 @@
                 <!-- Name fills whatever is between rank and score -->
                 <TextView
                     android:id="@+id/textName"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:includeFontPadding="false"
                     android:text="Name"
                     android:textColor="#FFFFFF"
-                    android:textSize="@dimen/wl_text_title"
+                    android:textSize="20sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/textScore"
                     app:layout_constraintStart_toEndOf="@id/rankText"
@@ -80,7 +80,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/scoreboard_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
