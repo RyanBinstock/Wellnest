@@ -48,13 +48,19 @@ public class FriendAdapter extends RecyclerView.Adapter<FriendAdapter.MyViewHold
         holder.name.setText(friend.getName());
         holder.score.setText(String.valueOf(friend.getScore()));
 
-        // Remove
+        // Remove / Decline
         UiClickEffects.setOnClickWithPulse(holder.remove_friend_button, R.raw.ui_click_effect, v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return;
             String uid = items.get(pos).getUid();
-            viewModel.removeFriend(uid);
-            Log.d("FriendAdapter", "Removed friend with uid: " + uid);
+
+            if ("pending".equals(mode)) {
+                viewModel.denyFriend(uid);
+                Log.d("FriendAdapter", "Denied friend request from uid: " + uid);
+            } else {
+                viewModel.removeFriend(uid);
+                Log.d("FriendAdapter", "Removed friend with uid: " + uid);
+            }
             // Let LiveData observer drive the UI refresh. Don't mutate here to avoid race/stale pos.
         });
 

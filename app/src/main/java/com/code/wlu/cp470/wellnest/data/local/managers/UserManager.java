@@ -482,50 +482,44 @@ public final class UserManager {
      * Upsert a friend by their Firebase UID.
      */
     public boolean upsertFriend(String friendUid, String friendName) {
+        return upsertFriend(friendUid, friendName, "pending");
+    }
+
+    /**
+     * Upsert a friend by their Firebase UID with specific status (used for Firebase sync).
+     */
+    public boolean upsertFriend(String friendUid, String friendName, String status) {
         if (friendUid == null || friendUid.isEmpty()) {
             throw new IllegalArgumentException("friendUid is empty");
         }
         if (friendName == null) friendName = "";
+        if (status == null) status = "pending";
 
-        Cursor c = null;
-        db.beginTransaction();
-        try {
-            // Does the friend already exist?
-            c = db.query(
-                    UserContract.Friends.TABLE,
-                    new String[]{UserContract.Friends.Col.FRIEND_STATUS},
-                    UserContract.Friends.Col.FRIEND_UID + "=?",
-                    new String[]{friendUid},
-                    null, null, null
-            );
+        Log.d("UserManager", "upsertFriend: uid=" + friendUid + ", name=" + friendName + ", status=" + status);
 
-            if (c.moveToFirst()) {
-                // Row exists -> update ONLY the name; keep prior status (accepted/pending)
-                ContentValues cv = new ContentValues();
-                cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
-                int rows = db.update(
-                        UserContract.Friends.TABLE,
-                        cv,
-                        UserContract.Friends.Col.FRIEND_UID + "=?",
-                        new String[]{friendUid}
-                );
-                if (rows <= 0) return false;
-            } else {
-                // New row -> insert with default status = "pending"
-                ContentValues cv = new ContentValues();
-                cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
-                cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
-                cv.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
-                long id = db.insert(UserContract.Friends.TABLE, null, cv);
-                if (id == -1) return false;
-            }
+        ContentValues cv = new ContentValues();
+        cv.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
+        cv.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+        cv.put(UserContract.Friends.Col.FRIEND_STATUS, status);
 
-            db.setTransactionSuccessful();
-            return true;
-        } finally {
-            if (c != null) c.close();
-            db.endTransaction();
+        // Use REPLACE to overwrite existing entries completely
+        long id = db.insertWithOnConflict(
+                UserContract.Friends.TABLE,
+                null,
+                cv,
+                SQLiteDatabase.CONFLICT_REPLACE
+        );
+
+        boolean success = id != -1;
+        
+        // Ensure the friend has a global_score entry for the INNER JOIN in getFriends()
+        if (success) {
+            boolean scoreEnsured = ensureGlobalScore(friendUid);
+            Log.d("UserManager", "upsertFriend: ensureGlobalScore for " + friendUid + " = " + scoreEnsured);
         }
+        
+        Log.d("UserManager", "upsertFriend result: " + success + " (id=" + id + ")");
+        return success;
     }
 
 

@@ -47,6 +47,8 @@
     <string name="remove_friend">Remove Friend</string>
     <string name="accept_friend">Accept Friend</string>
     <string name="friend_not_found">Friend not found</string>
+    <string name="friend_request_sent">Friend request sent</string>
+    <string name="friend_request_play_services_unavailable">Google Play Services is unavailable (%1$s). Please update or enable it and try again.</string>
     <string name="unable_to_add_friend_try_again_later">Unable to add friend, try again later</string>
     <string name="task_finished">Finished</string>
     <string name="task_unfinished">Unfinished</string>
