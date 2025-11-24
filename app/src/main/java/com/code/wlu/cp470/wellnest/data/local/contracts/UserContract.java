@@ -22,8 +22,8 @@ public final class UserContract {
 
         public static final class Col {
             public static final String UID = "uid";          // TEXT PK (Firebase UID)
-            public static final String NAME = "name";         // TEXT
-            public static final String EMAIL = "email";        // TEXT
+            public static final String NAME = "Name";         // TEXT - matches Firebase field case
+            public static final String EMAIL = "Email";        // TEXT - matches Firebase field case
         }
     }
 

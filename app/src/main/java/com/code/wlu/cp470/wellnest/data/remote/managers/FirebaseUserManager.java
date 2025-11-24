@@ -53,18 +53,47 @@ public class FirebaseUserManager {
             Tasks.await(t);
             return true;
         } catch (ExecutionException e) {
-            Throwable c = e.getCause();
-            if (c instanceof FirebaseFirestoreException) {
-                FirebaseFirestoreException f = (FirebaseFirestoreException) c;
-                Log.e(TAG, "awaitOk failed: " + f.getCode() + " / " + f.getMessage(), f);
-            } else {
-                Log.e(TAG, "awaitOk failed (exec)", e);
-            }
+            logAwaitFailure("generic", e);
             return false;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             Log.e(TAG, "awaitOk interrupted", e);
             return false;
+        }
+    }
+
+    private static void awaitOrThrow(@NonNull String context, @NonNull Task<?> task)
+            throws FirebaseFirestoreException, InterruptedException {
+        Log.d(TAG + "[" + context + "]", "await start");
+        try {
+            Tasks.await(task);
+            Log.d(TAG + "[" + context + "]", "await success");
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            String causeClass = cause != null ? cause.getClass().getSimpleName() : "unknown";
+            String causeMessage = cause != null ? cause.getMessage() : "no message";
+            Log.d(TAG + "[" + context + "]", "await failure cause=" + causeClass + " message=" + causeMessage);
+            logAwaitFailure(context, e);
+            if (cause instanceof FirebaseFirestoreException) {
+                throw (FirebaseFirestoreException) cause;
+            }
+            String message = "Task failed for " + context + ": " + causeMessage;
+            throw new FirebaseFirestoreException(message, FirebaseFirestoreException.Code.ABORTED);
+        } catch (InterruptedException e) {
+            Log.d(TAG + "[" + context + "]", "await failure cause=" + e.getClass().getSimpleName() + " message=" + e.getMessage());
+            Thread.currentThread().interrupt();
+            Log.e(TAG + "[" + context + "]", "await interrupted", e);
+            throw e;
+        }
+    }
+
+    private static void logAwaitFailure(@NonNull String context, @NonNull ExecutionException e) {
+        Throwable cause = e.getCause();
+        if (cause instanceof FirebaseFirestoreException) {
+            FirebaseFirestoreException f = (FirebaseFirestoreException) cause;
+            Log.e(TAG + "[" + context + "]", "await failed: " + f.getCode() + " / " + f.getMessage(), f);
+        } else {
+            Log.e(TAG + "[" + context + "]", "await failed", e);
         }
     }
 
@@ -87,9 +116,7 @@ public class FirebaseUserManager {
         data.put(UserContract.UserProfile.Col.NAME, name);
         data.put(UserContract.UserProfile.Col.EMAIL, email);
 
-        Log.d(TAG, "upsertUserProfile: " + data);
         boolean ok = awaitOk(userDoc.set(data, SetOptions.merge()));
-        Log.d(TAG, "upsertUserProfile success: " + ok);
         return ok;
     }
 
@@ -201,41 +228,143 @@ public class FirebaseUserManager {
     /**
      * Inserts/merges a friend entry with default status=pending.
      */
-    public boolean addFriendRequest(@NonNull String ownerUid,
-                                    @NonNull String friendUid,
-                                    @NonNull String friendName) {
+    public void addFriendRequest(@NonNull String ownerUid,
+                                 @NonNull String friendUid,
+                                 @NonNull String friendName,
+                                 @NonNull String ownerName)
+            throws FirebaseFirestoreException, InterruptedException {
         if (ownerUid.isEmpty() || friendUid.isEmpty())
             throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
 
-        DocumentReference friendDoc = db.collection("users")
+        Log.i(TAG, "addFriendRequest start ownerUid=" + ownerUid
+                + ", friendUid=" + friendUid
+                + ", ownerName=" + ownerName);
+
+        // 1. Add to sender's list
+        DocumentReference senderSide = db.collection("users")
                 .document(ownerUid)
                 .collection(UserContract.Friends.TABLE)
                 .document(friendUid);
 
-        Map<String, Object> data = new HashMap<>();
-        data.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
-        data.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
-        data.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
+        Map<String, Object> senderData = new HashMap<>();
+        senderData.put(UserContract.Friends.Col.FRIEND_UID, friendUid);
+        senderData.put(UserContract.Friends.Col.FRIEND_NAME, friendName);
+        senderData.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
 
-        return awaitOk(friendDoc.set(data, SetOptions.merge()));
+        // 2. Add to receiver's list
+        DocumentReference receiverSide = db.collection("users")
+                .document(friendUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(ownerUid);
+
+        Map<String, Object> receiverData = new HashMap<>();
+        receiverData.put(UserContract.Friends.Col.FRIEND_UID, ownerUid);
+        receiverData.put(UserContract.Friends.Col.FRIEND_NAME, ownerName);
+        receiverData.put(UserContract.Friends.Col.FRIEND_STATUS, "pending");
+
+        Task<Void> t1 = senderSide.set(senderData, SetOptions.merge());
+        Task<Void> t2 = receiverSide.set(receiverData, SetOptions.merge());
+        String senderPath = senderSide.getPath();
+        String receiverPath = receiverSide.getPath();
+
+        try {
+            awaitOrThrow(ownerUid + "->" + friendUid, Tasks.whenAll(t1, t2));
+            Log.i(TAG, "addFriendRequest success ownerUid=" + ownerUid
+                    + ", friendUid=" + friendUid
+                    + ", ownerName=" + ownerName);
+        } catch (FirebaseFirestoreException e) {
+            Log.i(TAG, "addFriendRequest failure ownerUid=" + ownerUid
+                    + ", friendUid=" + friendUid
+                    + ", ownerName=" + ownerName
+                    + ", senderPath=" + senderPath
+                    + ", receiverPath=" + receiverPath
+                    + ", status=" + e.getCode()
+                    + ", message=" + e.getMessage());
+            throw e;
+        }
     }
 
     /**
-     * Sets status=accepted for the friend entry.
+     * Sets status=accepted for the friend entry. Updates BOTH users' records (bilateral).
      */
     public boolean acceptFriend(@NonNull String ownerUid, @NonNull String friendUid) {
         if (ownerUid.isEmpty() || friendUid.isEmpty())
             throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
 
-        DocumentReference friendDoc = db.collection("users")
+        Log.d(TAG, "acceptFriend: Updating friendship status to 'accepted' for ownerUid=" + ownerUid + ", friendUid=" + friendUid);
+
+        // Update owner's record
+        DocumentReference ownerDoc = db.collection("users")
                 .document(ownerUid)
                 .collection(UserContract.Friends.TABLE)
                 .document(friendUid);
 
+        // Update friend's record
+        DocumentReference friendDoc = db.collection("users")
+                .document(friendUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(ownerUid);
+
         Map<String, Object> update = new HashMap<>();
         update.put(UserContract.Friends.Col.FRIEND_STATUS, "accepted");
 
-        return awaitOk(friendDoc.update(update));
+        // Update both records simultaneously
+        Task<Void> ownerUpdate = ownerDoc.update(update);
+        Task<Void> friendUpdate = friendDoc.update(update);
+
+        try {
+            // Wait for both updates to complete
+            Tasks.await(Tasks.whenAll(ownerUpdate, friendUpdate));
+            Log.i(TAG, "acceptFriend: Successfully updated friendship status for both users: " + ownerUid + " and " + friendUid);
+            return true;
+        } catch (ExecutionException e) {
+            Log.e(TAG, "acceptFriend: Failed to update friendship status", e);
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.e(TAG, "acceptFriend: Operation interrupted", e);
+            return false;
+        }
+    }
+
+    /**
+     * Removes friendship by deleting records from BOTH users' friend collections (bilateral removal).
+     */
+    public boolean denyFriend(@NonNull String ownerUid, @NonNull String friendUid) {
+        if (ownerUid.isEmpty() || friendUid.isEmpty())
+            throw new IllegalArgumentException("ownerUid and friendUid cannot be empty");
+
+        Log.d(TAG, "denyFriend: Removing friendship between ownerUid=" + ownerUid + ", friendUid=" + friendUid);
+
+        // Remove from owner's friends collection
+        DocumentReference ownerDoc = db.collection("users")
+                .document(ownerUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(friendUid);
+
+        // Remove from friend's friends collection
+        DocumentReference friendDoc = db.collection("users")
+                .document(friendUid)
+                .collection(UserContract.Friends.TABLE)
+                .document(ownerUid);
+
+        // Delete both records simultaneously
+        Task<Void> ownerDelete = ownerDoc.delete();
+        Task<Void> friendDelete = friendDoc.delete();
+
+        try {
+            // Wait for both deletions to complete
+            Tasks.await(Tasks.whenAll(ownerDelete, friendDelete));
+            Log.i(TAG, "denyFriend: Successfully removed friendship for both users: " + ownerUid + " and " + friendUid);
+            return true;
+        } catch (ExecutionException e) {
+            Log.e(TAG, "denyFriend: Failed to remove friendship", e);
+            return false;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.e(TAG, "denyFriend: Operation interrupted", e);
+            return false;
+        }
     }
 
     /**
@@ -314,6 +443,7 @@ public class FirebaseUserManager {
     @Nullable
     public String findUidByEmail(@NonNull String email)
             throws ExecutionException, InterruptedException {
+        Log.d(TAG, "findUidByEmail start email=" + email);
         if (email.isEmpty()) return null;
         QuerySnapshot qs = Tasks.await(db.collection("users")
                 .whereEqualTo(UserContract.UserProfile.Col.EMAIL, email)

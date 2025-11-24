@@ -104,8 +104,10 @@ public class AuthRepository {
     }
 
     public void signUp(String name, String email, String password, Callback<FirebaseUser> cb) {
+        Log.d("AuthRepository", "signUp: Starting sign up for " + email);
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(t -> {
+                    Log.d("AuthRepository", "signUp: Async task completed. Success: " + t.isSuccessful());
                     if (!t.isSuccessful()) {
                         cb.onResult(null, new Exception(mapAuthError(t.getException())));
                         return;
@@ -134,8 +136,17 @@ public class AuthRepository {
                         cb.onResult(user, null);
                     });
                 });
+        
+        FirebaseUser immediateUser = currentUser();
+        Log.d("AuthRepository", "signUp: Immediate check after async call started - currentUser is " + (immediateUser == null ? "null" : "not null"));
+        
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("uid", currentUser().getUid());
+        // This is likely where the crash happens if immediateUser is null
+        if (immediateUser != null) {
+            editor.putString("uid", immediateUser.getUid());
+        } else {
+            Log.e("AuthRepository", "signUp: currentUser is null, cannot save UID to prefs yet!");
+        }
         editor.apply();
 
     }

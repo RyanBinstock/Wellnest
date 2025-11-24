@@ -79,7 +79,11 @@
     <fragment
         android:id="@+id/friendsFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.friends.FriendsFragment"
-        android:label="FriendsFragment" />
+        android:label="FriendsFragment">
+        <action
+            android:id="@+id/action_friends_to_pending"
+            app:destination="@id/navigation_friends_pending" />
+    </fragment>
     <fragment
         android:id="@+id/profileFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.profile.ProfileFragment"
@@ -88,4 +92,8 @@
         android:id="@+id/homeFragment"
         android:name="com.code.wlu.cp470.wellnest.ui.home.HomeFragment"
         android:label="HomeFragment" />
+    <fragment
+        android:id="@+id/navigation_friends_pending"
+        android:name="com.code.wlu.cp470.wellnest.ui.friends.FriendsPendingFragment"
+        android:label="FriendsPendingFragment" />
 </navigation>
