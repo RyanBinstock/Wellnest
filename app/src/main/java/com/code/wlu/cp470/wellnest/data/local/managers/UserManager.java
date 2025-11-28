@@ -242,12 +242,18 @@ public final class UserManager {
     // --- READ (current user) ---
     public int getGlobalScore() {
         Integer val = queryScoreByUid(currentUid());
-        return val != null ? val : 0;
+        return val != null ? val : -1;
     }
 
     // --- READ (by uid) ---
     public Integer getGlobalScore(String uid) {
-        return queryScoreByUid(uid);
+        int score = queryScoreByUid(uid);
+        if (score != -1) {
+            return score;
+        } else {
+            Log.w("UserManager", "getGlobalScore(" + uid + ") returned -1");
+            return -1;
+        }
     }
 
     // --- CREATE (current user) ---
@@ -511,13 +517,13 @@ public final class UserManager {
         );
 
         boolean success = id != -1;
-        
+
         // Ensure the friend has a global_score entry for the INNER JOIN in getFriends()
         if (success) {
             boolean scoreEnsured = ensureGlobalScore(friendUid);
             Log.d("UserManager", "upsertFriend: ensureGlobalScore for " + friendUid + " = " + scoreEnsured);
         }
-        
+
         Log.d("UserManager", "upsertFriend result: " + success + " (id=" + id + ")");
         return success;
     }
@@ -695,25 +701,17 @@ public final class UserManager {
     // ----------------------------------------------------------------------
 
     private Integer queryInt(String table, String col, String where, String[] args) {
-        Cursor c = null;
-        try {
-            c = db.query(table, new String[]{col}, where, args, null, null, null);
-            if (!c.moveToFirst()) return null;
-            if (c.isNull(0)) return null;
+        try (Cursor c = db.query(table, new String[]{col}, where, args, null, null, null)) {
+            if (!c.moveToFirst()) return -1;
+            if (c.isNull(0)) return -1;
             return c.getInt(0);
-        } finally {
-            if (c != null) c.close();
         }
     }
 
     private String queryString(String table, String col, String where, String[] args) {
-        Cursor c = null;
-        try {
-            c = db.query(table, new String[]{col}, where, args, null, null, null);
+        try (Cursor c = db.query(table, new String[]{col}, where, args, null, null, null)) {
             if (!c.moveToFirst()) return null;
             return c.getString(0);
-        } finally {
-            if (c != null) c.close();
         }
     }
 }

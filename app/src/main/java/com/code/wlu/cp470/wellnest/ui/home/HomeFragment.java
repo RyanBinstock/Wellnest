@@ -140,7 +140,6 @@ public class HomeFragment extends Fragment {
             container.setVisibility(selected ? VISIBLE : GONE);
             v.setSelected(!selected);
         });
-
     }
 
     /*

@@ -5,31 +5,39 @@ import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
-import android.view.View;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.code.wlu.cp470.wellnest.data.SnapTaskRepository;
+import com.code.wlu.cp470.wellnest.data.UserRepository;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager;
+import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseSnapTaskManager;
+import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
 import com.code.wlu.cp470.wellnest.utils.ActivityJarPrefetcher;
 import com.code.wlu.cp470.wellnest.utils.MusicService;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String PREFS = "main_activity_prefs";
     private SharedPreferences prefs;
+    private WellnestDatabaseHelper dbHelper;
+    private SQLiteDatabase db;
+    private UserRepository userRepository;
 
 
     @Override
@@ -71,8 +79,9 @@ public class MainActivity extends AppCompatActivity {
         // Synchronization logic goes here
         prefs = this.getSharedPreferences(PREFS, MODE_PRIVATE);
 
-        WellnestDatabaseHelper dbHelper = new WellnestDatabaseHelper(this);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        dbHelper = new WellnestDatabaseHelper(this);
+        db = dbHelper.getWritableDatabase();
+
 
         // Save date information
         long lastCheckMillis = prefs.getLong("last_check_date", 0);
@@ -112,6 +121,12 @@ public class MainActivity extends AppCompatActivity {
         new Thread(() -> {
             ActivityJarPrefetcher.prefetchActivities(getApplicationContext());
         }).start();
+
+        userRepository = new UserRepository(this, new UserManager(db), new FirebaseUserManager());
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            userRepository.syncGlobalScore();
+        });
     }
 
     @Override
