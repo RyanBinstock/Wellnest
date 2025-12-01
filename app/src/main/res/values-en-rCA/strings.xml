@@ -43,6 +43,8 @@
 
     <string name="home">Home</string>
     <string name="friends">Friends</string>
+    <string name="back">Back</string>
+    <string name="pending_friends">Pending Friends</string>
     <string name="enter_friends_email_hint">Enter Friends Email</string>
     <string name="remove_friend">Remove Friend</string>
     <string name="accept_friend">Accept Friend</string>
@@ -56,4 +58,43 @@
     <string name="home_button_text">Home</string>
     <string name="start_task">Start Task</string>
     <string name="end_task">End Task</string>
+    <string name="snaptask_loading_message">Evaluating your snap...</string>
+    <string name="cozy">Cozy</string>
+    <string name="explore">Explore</string>
+    <string name="nightlife">Nightlife</string>
+    <string name="play">Play</string>
+    <string name="culture">Culture</string>
+    <string-array name="activity_titles">
+        <item>Explore</item>
+        <item>Nightlife</item>
+        <item>Play</item>
+        <item>Cozy</item>
+        <item>Culture</item>
+    </string-array>
+
+    <!-- Roamio loading overlay strings -->
+    <string name="roamio_loading_title">Loading Your Walk</string>
+    <string name="roamio_loading_message">Finding your perfect walk…</string>
+    <string name="roamio_loading_message_2">Analyzing nearby locations…</string>
+    <string name="roamio_loading_message_3">Creating your adventure…</string>
+    <string name="loading_overlay_description">Loading overlay, please wait</string>
+    <string name="loading_character_description">Loading character</string>
+    <string name="loading_progress_description">Loading progress indicator</string>
+    <string name="loading_percentage_description">Loading percentage</string>
+
+    <!-- Profile help dialog -->
+    <string name="profile_help_button_cd">Learn how to use Wellnest features</string>
+    <string name="profile_help_dialog_title">Need a hand?</string>
+    <string name="profile_help_dialog_version">Version 1.0</string>
+    <string name="profile_help_dialog_authors">Authors:\nCameron Grenier · Ryan Binstock · Ben Clark · Rishubh Gusain · Ranjot Sandhu</string>
+    <string name="profile_help_section_micro_title">Micro Apps</string>
+    <string name="profile_help_section_micro_body">SnapTask: capture before + after shots to earn points and unlock streak bonuses.\nActivity Jar: shake up a bite-sized prompt, then tap the card to log your win.\nRoamio: choose a themed walk, follow the narration, and submit distance when you return.</string>
+    <string name="profile_help_section_friends_title">Adding Friends</string>
+    <string name="profile_help_section_friends_body">Open the Friends tab, type your friend\'s email, and send an invite. Track pending requests, accept new connections, or withdraw mistakes from the same screen.</string>
+    <string name="profile_help_section_profile_title">Profile &amp; Account</string>
+    <string name="profile_help_section_profile_body">Check your name and email, sign out when you swap devices, or use Delete Account for a permanent reset. Tap Help anytime for quick guidance.</string>
+    <string name="profile_help_dialog_dismiss">Got it</string>
+    <string name="profile_help_state_expanded">Expanded</string>
+    <string name="profile_help_state_collapsed">Collapsed</string>
+    <string name="profile_help_section_a11y">%1$s section, %2$s</string>
 </resources>
