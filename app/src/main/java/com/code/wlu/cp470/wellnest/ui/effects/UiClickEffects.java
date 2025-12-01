@@ -110,4 +110,15 @@ public final class UiClickEffects {
                 .setInterpolator(new DecelerateInterpolator())
                 .start();
     }
+
+    /**
+     * Applies a subtle press pulse without overriding existing click listeners.
+     */
+    public static void applyPulse(View v) {
+        if (v == null) {
+            Log.e(TAG, "applyPulse: View is null, cannot attach pulse");
+            return;
+        }
+        UiTouchEffects.attachPressScale(v, 0.94f);
+    }
 }
