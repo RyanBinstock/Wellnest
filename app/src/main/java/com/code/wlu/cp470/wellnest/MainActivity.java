@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private static final String PREFS = "main_activity_prefs";
+    private static final String KEY_LAST_STREAK_DATE = "last_streak_epoch_day";
     private SharedPreferences prefs;
     private WellnestDatabaseHelper dbHelper;
     private SQLiteDatabase db;
@@ -126,6 +127,48 @@ public class MainActivity extends AppCompatActivity {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             userRepository.syncGlobalScore();
+            
+            // Streak tracking logic - DEBUG: Add detailed logging to diagnose issue
+            long lastStreakEpochDay = prefs.getLong(KEY_LAST_STREAK_DATE, 0);
+            long todayEpochDay = today.toEpochDay();
+            
+            Log.d(TAG, "=== STREAK DEBUG START ===");
+            Log.d(TAG, "onCreate: streak check - lastStreakEpochDay=" + lastStreakEpochDay
+                    + ", todayEpochDay=" + todayEpochDay);
+            Log.d(TAG, "onCreate: comparison result - sameDay=" + (lastStreakEpochDay == todayEpochDay)
+                    + ", consecutive=" + (lastStreakEpochDay == todayEpochDay - 1));
+            
+            try {
+                if (lastStreakEpochDay == todayEpochDay) {
+                    // Same day - already tracked today, do nothing
+                    Log.d(TAG, "onCreate: streak already tracked today, skipping");
+                } else if (lastStreakEpochDay == todayEpochDay - 1) {
+                    // Exactly yesterday - consecutive day, increment streak
+                    Log.d(TAG, "onCreate: BEFORE incrementStreak for consecutive day");
+                    int newStreak = userRepository.incrementStreak();
+                    Log.d(TAG, "onCreate: AFTER incrementStreak, newStreak=" + newStreak + ", BEFORE prefs write");
+                    boolean writeSuccess = prefs.edit().putLong(KEY_LAST_STREAK_DATE, todayEpochDay).commit();
+                    Log.d(TAG, "onCreate: consecutive day, streak incremented to " + newStreak + ", writeSuccess=" + writeSuccess);
+                    // Verify the write
+                    long verifyRead = prefs.getLong(KEY_LAST_STREAK_DATE, -1);
+                    Log.d(TAG, "onCreate: VERIFY READ after write - stored value=" + verifyRead + ", expected=" + todayEpochDay);
+                } else {
+                    // More than 1 day ago OR never set (0) - reset and start fresh at 1
+                    Log.d(TAG, "onCreate: BEFORE resetStreak");
+                    userRepository.resetStreak();
+                    Log.d(TAG, "onCreate: AFTER resetStreak, BEFORE incrementStreak");
+                    int newStreak = userRepository.incrementStreak();
+                    Log.d(TAG, "onCreate: AFTER incrementStreak, newStreak=" + newStreak + ", BEFORE prefs write");
+                    boolean writeSuccess = prefs.edit().putLong(KEY_LAST_STREAK_DATE, todayEpochDay).commit();
+                    Log.d(TAG, "onCreate: streak reset and started fresh, new streak=" + newStreak + ", writeSuccess=" + writeSuccess);
+                    // Verify the write
+                    long verifyRead = prefs.getLong(KEY_LAST_STREAK_DATE, -1);
+                    Log.d(TAG, "onCreate: VERIFY READ after write - stored value=" + verifyRead + ", expected=" + todayEpochDay);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "onCreate: EXCEPTION during streak logic!", e);
+            }
+            Log.d(TAG, "=== STREAK DEBUG END ===");
         });
     }
 

@@ -75,6 +75,13 @@ public class HomeFragment extends Fragment {
         scoreText.setText(String.valueOf(score));
         userManager.setGlobalScore(uid, score);
 
+        // Display streak counter
+        ImageView streakIcon = view.findViewById(R.id.imageView);
+        TextView streakCounter = view.findViewById(R.id.streakCounter);
+        int streakCount = userManager.getStreakCount();
+        streakIcon.setVisibility(View.VISIBLE);
+        streakCounter.setVisibility(View.VISIBLE);
+        streakCounter.setText(String.valueOf(streakCount));
 
         // Add modular micro app cards to home fragment
         FragmentManager fm = getChildFragmentManager();
@@ -138,6 +145,8 @@ public class HomeFragment extends Fragment {
             friendsTxt.setVisibility(selected ? GONE : VISIBLE);
             scoreText.setVisibility(selected ? VISIBLE : GONE);
             container.setVisibility(selected ? VISIBLE : GONE);
+            streakIcon.setVisibility(selected ? VISIBLE : GONE);
+            streakCounter.setVisibility(selected ? VISIBLE : GONE);
             v.setSelected(!selected);
         });
     }
