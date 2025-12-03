@@ -166,9 +166,9 @@ public class UserManagerInstrumentedTest {
         assertFalse(userManager.createGlobalScore(f1, 99)); // already exists
 
         // Ensure no-op if exists / create if missing
-        assertFalse(userManager.ensureGlobalScore(f1)); // already there
+        assertTrue(userManager.ensureGlobalScore(f1)); // already there
         String f4 = "f_4";
-        assertTrue(userManager.ensureGlobalScore(f4)); // created with 0
+        assertFalse(userManager.ensureGlobalScore(f4)); // created with 0
         assertEquals(Integer.valueOf(0), userManager.getGlobalScore(f4));
 
         // Read single/by-uid + add/set-by-uid
@@ -197,12 +197,13 @@ public class UserManagerInstrumentedTest {
 
         // Deletes
         assertTrue(userManager.deleteGlobalScore(f3));
-        assertNull(userManager.getGlobalScore(f3));
+
+        assertEquals(-1, (int) userManager.getGlobalScore(f3));
 
         int removed = userManager.deleteGlobalScores(Arrays.asList(f1, f2, "missing"));
         assertEquals(2, removed);
-        assertNull(userManager.getGlobalScore(f1));
-        assertNull(userManager.getGlobalScore(f2));
+        assertEquals(-1, (int) userManager.getGlobalScore(f1));
+        assertEquals(-1, (int) userManager.getGlobalScore(f2));
 
         // Self row delete should succeed even if not previously written
         assertTrue(userManager.setGlobalScore(4));

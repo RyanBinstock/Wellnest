@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Widget.Wellnest.Card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/profile_help_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/wl_space_m"
+        android:fadeScrollbars="false"
+        android:overScrollMode="ifContentScrolls">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:text="@string/profile_help_dialog_title"
+                android:textAppearance="@style/TextAppearance.Wellnest.Title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/wl_space_xs"
+                android:text="@string/profile_help_dialog_version"
+                android:textAppearance="@style/TextAppearance.Wellnest.Caption" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/wl_space_m"
+                android:text="@string/profile_help_dialog_authors"
+                android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                android:textColor="@color/wl_onSurfaceSecondary" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:background="@color/wl_inputBg" />
+
+            <!-- Micro Apps section -->
+            <LinearLayout
+                android:id="@+id/profile_help_section_micro_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:paddingStart="@dimen/wl_space_xs"
+                android:paddingTop="@dimen/wl_space_s"
+                android:paddingEnd="@dimen/wl_space_xs"
+                android:paddingBottom="@dimen/wl_space_s">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_help_micro_apps"
+                    app:tint="@color/wl_onSurface" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/wl_space_s"
+                    android:layout_marginEnd="@dimen/wl_space_s"
+                    android:layout_weight="1"
+                    android:text="@string/profile_help_section_micro_title"
+                    android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/profile_help_section_micro_chevron"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:rotation="0"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="@color/wl_onSurfaceSecondary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/profile_help_section_micro_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/wl_space_xl"
+                android:layout_marginEnd="@dimen/wl_space_xs"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:text="@string/profile_help_section_micro_body"
+                android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                android:textColor="@color/wl_onSurfaceSecondary"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:background="@color/wl_inputBg" />
+
+            <!-- Friends section -->
+            <LinearLayout
+                android:id="@+id/profile_help_section_friends_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:paddingStart="@dimen/wl_space_xs"
+                android:paddingTop="@dimen/wl_space_s"
+                android:paddingEnd="@dimen/wl_space_xs"
+                android:paddingBottom="@dimen/wl_space_s">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_help_friends"
+                    app:tint="@color/wl_onSurface" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/wl_space_s"
+                    android:layout_marginEnd="@dimen/wl_space_s"
+                    android:layout_weight="1"
+                    android:text="@string/profile_help_section_friends_title"
+                    android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/profile_help_section_friends_chevron"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:rotation="0"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="@color/wl_onSurfaceSecondary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/profile_help_section_friends_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/wl_space_xl"
+                android:layout_marginEnd="@dimen/wl_space_xs"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:text="@string/profile_help_section_friends_body"
+                android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                android:textColor="@color/wl_onSurfaceSecondary"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:background="@color/wl_inputBg" />
+
+            <!-- Profile section -->
+            <LinearLayout
+                android:id="@+id/profile_help_section_profile_header"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="48dp"
+                android:paddingStart="@dimen/wl_space_xs"
+                android:paddingTop="@dimen/wl_space_s"
+                android:paddingEnd="@dimen/wl_space_xs"
+                android:paddingBottom="@dimen/wl_space_s">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_help_profile"
+                    app:tint="@color/wl_onSurface" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/wl_space_s"
+                    android:layout_marginEnd="@dimen/wl_space_s"
+                    android:layout_weight="1"
+                    android:text="@string/profile_help_section_profile_title"
+                    android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/profile_help_section_profile_chevron"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:contentDescription="@null"
+                    android:rotation="0"
+                    android:src="@drawable/ic_chevron_down"
+                    app:tint="@color/wl_onSurfaceSecondary" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/profile_help_section_profile_body"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/wl_space_xl"
+                android:layout_marginEnd="@dimen/wl_space_xs"
+                android:layout_marginBottom="@dimen/wl_space_s"
+                android:text="@string/profile_help_section_profile_body"
+                android:textAppearance="@style/TextAppearance.Wellnest.Body"
+                android:textColor="@color/wl_onSurfaceSecondary"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <Button
+        android:id="@+id/profile_help_dismiss_button"
+        style="@style/Widget.Wellnest.Button.Primary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/profile_help_dialog_dismiss" />
+
+</LinearLayout>

@@ -45,7 +45,7 @@
         <!-- Score (right aligned) -->
         <TextView
             android:id="@+id/textScore"
-            android:layout_width="150dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_bold"
             android:gravity="end"
@@ -66,8 +66,9 @@
             android:id="@+id/textName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/wl_space_s"
             android:fontFamily="@font/poppins_bold"
-            android:gravity="center"
+            android:gravity="start"
             android:includeFontPadding="false"
             android:shadowColor="@color/wl_shadow"
             android:shadowDx="0"

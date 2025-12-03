@@ -52,11 +52,13 @@ public class FirebaseRoamioManagerInstrumentedTest {
      */
     @Test
     public void testGetScore_newUser_returnsZero() {
-        RoamioModels.RoamioScore score = manager.getScore(TEST_UID);
+        // Use a unique UID to ensure this is truly a "new user" with no existing data
+        String newUserUid = "test_new_user_" + System.currentTimeMillis() + "_" + Math.random();
+        RoamioModels.RoamioScore score = manager.getScore(newUserUid);
         
         assertNotNull("Score should not be null", score);
         assertEquals("New user score should be 0", 0, score.getScore());
-        assertEquals("UID should match", TEST_UID, score.getUid());
+        assertEquals("UID should match", newUserUid, score.getUid());
     }
 
     /**

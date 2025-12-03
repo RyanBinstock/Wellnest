@@ -42,6 +42,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class FriendsFragmentInstrumentedTest {
@@ -75,19 +77,34 @@ public class FriendsFragmentInstrumentedTest {
     }
 
     @Before
-    public void setUp() {
+    public void setUp() throws InterruptedException {
         // 1) Get a valid Context
         context = androidx.test.core.app.ApplicationProvider.getApplicationContext();
 
+        // Wait for Firebase anonymous auth to complete
+        CountDownLatch authLatch = new CountDownLatch(1);
         FirebaseAuth.getInstance().signInAnonymously()
-                .addOnSuccessListener(r -> Log.d("Auth", "anon ok"))
-                .addOnFailureListener(e -> Log.e("Auth", "anon failed", e));
-
+                .addOnSuccessListener(r -> {
+                    Log.d("Auth", "anon ok, uid=" + r.getUser().getUid());
+                    authLatch.countDown();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Auth", "anon failed", e);
+                    authLatch.countDown();
+                });
+        
+        // Wait up to 10 seconds for auth to complete
+        authLatch.await(10, TimeUnit.SECONDS);
 
         // 2) Open DB + seed
         helper = new WellnestDatabaseHelper(context);
         db = helper.getWritableDatabase();
         userManager = new UserManager(db);
+        
+        // CRITICAL: Create a user_profile row so that currentUid() doesn't throw
+        // Use a test UID that will be used for the current user context
+        userManager.upsertUserProfile("testCurrentUser", "Test User", "test@test.com");
+        
         for (int i = 0; i < uids.length; i++) {
             String uid = uids[i];
             String name = names[i];
@@ -96,6 +113,22 @@ public class FriendsFragmentInstrumentedTest {
             userManager.setGlobalScore(uid, score);
             userManager.acceptFriend(uid);
         }
+        
+        // Force database writes to be visible to other connections by closing and reopening
+        // This flushes the WAL (Write-Ahead Log) and ensures data visibility
+        db.close();
+        helper.close();
+        helper = new WellnestDatabaseHelper(context);
+        db = helper.getWritableDatabase();
+        userManager = new UserManager(db);
+        
+        // Verify data was persisted correctly
+        List<Friend> friends = userManager.getFriends();
+        Log.d("TestSetup", "Friends in DB after reopen: " + friends.size());
+        for (Friend f : friends) {
+            Log.d("TestSetup", "Friend: " + f.getName() + " (" + f.getUid() + ") status=" + f.getStatus());
+        }
+        
         // 3) Launch the fragment
         FragmentFactory factory = new FragmentFactory() {
             @NonNull
@@ -114,6 +147,15 @@ public class FriendsFragmentInstrumentedTest {
                 R.style.Theme_Wellnest,
                 factory
         );
+        
+        // Wait for the ViewModel's async loading to complete
+        // The FriendViewModel loads data on a background thread and makes
+        // Firebase network calls that can take several seconds
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            Log.e("Test", "Sleep interrupted", e);
+        }
     }
 
     @After
@@ -151,7 +193,9 @@ public class FriendsFragmentInstrumentedTest {
                 hasSibling(withText(nameToRemove))))
                 .perform(click());
 
-        onView(isRoot()).perform(waitFor(200));
+        // Wait for the ViewModel's refreshFriends() to complete
+        // This includes Firebase sync + UI animation (~290ms click animation + ~1s refresh)
+        onView(isRoot()).perform(waitFor(2500));
         onView(withText(nameToRemove)).check(doesNotExist());
 
         // if you really need the DB assertion:

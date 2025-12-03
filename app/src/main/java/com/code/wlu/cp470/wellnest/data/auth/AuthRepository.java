@@ -33,6 +33,9 @@ import java.util.Map;
 public class AuthRepository {
 
     public static String PREFS = "user_prefs";
+    /** SharedPreferences name used by microapp repositories to read uid */
+    public static final String USER_REPO_PREFS = "user_repo_prefs";
+    private static final String PREFS_UID = "uid";
     private final FirebaseAuth auth;
     private final Context context;
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -75,7 +78,6 @@ public class AuthRepository {
     }
 
     public void signIn(String email, String password, Callback<FirebaseUser> cb) {
-        final String[] uid = new String[1];
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(t -> {
                     if (!t.isSuccessful()) {
@@ -88,19 +90,21 @@ public class AuthRepository {
                         return;
                     }
                     // Ensure Firestore doc exists (no-op if present)
-                    uid[0] = u.getUid();
+                    String uid = u.getUid();
 
                     // Make sure the doc exists without blocking the UI thread
-                    bootstrapUserDocument(uid[0], u.getDisplayName(), email, (v, e2) -> {
+                    bootstrapUserDocument(uid, u.getDisplayName(), email, (v, e2) -> {
                         // even if this fails, keep the user signed in; you can retry later
-                        persistLocalUser(uid[0], u.getDisplayName(), email);
-                        userRepo.ensureGlobalScore(uid[0]);
+                        persistLocalUser(uid, u.getDisplayName(), email);
+                        userRepo.ensureGlobalScore(uid);
+                        
+                        // Save UID to both SharedPreferences files INSIDE the callback
+                        // so it's available immediately for microapp repositories
+                        saveUidToBothPrefs(uid);
+                        
                         cb.onResult(u, null);
                     });
                 });
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("uid", uid[0]);
-        editor.apply();
     }
 
     public void signUp(String name, String email, String password, Callback<FirebaseUser> cb) {
@@ -123,32 +127,26 @@ public class AuthRepository {
                     user.updateProfile(new UserProfileChangeRequest.Builder()
                             .setDisplayName(name).build());
 
+                    String uid = user.getUid();
+                    
                     // Create users/{uid} with Name + Email + timestamps
-                    bootstrapUserDocument(user.getUid(), name, user.getEmail(), (v, e) -> {
+                    bootstrapUserDocument(uid, name, user.getEmail(), (v, e) -> {
                         if (e != null) {
                             cb.onResult(null, new Exception(mapAuthError(e)));
                             return;
                         }
                         // Persist locally via repository and create a score row for new users
-                        userRepo.upsertUserProfile(user.getUid(), name, user.getEmail());
+                        userRepo.upsertUserProfile(uid, name, user.getEmail());
                         // if not present, create a local score row for this uid (0 initial)
-                        userRepo.ensureGlobalScore(user.getUid()); // contract: create if missing
+                        userRepo.ensureGlobalScore(uid); // contract: create if missing
+                        
+                        // Save UID to both SharedPreferences files INSIDE the callback
+                        // so it's available immediately for microapp repositories
+                        saveUidToBothPrefs(uid);
+                        
                         cb.onResult(user, null);
                     });
                 });
-        
-        FirebaseUser immediateUser = currentUser();
-        Log.d("AuthRepository", "signUp: Immediate check after async call started - currentUser is " + (immediateUser == null ? "null" : "not null"));
-        
-        SharedPreferences.Editor editor = prefs.edit();
-        // This is likely where the crash happens if immediateUser is null
-        if (immediateUser != null) {
-            editor.putString("uid", immediateUser.getUid());
-        } else {
-            Log.e("AuthRepository", "signUp: currentUser is null, cannot save UID to prefs yet!");
-        }
-        editor.apply();
-
     }
 
     private void persistLocalUser(String uid, String displayName, String email) {
@@ -158,6 +156,34 @@ public class AuthRepository {
         userRepo.ensureGlobalScore(uid);
         // Optional (call from app start if you prefer): userRepo.pushLocalGlobalScoreToCloud();
         // Optional: userRepo.refreshFriendsScoresFromCloud();
+    }
+    
+    /**
+     * Saves the UID to both SharedPreferences files:
+     * 1. "user_prefs" - used by AuthRepository
+     * 2. "user_repo_prefs" - used by microapp repositories (ActivityJar, Roamio, SnapTask)
+     *
+     * This ensures the UID is immediately available for Firebase sync operations
+     * after login/signup completes.
+     */
+    private void saveUidToBothPrefs(String uid) {
+        if (uid == null || uid.isEmpty()) {
+            Log.w("AuthRepository", "saveUidToBothPrefs: uid is null/empty, skipping");
+            return;
+        }
+        
+        // Save to user_prefs (existing behavior)
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PREFS_UID, uid);
+        editor.apply();
+        Log.d("AuthRepository", "saveUidToBothPrefs: saved uid to " + PREFS);
+        
+        // Save to user_repo_prefs (new - for microapp repositories)
+        SharedPreferences userRepoPrefs = context.getSharedPreferences(USER_REPO_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor userRepoEditor = userRepoPrefs.edit();
+        userRepoEditor.putString(PREFS_UID, uid);
+        userRepoEditor.apply();
+        Log.d("AuthRepository", "saveUidToBothPrefs: saved uid to " + USER_REPO_PREFS);
     }
 
     private void bootstrapUserDocument(String uid, String displayName, String email, Callback<Void> cb) {

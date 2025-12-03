@@ -13,9 +13,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
 import com.code.wlu.cp470.wellnest.data.UserRepository;
-import com.code.wlu.cp470.wellnest.data.model.FriendRequestResult;
 import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.UserManager;
+import com.code.wlu.cp470.wellnest.data.model.FriendRequestResult;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager;
 
 import java.util.ArrayList;
@@ -24,123 +24,217 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * ViewModel responsible for exposing friend data and friend-request operations
+ * to the UI (e.g., FriendFragment).
+ * <p>
+ * Handles:
+ * - Loading friends from local DB (after syncing from Firebase when possible)
+ * - Splitting friends into accepted vs pending lists
+ * - Submitting friend requests and exposing the latest request state
+ */
 public class FriendViewModel extends AndroidViewModel {
+
     private static final String TAG = "FriendViewModel";
 
-    private final UserRepository repo;
-    private final WellnestDatabaseHelper dbHelper;
-    private final SQLiteDatabase db;
+    // --- Data layer dependencies ---
+    private final UserRepository userRepository;
+    private final WellnestDatabaseHelper databaseHelper;
+    private final SQLiteDatabase writableDatabase;
 
-    // Background executor so we don't hit DB on the main thread
-    private final ExecutorService io = Executors.newSingleThreadExecutor();
+    // Single background thread for DB/network work (avoid blocking main thread)
+    private final ExecutorService ioExecutor = Executors.newSingleThreadExecutor();
 
-    // LiveData exposed to the UI
-    private final MutableLiveData<List<Friend>> acceptedFriends = new MutableLiveData<>(Collections.emptyList());
-    private final MutableLiveData<List<Friend>> pendingFriends = new MutableLiveData<>(Collections.emptyList());
-    private final MutableLiveData<FriendRequestUiState> friendRequestState =
+    // --- LiveData exposed to the UI ---
+    /**
+     * Friends whose status is "accepted".
+     */
+    private final MutableLiveData<List<Friend>> acceptedFriendsLiveData =
+            new MutableLiveData<>(Collections.emptyList());
+
+    /**
+     * Friends whose status is "pending".
+     */
+    private final MutableLiveData<List<Friend>> pendingFriendsLiveData =
+            new MutableLiveData<>(Collections.emptyList());
+
+    /**
+     * UI-facing state for the most recent friend-request attempt (addFriend()).
+     */
+    private final MutableLiveData<FriendRequestUiState> friendRequestStateLiveData =
             new MutableLiveData<>(FriendRequestUiState.idle());
 
-    public FriendViewModel(@NonNull Application app) {
-        super(app);
-        Context context = app.getApplicationContext();
+    // --- Constructor / setup ---
 
-        this.dbHelper = new WellnestDatabaseHelper(context);
-        this.db = dbHelper.getWritableDatabase();
+    public FriendViewModel(@NonNull Application application) {
+        super(application);
+        Context appContext = application.getApplicationContext();
 
-        UserManager local = new UserManager(db);
-        FirebaseUserManager remote = new FirebaseUserManager();
-        this.repo = new UserRepository(context, local, remote);
+        // Local SQLite DB
+        this.databaseHelper = new WellnestDatabaseHelper(appContext);
+        this.writableDatabase = databaseHelper.getWritableDatabase();
 
-        refreshFriends(); // initial load
+        // Local + remote managers
+        UserManager localUserManager = new UserManager(writableDatabase);
+        FirebaseUserManager remoteUserManager = new FirebaseUserManager();
+        this.userRepository = new UserRepository(appContext, localUserManager, remoteUserManager);
+
+        // Initial load (sync from Firebase then populate LiveData)
+        refreshFriends();
     }
 
-    // --- Expose LiveData to Fragment ---
+    // --- LiveData getters for Fragment / UI ---
+
     public LiveData<List<Friend>> getAcceptedFriends() {
-        return acceptedFriends;
+        return acceptedFriendsLiveData;
     }
 
     public LiveData<List<Friend>> getPendingFriends() {
-        return pendingFriends;
+        return pendingFriendsLiveData;
     }
 
     public LiveData<FriendRequestUiState> getFriendRequestState() {
-        return friendRequestState;
+        return friendRequestStateLiveData;
     }
 
-    // --- Mutations: do work, then refresh lists ---
-    public void addFriend(@NonNull String email) {
-        io.execute(() -> {
+    // --- Public operations: add / remove / accept / deny friends ---
+
+    /**
+     * Submit a friend request by email.
+     * Runs on a background thread, then:
+     * - posts FriendRequestUiState to LiveData
+     * - refreshes friend lists on success
+     */
+    public void addFriend(@NonNull String friendEmail) {
+        ioExecutor.execute(() -> {
             FriendRequestResult result;
+
             try {
-                result = repo.addFriend(email);
-            } catch (Exception e) {
-                Log.e(TAG, "Unexpected repository failure while adding friend", e);
-                String message = e.getMessage();
-                if (message == null || message.isEmpty()) {
-                    message = "Unexpected error";
+                result = userRepository.addFriend(friendEmail);
+            } catch (Exception exception) {
+                Log.e(TAG, "Unexpected repository failure while adding friend", exception);
+                String errorMessage = exception.getMessage();
+                if (errorMessage == null || errorMessage.isEmpty()) {
+                    errorMessage = "Unexpected error";
                 }
-                result = FriendRequestResult.localFailure(message, e);
+                result = FriendRequestResult.localFailure(errorMessage, exception);
             }
-            FriendRequestUiState uiState = FriendRequestUiState.fromResult(email, result);
-            friendRequestState.postValue(uiState);
-            Log.i(TAG, "Friend request attempt email=" + email + ", status=" + result.getStatus()
-                    + ", message=" + result.getMessage());
-            if (result.isSuccess()) refreshFriends();
+
+            // Map result to a UI-friendly state object
+            FriendRequestUiState uiState =
+                    FriendRequestUiState.fromResult(friendEmail, result);
+            friendRequestStateLiveData.postValue(uiState);
+
+            Log.i(
+                    TAG,
+                    "Friend request attempt email=" + friendEmail
+                            + ", status=" + result.getStatus()
+                            + ", message=" + result.getMessage()
+            );
+
+            if (result.isSuccess()) {
+                refreshFriends();
+            }
         });
     }
 
-
-    public boolean removeFriend(String uid) {
-        boolean ok = repo.removeFriend(uid);
-        if (ok) refreshFriends();
-        return ok;
+    /**
+     * Remove an existing friend by uid. Refreshes lists on success.
+     */
+    public boolean removeFriend(String friendUid) {
+        Log.d(TAG, "removeFriend: ViewModel calling repository for uid=" + friendUid);
+        boolean success = userRepository.removeFriend(friendUid);
+        Log.d(TAG, "removeFriend: Repository returned " + success);
+        if (success) {
+            refreshFriends();
+        } else {
+            Log.w(TAG, "removeFriend: Failed to remove friend, not refreshing list");
+        }
+        return success;
     }
 
-    public boolean acceptFriend(String uid) {
-        boolean ok = repo.acceptFriend(uid);
-        if (ok) refreshFriends();
-        return ok;
+    /**
+     * Accept a pending friend request by uid. Refreshes lists on success.
+     */
+    public boolean acceptFriend(String friendUid) {
+        boolean success = userRepository.acceptFriend(friendUid);
+        if (success) {
+            refreshFriends();
+        }
+        return success;
     }
 
-    public boolean denyFriend(String uid) {
-        boolean ok = repo.denyFriend(uid);
-        if (ok) refreshFriends();
-        return ok;
+    /**
+     * Deny a pending friend request by uid. Refreshes lists on success.
+     */
+    public boolean denyFriend(String friendUid) {
+        boolean success = userRepository.denyFriend(friendUid);
+        if (success) {
+            refreshFriends();
+        }
+        return success;
     }
 
+    /**
+     * Helper to resolve a user's uid from their email address.
+     */
     public String getUidFromEmail(String email) {
-        return repo.getUser(null, email).getUid();
+        return userRepository.getUser(null, email).getUid();
     }
 
-    public int getFriendScore(String uid) {
-        return repo.getGlobalScore(uid);
+    /**
+     * Get a friend's global score by uid.
+     */
+    public int getFriendScore(String friendUid) {
+        return userRepository.getGlobalScore(friendUid);
     }
 
-    // --- Public: sync from Firebase and refresh friends ---
+    // --- Public: explicit sync + refresh ---
+
+    /**
+     * Explicitly trigger a sync from Firebase, then reload local friends
+     * and update LiveData. Runs on background thread.
+     */
     public void syncAndRefreshFriends() {
-        io.execute(() -> {
-            Log.d(TAG, "syncAndRefreshFriends: Starting sync and refresh");
-            
-            // First sync from Firebase to local
-            boolean syncSuccess = repo.syncFriendsFromFirebase();
+        ioExecutor.execute(() -> {
+            Log.d(TAG, "syncAndRefreshFriends: starting sync and refresh");
+
+            boolean syncSuccess = userRepository.syncFriendsFromFirebase();
             if (syncSuccess) {
                 Log.d(TAG, "syncAndRefreshFriends: Firebase sync successful");
             } else {
                 Log.w(TAG, "syncAndRefreshFriends: Firebase sync failed, continuing with local data");
             }
-            
-            // Then load local friends and update UI
+
             refreshFriendsFromLocal();
         });
     }
 
-    // --- Internal: load from repo and split into lists ---
+    // --- Internal: sync (Firebase) + load (local) ---
+
+    /**
+     * Syncs from Firebase first, then reloads friend lists from local DB.
+     * Runs entirely on background thread.
+     */
     private void refreshFriends() {
-        io.execute(() -> {
-            Log.d(TAG, "refreshFriends: Syncing from Firebase before loading local data");
-            
-            // Sync from Firebase first, then load local
-            boolean syncSuccess = repo.syncFriendsFromFirebase();
+        ioExecutor.execute(() -> {
+            Log.d(TAG, "refreshFriends: syncing from Firebase before loading local data");
+
+            boolean syncSuccess = userRepository.syncFriendsFromFirebase();
+
+            List<Friend> friends = userRepository.getFriends();
+            for (Friend f : friends) {
+                String uid = f.getUid();
+                int localScore = userRepository.getGlobalScore(uid);
+                int remoteScore = userRepository.getGlobalScoreRemote(uid);
+                if (remoteScore == -1 || localScore == -1)
+                    Log.e(TAG, "refreshFriends: Failed to get global score for uid=" + uid);
+                if (localScore != remoteScore) {
+                    int newScore = Math.max(localScore, remoteScore);
+                    userRepository.setGlobalScore(uid, newScore);
+                }
+
+            }
             if (syncSuccess) {
                 Log.d(TAG, "refreshFriends: Firebase sync successful");
             } else {
@@ -150,47 +244,73 @@ public class FriendViewModel extends AndroidViewModel {
             refreshFriendsFromLocal();
         });
     }
-    
-    // --- Helper: load from local repo and split into lists ---
+
+    /**
+     * Loads all friends from local repository and splits them into
+     * accepted vs pending lists, then posts them to LiveData.
+     */
     private void refreshFriendsFromLocal() {
-        List<Friend> all = repo.getFriends();
-        List<Friend> acc = new ArrayList<>();
-        List<Friend> pen = new ArrayList<>();
-        
-        Log.d(TAG, "refreshFriendsFromLocal: Processing " + all.size() + " friends from local database");
-        
-        for (Friend f : all) {
-            if ("accepted".equals(f.getStatus())) {
-                acc.add(f);
-            } else if ("pending".equals(f.getStatus())) {
-                pen.add(f);
+        List<Friend> allFriends = userRepository.getFriends();
+        List<Friend> acceptedFriends = new ArrayList<>();
+        List<Friend> pendingFriends = new ArrayList<>();
+
+        Log.d(TAG, "refreshFriendsFromLocal: processing " + allFriends.size() + " friends from local database");
+
+        for (Friend friend : allFriends) {
+            String status = friend.getStatus();
+            if ("accepted".equals(status)) {
+                acceptedFriends.add(friend);
+            } else if ("pending".equals(status)) {
+                pendingFriends.add(friend);
             }
         }
-        
-        Log.d(TAG, "refreshFriendsFromLocal: Found " + acc.size() + " accepted friends, " + pen.size() + " pending friends");
-        
-        acceptedFriends.postValue(acc);
-        pendingFriends.postValue(pen);
+
+        Log.d(TAG, "refreshFriendsFromLocal: found "
+                + acceptedFriends.size() + " accepted friends, "
+                + pendingFriends.size() + " pending friends");
+
+        acceptedFriendsLiveData.postValue(acceptedFriends);
+        pendingFriendsLiveData.postValue(pendingFriends);
     }
+
+    // --- Lifecycle cleanup ---
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        io.shutdown();
-        if (db != null && db.isOpen()) db.close();
-        if (dbHelper != null) dbHelper.close();
+        ioExecutor.shutdown();
+
+        if (writableDatabase != null && writableDatabase.isOpen()) {
+            writableDatabase.close();
+        }
+        if (databaseHelper != null) {
+            databaseHelper.close();
+        }
     }
+
+    // --- UI state class for friend-request feedback ---
 
     /**
      * UI-facing representation of the latest friend request attempt.
      * Idle state is represented by {@code hasResult == false}.
      */
     public static class FriendRequestUiState {
+
+        /**
+         * True if we have a result to show (success or failure).
+         * False means "no active result / idle".
+         */
         private final boolean hasResult;
+
         @Nullable
         private final FriendRequestResult.Status status;
+
         @Nullable
         private final String message;
+
+        /**
+         * Email (or other identifier) we attempted to add as a friend.
+         */
         @Nullable
         private final String target;
 
@@ -204,13 +324,24 @@ public class FriendViewModel extends AndroidViewModel {
             this.target = target;
         }
 
+        /**
+         * Idle / cleared state: nothing to show.
+         */
         public static FriendRequestUiState idle() {
             return new FriendRequestUiState(false, null, null, null);
         }
 
+        /**
+         * Build a UI state from a repository result and the target email.
+         */
         public static FriendRequestUiState fromResult(@NonNull String target,
                                                       @NonNull FriendRequestResult result) {
-            return new FriendRequestUiState(true, result.getStatus(), result.getMessage(), target);
+            return new FriendRequestUiState(
+                    true,
+                    result.getStatus(),
+                    result.getMessage(),
+                    target
+            );
         }
 
         public boolean hasResult() {

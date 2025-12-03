@@ -38,6 +38,21 @@
             app:layout_constraintStart_toStartOf="@id/profile_text_guide_left"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageButton
+            android:id="@+id/profile_help_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="@dimen/wl_space_xs"
+            android:background="@drawable/bg_round_button"
+            android:contentDescription="@string/profile_help_button_cd"
+            android:padding="@dimen/wl_space_xs"
+            android:scaleType="centerInside"
+            android:src="@drawable/info_icon"
+            android:tint="@color/wl_primary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/profile_text"
+            app:layout_constraintBottom_toBottomOf="@id/profile_text" />
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"

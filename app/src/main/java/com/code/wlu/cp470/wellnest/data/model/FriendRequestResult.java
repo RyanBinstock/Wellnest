@@ -40,6 +40,18 @@ public final class FriendRequestResult {
         return status == Status.SUCCESS;
     }
 
+    public boolean isLocalFailure() {
+        return status == Status.LOCAL_FAILURE;
+    }
+
+    public boolean isRemoteFailure() {
+        return status == Status.REMOTE_FAILURE;
+    }
+
+    public boolean isPlayServicesUnavailable() {
+        return status == Status.PLAY_SERVICES_UNAVAILABLE;
+    }
+
     @Nullable
     public String getMessage() {
         return message;

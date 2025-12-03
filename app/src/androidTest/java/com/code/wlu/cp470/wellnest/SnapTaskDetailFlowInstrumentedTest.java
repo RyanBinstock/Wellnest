@@ -87,6 +87,37 @@ public class SnapTaskDetailFlowInstrumentedTest {
         };
     }
 
+    /**
+     * Polls the ActivityScenario state until it reaches the expected state or times out.
+     * This is more reliable than Thread.sleep for checking lifecycle transitions.
+     *
+     * @param scenario The ActivityScenario to check
+     * @param expectedState The expected Lifecycle.State
+     * @param timeoutMs Maximum time to wait in milliseconds
+     * @param pollIntervalMs Interval between polls in milliseconds
+     * @return true if the expected state was reached, false if timeout occurred
+     */
+    private boolean waitForActivityState(
+            ActivityScenario<?> scenario,
+            Lifecycle.State expectedState,
+            long timeoutMs,
+            long pollIntervalMs
+    ) {
+        long startTime = System.currentTimeMillis();
+        while (System.currentTimeMillis() - startTime < timeoutMs) {
+            try {
+                if (scenario.getState() == expectedState) {
+                    return true;
+                }
+                Thread.sleep(pollIntervalMs);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+        return scenario.getState() == expectedState;
+    }
+
     @Before
     public void setUp() {
         context = ApplicationProvider.getApplicationContext();
@@ -298,11 +329,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
 
         // Click Continue - in Activity version, this will finish the activity
         onView(withId(R.id.continueButton)).perform(click());
-        onView(isRoot()).perform(waitFor(200L));
-        // Activity should be finishing/finished
-        scenario.onActivity(activity -> {
-            assertTrue("Activity should be finishing", activity.isFinishing());
-        });
+        
+        // Wait for activity to be destroyed with polling (handles animation + lifecycle timing)
+        boolean isDestroyed = waitForActivityState(scenario, Lifecycle.State.DESTROYED, 3000L, 100L);
+        
+        // Verify activity is destroyed/finished
+        assertTrue("Activity should be DESTROYED after clicking continue, but was: " + scenario.getState(),
+                   isDestroyed);
     }
 
     /**
@@ -357,11 +390,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
 
         // Click Try Again / Back to Tasks - in Activity version, this will finish the activity
         onView(withId(R.id.tryAgainButton)).perform(click());
-        onView(isRoot()).perform(waitFor(200L));
-        // Activity should be finishing/finished
-        scenario.onActivity(activity -> {
-            assertTrue("Activity should be finishing", activity.isFinishing());
-        });
+        
+        // Wait for activity to be destroyed with polling (handles animation + lifecycle timing)
+        boolean isDestroyed = waitForActivityState(scenario, Lifecycle.State.DESTROYED, 3000L, 100L);
+        
+        // Verify activity is destroyed/finished
+        assertTrue("Activity should be DESTROYED after clicking try again, but was: " + scenario.getState(),
+                   isDestroyed);
     }
 
     /**
@@ -395,12 +430,15 @@ public class SnapTaskDetailFlowInstrumentedTest {
         scenario.moveToState(Lifecycle.State.DESTROYED);
 
         // Wait longer than the override delay to let evaluation finish.
-        onView(isRoot()).perform(waitFor(2500L));
+        // Cannot use Espresso after activity is destroyed, so just sleep.
+        try {
+            Thread.sleep(2500L);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
 
-        // No success or failure dialogs should be present for a destroyed fragment.
-        onView(withId(R.id.pointsEarnedText)).check(doesNotExist());
-        onView(withId(R.id.tryAgainButton)).check(doesNotExist());
-        // Test passes if no crash occurs.
+        // Test passes if no crash occurs (no WindowManager$BadTokenException).
+        // The isFinishing()/isDestroyed() checks in dialog methods prevent dialogs from showing.
     }
 
     /**
@@ -452,11 +490,13 @@ public class SnapTaskDetailFlowInstrumentedTest {
 
         // Click Continue - in Activity version, this will finish the activity
         onView(withId(R.id.continueButton)).perform(click());
-        onView(isRoot()).perform(waitFor(200L));
-        // Activity should be finishing/finished
-        scenario.onActivity(activity -> {
-            assertTrue("Activity should be finishing", activity.isFinishing());
-        });
+        
+        // Wait for activity to be destroyed with polling (handles animation + lifecycle timing)
+        boolean isDestroyed = waitForActivityState(scenario, Lifecycle.State.DESTROYED, 3000L, 100L);
+        
+        // Verify activity is destroyed/finished
+        assertTrue("Activity should be DESTROYED after clicking continue, but was: " + scenario.getState(),
+                   isDestroyed);
     }
 
     /**
@@ -506,10 +546,12 @@ public class SnapTaskDetailFlowInstrumentedTest {
 
         // Click Try Again / Back to Tasks - in Activity version, this will finish the activity
         onView(withId(R.id.tryAgainButton)).perform(click());
-        onView(isRoot()).perform(waitFor(200L));
-        // Activity should be finishing/finished
-        scenario.onActivity(activity -> {
-            assertTrue("Activity should be finishing", activity.isFinishing());
-        });
+        
+        // Wait for activity to be destroyed with polling (handles animation + lifecycle timing)
+        boolean isDestroyed = waitForActivityState(scenario, Lifecycle.State.DESTROYED, 3000L, 100L);
+        
+        // Verify activity is destroyed/finished
+        assertTrue("Activity should be DESTROYED after clicking try again, but was: " + scenario.getState(),
+                   isDestroyed);
     }
 }

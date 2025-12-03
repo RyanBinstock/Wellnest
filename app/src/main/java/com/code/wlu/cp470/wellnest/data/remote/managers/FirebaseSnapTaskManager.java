@@ -5,13 +5,16 @@ import android.util.Log;
 import com.code.wlu.cp470.wellnest.data.SnapTaskModels;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class FirebaseSnapTaskManager {
@@ -69,6 +72,55 @@ public class FirebaseSnapTaskManager {
             e.printStackTrace();
             return new ArrayList<>();
         }
+    }
+
+    // ---------------------------------------------------------------------
+    // Micro-app score: users/{uid}/microapp_scores/snap_task
+    // ---------------------------------------------------------------------
+
+    public boolean upsertScore(SnapTaskModels.SnapTaskScore snapTaskScore) {
+        if (snapTaskScore == null || snapTaskScore.getUid() == null) return false;
+
+        DocumentReference ref = db
+                .collection("users")
+                .document(snapTaskScore.getUid())
+                .collection("microapp_scores")
+                .document("snap_task");
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("score", snapTaskScore.getScore());
+
+        return awaitOk(ref.set(data));
+    }
+
+    public SnapTaskModels.SnapTaskScore getScore(String uid) {
+        if (uid == null) {
+            return null;
+        }
+
+        DocumentReference ref = db
+                .collection("users")
+                .document(uid)
+                .collection("microapp_scores")
+                .document("snap_task");
+
+        try {
+            Task<DocumentSnapshot> task = ref.get();
+            if (!awaitOk(task)) return null;
+
+            DocumentSnapshot snap = task.getResult();
+
+            if (snap != null && snap.exists()) {
+                Long val = snap.getLong("score");
+                int score = val != null ? val.intValue() : 0;
+                return new SnapTaskModels.SnapTaskScore(uid, score);
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "getScore failed", e);
+        }
+
+        return null;
     }
 
 }
