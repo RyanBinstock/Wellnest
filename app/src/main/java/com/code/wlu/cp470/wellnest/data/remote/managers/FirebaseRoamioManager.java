@@ -59,6 +59,9 @@ public class FirebaseRoamioManager {
     }
 
     public RoamioModels.RoamioScore getScore(String uid) {
+        if (uid == null) {
+            return null;
+        }
 
         DocumentReference ref = db
                 .collection("users")
@@ -68,7 +71,7 @@ public class FirebaseRoamioManager {
 
         try {
             Task<DocumentSnapshot> task = ref.get();
-            if (!awaitOk(task)) return new RoamioModels.RoamioScore(uid, 0);
+            if (!awaitOk(task)) return null;
 
             DocumentSnapshot snap = task.getResult();
 
@@ -82,7 +85,7 @@ public class FirebaseRoamioManager {
             Log.e(TAG, "getScore failed", e);
         }
 
-        return new RoamioModels.RoamioScore(uid, 0);
+        return null;
     }
 
 }

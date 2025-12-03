@@ -18,10 +18,14 @@ import com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper;
 import com.code.wlu.cp470.wellnest.data.local.managers.RoamioManager;
 import com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseRoamioManager;
 
+import android.content.SharedPreferences;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.time.LocalDate;
 
 /**
  * Instrumented tests for RoamioRepository covering score operations,
@@ -29,6 +33,9 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public class RoamioRepositoryInstrumentedTest {
+
+    private static final String USER_REPO_PREFS = "user_repo_prefs";
+    private static final String PREFS_UID = "uid";
 
     private Context context;
     private WellnestDatabaseHelper helper;
@@ -86,6 +93,17 @@ public class RoamioRepositoryInstrumentedTest {
         if (helper != null) {
             helper.close();
         }
+        // Clean up UserRepository prefs to avoid test pollution
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().clear().apply();
+    }
+
+    /**
+     * Helper method to seed the uid in UserRepository's SharedPreferences
+     */
+    private void seedUserRepoUid(String uid) {
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().putString(PREFS_UID, uid).apply();
     }
 
     // ============================================================
@@ -273,7 +291,9 @@ public class RoamioRepositoryInstrumentedTest {
      */
     @Test
     public void testGenerateWalk_returnsWalkObject() {
-        RoamioModels.Walk walk = repo.generateWalk();
+        RoamioModels.Walk walk = repo.generateWalk((percent, message) -> {
+            // No-op for this test; progress updates are not asserted
+        });
         
         // In test environment without location permissions, this may be null
         // If it's not null, verify it has the required fields
@@ -523,5 +543,119 @@ public class RoamioRepositoryInstrumentedTest {
         // Update score directly
         repo.upsertRoamioScore(500);
         assertEquals("Score should be 500 after upsert", 500, repo.getRoamioScore().getScore());
+    }
+
+    // ============================================================
+    // Once-Daily Score Sync Tests
+    // ============================================================
+
+    /**
+     * Test that syncRoamioScoreOnceDaily syncs scores when due (past sync date).
+     * Verifies that higher-score-wins reconciliation and date update occur.
+     */
+    @Test
+    public void testSyncRoamioScoreOnceDaily_whenDue_syncsScoresAndRecordsDate() {
+        String testUid = "roamio_sync_test_1";
+        FakeFirebaseRoamioManager fakeRemote = (FakeFirebaseRoamioManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Clear any existing sync date by setting it to a past day
+        SharedPreferences prefs = context.getSharedPreferences(
+                com.code.wlu.cp470.wellnest.data.auth.AuthRepository.PREFS, Context.MODE_PRIVATE);
+        String key = "last_sync_roamio_score_epoch_day_" + testUid;
+        prefs.edit().putLong(key, LocalDate.now().toEpochDay() - 1).apply();
+
+        // Set up: local=10, remote=50 => expected final=50 (remote higher)
+        repo.upsertRoamioScore(10);
+        fakeRemote.setFakeScore(50);
+
+        // Act
+        repo.syncRoamioScoreOnceDaily();
+
+        // Assert: local should be updated to 50
+        assertEquals("Local score should be max(10,50)=50", 50, repo.getRoamioScore().getScore());
+
+        // Assert: sync date should be updated to today
+        long storedEpochDay = prefs.getLong(key, Long.MIN_VALUE);
+        assertEquals("Sync date should be today", LocalDate.now().toEpochDay(), storedEpochDay);
+    }
+
+    /**
+     * Test that syncRoamioScoreOnceDaily is skipped when already synced today.
+     * Verifies that scores remain unchanged.
+     */
+    @Test
+    public void testSyncRoamioScoreOnceDaily_whenAlreadySyncedToday_skipsSync() {
+        String testUid = "roamio_sync_test_2";
+        FakeFirebaseRoamioManager fakeRemote = (FakeFirebaseRoamioManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Set sync date to today
+        SharedPreferences prefs = context.getSharedPreferences(
+                com.code.wlu.cp470.wellnest.data.auth.AuthRepository.PREFS, Context.MODE_PRIVATE);
+        String key = "last_sync_roamio_score_epoch_day_" + testUid;
+        prefs.edit().putLong(key, LocalDate.now().toEpochDay()).apply();
+
+        // Set up: local=5, remote=100 => should NOT sync
+        repo.upsertRoamioScore(5);
+        fakeRemote.setFakeScore(100);
+
+        // Act
+        repo.syncRoamioScoreOnceDaily();
+
+        // Assert: local score unchanged
+        assertEquals("Local score should remain 5 (no sync)", 5, repo.getRoamioScore().getScore());
+    }
+
+    /**
+     * Test that syncRoamioScoreOnceDaily handles local > remote correctly.
+     */
+    @Test
+    public void testSyncRoamioScoreOnceDaily_localHigher_updatesRemote() {
+        String testUid = "roamio_sync_test_3";
+        FakeFirebaseRoamioManager fakeRemote = (FakeFirebaseRoamioManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Clear sync date
+        SharedPreferences prefs = context.getSharedPreferences(
+                com.code.wlu.cp470.wellnest.data.auth.AuthRepository.PREFS, Context.MODE_PRIVATE);
+        String key = "last_sync_roamio_score_epoch_day_" + testUid;
+        prefs.edit().remove(key).apply();
+
+        // Set up: local=200, remote=50 => expected final=200
+        repo.upsertRoamioScore(200);
+        fakeRemote.setFakeScore(50);
+
+        // Act
+        repo.syncRoamioScoreOnceDaily();
+
+        // Assert: remote should be updated to 200
+        assertEquals("Remote score should be updated to 200", 200, fakeRemote.fakeScore);
+        assertEquals("Local score should remain 200", 200, repo.getRoamioScore().getScore());
+    }
+
+    /**
+     * Test that syncRoamioScoreOnceDaily handles null/empty uid gracefully.
+     */
+    @Test
+    public void testSyncRoamioScoreOnceDaily_nullUid_doesNotCrash() {
+        // Clear the uid from UserRepository prefs to simulate null/empty uid
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().remove(PREFS_UID).apply();
+        
+        // Should not throw, just return early
+        repo.syncRoamioScoreOnceDaily();
+        
+        // Test with empty uid
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().putString(PREFS_UID, "").apply();
+        repo.syncRoamioScoreOnceDaily();
+        // No assertions needed - just verifying no crash
     }
 }

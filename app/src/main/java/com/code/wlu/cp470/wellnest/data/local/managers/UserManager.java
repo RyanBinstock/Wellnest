@@ -242,18 +242,14 @@ public final class UserManager {
     // --- READ (current user) ---
     public int getGlobalScore() {
         Integer val = queryScoreByUid(currentUid());
-        return val != null ? val : -1;
+        // If there is no row for the current user, treat the score as 0
+        return val != -1 ? val : 0;
     }
 
     // --- READ (by uid) ---
     public Integer getGlobalScore(String uid) {
-        int score = queryScoreByUid(uid);
-        if (score != -1) {
-            return score;
-        } else {
-            Log.w("UserManager", "getGlobalScore(" + uid + ") returned -1");
-            return -1;
-        }
+        // For specific UIDs, return null if no score row exists
+        return queryScoreByUid(uid);
     }
 
     // --- CREATE (current user) ---
@@ -276,12 +272,18 @@ public final class UserManager {
 
     // --- ENSURE ---
     public boolean ensureGlobalScore(String uid) {
-        // create with 0 if missing
-        if (queryScoreByUid(uid) != null) return false;
-        ContentValues cv = new ContentValues();
-        cv.put(UserContract.GlobalScore.Col.UID, uid);
-        cv.put(UserContract.GlobalScore.Col.SCORE, 0);
-        return db.insert(UserContract.GlobalScore.TABLE, null, cv) != -1;
+        if (queryScoreByUid(uid) == -1) {
+            // create with 0 if missing and return false
+            ContentValues cv = new ContentValues();
+            cv.put(UserContract.GlobalScore.Col.UID, uid);
+            cv.put(UserContract.GlobalScore.Col.SCORE, 0);
+            boolean error = db.insert(UserContract.GlobalScore.TABLE, null, cv) == -1;
+            if (error) {
+                throw new SQLException("Failed to create global score for uid=" + uid);
+            }
+            return false;
+        }
+        return true;
     }
 
 // --- UPDATE (current user) ---
@@ -486,9 +488,35 @@ public final class UserManager {
 
     /**
      * Upsert a friend by their Firebase UID.
+     * <p>
+     * If the friend already exists, this updates the name but preserves the existing status.
+     * If the friend does not exist, a new row is created with status "pending".
      */
     public boolean upsertFriend(String friendUid, String friendName) {
-        return upsertFriend(friendUid, friendName, "pending");
+        if (friendUid == null || friendUid.isEmpty()) {
+            throw new IllegalArgumentException("friendUid is empty");
+        }
+
+        // Look up existing status if this friend already exists
+        String existingStatus = null;
+        Cursor c = null;
+        try {
+            c = db.query(
+                    UserContract.Friends.TABLE,
+                    new String[]{UserContract.Friends.Col.FRIEND_STATUS},
+                    UserContract.Friends.Col.FRIEND_UID + "=?",
+                    new String[]{friendUid},
+                    null, null, null
+            );
+            if (c.moveToFirst()) {
+                existingStatus = c.getString(0);
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+
+        String statusToUse = (existingStatus != null) ? existingStatus : "pending";
+        return upsertFriend(friendUid, friendName, statusToUse);
     }
 
     /**

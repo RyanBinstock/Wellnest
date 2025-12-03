@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.Button;
@@ -18,13 +19,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.WindowCompat;
 
 import com.code.wlu.cp470.wellnest.R;
-import com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar;
 import com.code.wlu.cp470.wellnest.data.RoamioModels;
+import com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar;
+import com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects;
 import com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -41,11 +45,13 @@ public class RoamioActivity extends AppCompatActivity {
     private static final String TAG = "RoamioActivity";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
     private static final float COMPLETION_RADIUS_METERS = 50f;
+    private static final boolean DISABLE_LOCATION_CHECK = false;
 
     Context context;
     private TextView scoreText, walkTitle, walkDescription;
     private ImageView characterImage, infoButton;
     private Button primaryButton;
+    private CardView homeButton;
     private View difficultyDot1, difficultyDot2, difficultyDot3;
 
     private RoamioViewModel roamioViewModel;
@@ -95,6 +101,7 @@ public class RoamioActivity extends AppCompatActivity {
         characterImage = findViewById(R.id.roamioCharacter);
         primaryButton = findViewById(R.id.walkButton);
         infoButton = findViewById(R.id.roamio_card_info_button);
+        homeButton = findViewById(R.id.roamio_back_button);
         difficultyDot1 = findViewById(R.id.difficultyDot1);
         difficultyDot2 = findViewById(R.id.difficultyDot2);
         difficultyDot3 = findViewById(R.id.difficultyDot3);
@@ -128,10 +135,19 @@ public class RoamioActivity extends AppCompatActivity {
         // Set up button click listener
         primaryButton.setOnClickListener(v -> handleWalkButtonClick());
 
+        // Set up info button click listener
+        UiClickEffects.setOnClickWithPulse(infoButton, R.raw.ui_click_effect, v -> showInfoDialog());
+
+        // Set up home button click listener
+        homeButton.setOnClickListener(v -> {
+            finish();
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        });
+
         // Generate walk using current location and update UI with results
         // Show loading overlay with fade-in animation
         showLoadingOverlay();
-        
+
         roamioViewModel.generateWalk(new RoamioViewModel.RoamioCallback<>() {
             @Override
             public void onSuccess(RoamioModels.Walk walk) {
@@ -280,6 +296,11 @@ public class RoamioActivity extends AppCompatActivity {
      * Checks if user is at destination and completes the walk.
      */
     private void checkLocationAndCompleteWalk() {
+        if (DISABLE_LOCATION_CHECK) {
+            completeWalk();
+            return;
+        }
+
         // Check location permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED &&
@@ -399,6 +420,44 @@ public class RoamioActivity extends AppCompatActivity {
     }
 
     /**
+     * Shows the info dialog with walk description and verification details.
+     */
+    private void showInfoDialog() {
+        if (currentWalk == null) {
+            Toast.makeText(this, "Walk details not available yet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Prevent showing dialog if activity is finishing or destroyed
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_roamio_info, null);
+        TextView descriptionText = dialogView.findViewById(R.id.walkDescriptionText);
+        TextView verificationText = dialogView.findViewById(R.id.verificationDetailsText);
+        Button okButton = dialogView.findViewById(R.id.okButton);
+        View closeButton = dialogView.findViewById(R.id.closeButton);
+
+        descriptionText.setText(currentWalk.getStory());
+
+        String verificationMessage = String.format(Locale.US,
+                "To verify this walk, you must be within %.0f meters of the destination.",
+                COMPLETION_RADIUS_METERS);
+        verificationText.setText(verificationMessage);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+
+        UiClickEffects.setOnClickWithPulse(okButton, R.raw.ui_click_effect, v -> dialog.dismiss());
+        if (closeButton != null) {
+            UiClickEffects.setOnClickWithPulse(closeButton, R.raw.ui_click_effect, v -> dialog.dismiss());
+        }
+        dialog.show();
+    }
+
+    /**
      * Show the loading overlay with fade-in animation.
      */
     private void showLoadingOverlay() {
@@ -415,14 +474,14 @@ public class RoamioActivity extends AppCompatActivity {
             if (loadingMessage != null) {
                 loadingMessage.setText(R.string.roamio_loading_message);
             }
-            
+
             // Apply fade-in animation
             loadingOverlay.setAlpha(0f);
             loadingOverlay.animate()
-                .alpha(1f)
-                .setDuration(400)
-                .setInterpolator(new android.view.animation.DecelerateInterpolator())
-                .start();
+                    .alpha(1f)
+                    .setDuration(400)
+                    .setInterpolator(new android.view.animation.DecelerateInterpolator())
+                    .start();
         }
     }
 
@@ -458,18 +517,18 @@ public class RoamioActivity extends AppCompatActivity {
             if (progressPercentage != null) {
                 progressPercentage.setText("100%");
             }
-            
+
             // Apply fade-out animation
             loadingOverlay.animate()
-                .alpha(0f)
-                .setDuration(300)
-                .setInterpolator(new android.view.animation.AccelerateInterpolator())
-                .withEndAction(() -> {
-                    // Cleanup after animation completes
-                    loadingOverlay.setVisibility(View.GONE);
-                    loadingOverlay.setAlpha(1f); // Reset alpha for next show
-                })
-                .start();
+                    .alpha(0f)
+                    .setDuration(300)
+                    .setInterpolator(new android.view.animation.AccelerateInterpolator())
+                    .withEndAction(() -> {
+                        // Cleanup after animation completes
+                        loadingOverlay.setVisibility(View.GONE);
+                        loadingOverlay.setAlpha(1f); // Reset alpha for next show
+                    })
+                    .start();
         }
     }
 

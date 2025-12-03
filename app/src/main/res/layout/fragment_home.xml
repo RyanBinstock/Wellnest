@@ -51,6 +51,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- Place leaderboard container *behind* header and chevron in Z-order
+             so header/chevron remain clickable even when scoreboard is expanded. -->
+        <FrameLayout
+            android:id="@+id/leaderboardContainer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/wl_space_xl"
+            android:layout_marginBottom="@dimen/wl_space_xl"
+            app:layout_constraintBottom_toTopOf="@id/chevron"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/friendsScoreboardTxt" />
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guide_left"
@@ -122,17 +135,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <ImageView
-            android:id="@+id/chevron"
-            android:layout_width="@dimen/wl_icon_small"
-            android:layout_height="@dimen/wl_icon_small"
-            android:layout_marginBottom="5dp"
-            android:background="#00000000"
-            android:src="@drawable/icon_chevron"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <ImageView
             android:id="@+id/friendsScoreboardTxt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -144,16 +146,19 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <FrameLayout
-            android:id="@+id/leaderboardContainer"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginHorizontal="@dimen/wl_space_xl"
-            android:layout_marginBottom="@dimen/wl_space_xl"
-            app:layout_constraintBottom_toTopOf="@id/chevron"
+        <ImageView
+            android:id="@+id/chevron"
+            android:layout_width="@dimen/wl_icon_small"
+            android:layout_height="@dimen/wl_icon_small"
+            android:layout_marginBottom="5dp"
+            android:background="#00000000"
+            android:src="@drawable/icon_chevron"
+            android:clickable="true"
+            android:focusable="true"
+            android:elevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/friendsScoreboardTxt" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

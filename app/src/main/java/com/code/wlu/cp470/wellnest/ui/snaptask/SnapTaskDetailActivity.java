@@ -295,6 +295,12 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
     }
 
     private void showInfoDialog(String description) {
+        // Prevent showing dialog if activity is finishing or destroyed
+        if (isFinishing() || isDestroyed()) {
+            Log.w(TAG, "showInfoDialog: Activity is finishing/destroyed, skipping dialog");
+            return;
+        }
+
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_snap_task_info, null);
         TextView descriptionText = dialogView.findViewById(R.id.taskDescriptionText);
         Button okButton = dialogView.findViewById(R.id.okButton);
@@ -346,6 +352,12 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
     }
 
     private void showSuccessDialog() {
+        // Prevent showing dialog if activity is finishing or destroyed
+        if (isFinishing() || isDestroyed()) {
+            Log.w(TAG, "showSuccessDialog: Activity is finishing/destroyed, skipping dialog");
+            return;
+        }
+
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_snap_task_success, null);
         TextView pointsEarnedText = dialogView.findViewById(R.id.pointsEarnedText);
         Button continueButton = dialogView.findViewById(R.id.continueButton);
@@ -370,6 +382,12 @@ public class SnapTaskDetailActivity extends AppCompatActivity {
     }
 
     private void showFailureDialog() {
+        // Prevent showing dialog if activity is finishing or destroyed
+        if (isFinishing() || isDestroyed()) {
+            Log.w(TAG, "showFailureDialog: Activity is finishing/destroyed, skipping dialog");
+            return;
+        }
+
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_snap_task_failure, null);
         Button tryAgainButton = dialogView.findViewById(R.id.tryAgainButton);
 

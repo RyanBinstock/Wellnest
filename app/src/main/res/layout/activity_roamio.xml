@@ -224,6 +224,28 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </eightbitlab.com.blurview.BlurView>
 
+    <!--  Home Button  -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/roamio_back_button"
+        android:layout_width="@dimen/snap_task_back_button_width"
+        android:layout_height="@dimen/snap_task_back_button_height"
+        android:layout_margin="@dimen/wl_space_l"
+        android:background="#FFFFFF"
+        android:clickable="true"
+        app:cardCornerRadius="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            style="@style/TextAppearance.Wellnest.MicroApp.HomeButtonText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:includeFontPadding="false"
+            android:text="@string/home_button_text" />
+
+    </androidx.cardview.widget.CardView>
+
     <!-- Loading overlay - appears on top of all content -->
     <include
         android:id="@+id/roamioLoadingOverlay"

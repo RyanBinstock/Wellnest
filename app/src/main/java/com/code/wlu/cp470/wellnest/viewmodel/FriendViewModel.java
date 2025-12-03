@@ -142,9 +142,13 @@ public class FriendViewModel extends AndroidViewModel {
      * Remove an existing friend by uid. Refreshes lists on success.
      */
     public boolean removeFriend(String friendUid) {
+        Log.d(TAG, "removeFriend: ViewModel calling repository for uid=" + friendUid);
         boolean success = userRepository.removeFriend(friendUid);
+        Log.d(TAG, "removeFriend: Repository returned " + success);
         if (success) {
             refreshFriends();
+        } else {
+            Log.w(TAG, "removeFriend: Failed to remove friend, not refreshing list");
         }
         return success;
     }

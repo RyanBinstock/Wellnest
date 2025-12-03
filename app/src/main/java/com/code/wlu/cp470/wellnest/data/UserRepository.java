@@ -57,7 +57,8 @@ public final class UserRepository {
         this.prefs = this.context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         this.mainHandler = new Handler(Looper.getMainLooper());
 
-        prefs.edit().putString(PREFS_UID, local.currentUid()).apply();
+        // Don't get currentUid during construction - it may not exist yet during auth flow
+        // The UID will be stored when needed by methods that require it
     }
 
     // ------------------------------------------------------------
@@ -65,21 +66,94 @@ public final class UserRepository {
     // ------------------------------------------------------------
 
     public void syncGlobalScore() {
-        String uid = prefs.getString(PREFS_UID, "-1");
+        Log.d(TAG, "syncGlobalScore: === METHOD ENTERED ===");
+        // Get current UID when method is called (not during construction)
+        String uid = local.currentUid();
+        // Also cache it in prefs for reference
+        prefs.edit().putString(PREFS_UID, uid).apply();
+
+        Log.d(TAG, "syncGlobalScore: Starting sync for uid=" + uid);
+
         int localScore = local.getGlobalScore();
-        int remoteScore = -1;
+        Log.d(TAG, "syncGlobalScore: Local score = " + localScore);
+
         try {
-            remoteScore = remote.getGlobalScore(uid);
+            Integer remoteScoreObj = remote.getGlobalScore(uid);
+            int remoteScore = (remoteScoreObj != null) ? remoteScoreObj : 0;
+            Log.d(TAG, "syncGlobalScore: Remote score = " + remoteScore + " (remoteScoreObj was " + (remoteScoreObj != null ? "non-null" : "null") + ")");
+            
+            // DIAGNOSTIC LOG: Track if this is a new user vs existing user with no score
+            boolean userDocExists = remoteScoreObj != null;
+            Log.d(TAG, "syncGlobalScore: DIAGNOSTIC - User document exists in Firebase: " + userDocExists);
+            Log.d(TAG, "syncGlobalScore: DIAGNOSTIC - This appears to be " + (userDocExists ? "existing user with 0 score" : "truly new user"));
+            
+            // Both scores are valid, proceed with sync
+            Log.d(TAG, "syncGlobalScore: Comparing scores - local=" + localScore + ", remote=" + remoteScore);
+            if (localScore > remoteScore) {
+                Log.d(TAG, "syncGlobalScore: Local score higher, pushing to remote");
+                remote.setGlobalScore(uid, localScore);
+            } else if (localScore < remoteScore) {
+                Log.d(TAG, "syncGlobalScore: Remote score higher, pulling to local");
+                local.setGlobalScore(uid, remoteScore);
+            } else {
+                Log.d(TAG, "syncGlobalScore: Scores are equal, no sync needed");
+            }
         } catch (Exception e) {
-            Log.e(TAG, "Failed to get global score for uid=" + uid, e);
+            Log.e(TAG, "syncGlobalScore: Exception fetching remote score for uid=" + uid, e);
+            // Try to push local score to remote if local has a score and remote fetch failed
+            if (localScore > 0) {
+                Log.d(TAG, "syncGlobalScore: Pushing local score " + localScore + " to remote due to fetch failure");
+                remote.setGlobalScore(uid, localScore);
+            }
         }
+    }
 
-        if (remoteScore == -1 || localScore == -1) {
-            Log.e(TAG, "Failed to get global score for uid=" + uid);
+    public void syncStreak() {
+        Log.d(TAG, "syncStreak: === METHOD ENTERED ===");
+        // Get current UID when method is called (not during construction)
+        Log.d(TAG, "Sync streak called");
+        String uid = prefs.getString(PREFS_UID, "-1");
+        if (uid.equals("-1")) {
+            Log.e(TAG, "syncStreak: No current UID available, cannot sync streak");
+            return;
         }
+        Log.d(TAG, "syncStreak: Starting sync for uid=" + uid);
+        int localStreak = local.getStreakCount();
+        Log.d(TAG, "syncStreak: Local streak = " + localStreak);
+        try {
+            Integer remoteStreakObj = remote.getStreak(uid);
+            int remoteStreak = (remoteStreakObj != null) ? remoteStreakObj : 0;
+            Log.d(TAG, "syncStreak: Remote streak = " + remoteStreak + " (remoteStreakObj was " + (remoteStreakObj != null ? "non-null" : "null") + ")");
+            
+            // DIAGNOSTIC LOG: Track if this is a new user vs existing user with no streak
+            boolean userDocExists = remoteStreakObj != null;
+            Log.d(TAG, "syncStreak: DIAGNOSTIC - User document exists in Firebase: " + userDocExists);
+            Log.d(TAG, "syncStreak: DIAGNOSTIC - This appears to be " + (userDocExists ? "existing user with 0 streak" : "truly new user"));
+            
+            if (localStreak > remoteStreak) {
+                Log.d(TAG, "syncStreak: Local streak higher, pushing to remote");
+                remote.setStreak(uid, localStreak);
+            } else {
+                Log.d(TAG, "syncStreak: Remote streak higher, pulling to local");
+                local.setStreakCount(remoteStreak);
+                Log.d(TAG, "syncStreak: DIAGNOSTIC - Local streak updated to: " + local.getStreakCount());
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "syncStreak: Exception fetching remote streak for uid=" + uid, e);
+        }
+    }
 
-        if (localScore > remoteScore) remote.setGlobalScore(uid, localScore);
-        else if (localScore < remoteScore) local.setGlobalScore(uid, remoteScore);
+    /**
+     * Checks if a user document exists in Firebase for the given UID.
+     * Returns true if the document exists, false otherwise.
+     */
+    public boolean userDocumentExists(String uid) {
+        try {
+            return remote.userDocumentExists(uid);
+        } catch (Exception e) {
+            Log.e(TAG, "userDocumentExists: Exception checking if user document exists for uid=" + uid, e);
+            return false;
+        }
     }
 
 
@@ -141,9 +215,14 @@ public final class UserRepository {
     }
 
     public int getGlobalScoreRemote(String uid) {
-        int score = -1;
+        int score = 0;
         try {
-            score = remote.getGlobalScore(uid);
+            Integer remoteScore = remote.getGlobalScore(uid);
+            if (remoteScore != null) {
+                score = remoteScore;
+            } else {
+                Log.d(TAG, "getGlobalScoreRemote: Remote score is null for uid=" + uid + ", defaulting to 0");
+            }
         } catch (Exception e) {
             Log.e(TAG, "Failed to get global score for uid=" + uid, e);
         }
@@ -338,7 +417,30 @@ public final class UserRepository {
 
 
     public boolean removeFriend(String friendUid) {
-        return local.removeFriend(friendUid);
+        Log.d(TAG, "removeFriend: Request to remove friend with uid=" + friendUid);
+
+        // 1. Remove locally
+        boolean localSuccess = local.removeFriend(friendUid);
+        Log.d(TAG, "removeFriend: Local removal result=" + localSuccess);
+
+        if (!localSuccess) {
+            return false;
+        }
+
+        // 2. Remove remotely
+        String currentUid = local.currentUid();
+        if (currentUid == null || currentUid.isEmpty()) {
+            return localSuccess;
+        }
+
+        try {
+            // Call the existing remote method
+            boolean remoteSuccess = remote.removeFriend(currentUid, friendUid);
+            return remoteSuccess;
+        } catch (Exception e) {
+            Log.e(TAG, "removeFriend: Remote removal failed", e);
+            return localSuccess; // Fallback to local result
+        }
     }
 
 

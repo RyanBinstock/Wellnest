@@ -22,11 +22,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import android.content.SharedPreferences;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class SnapTaskRepositoryInstrumentedTest {
+
+    private static final String USER_REPO_PREFS = "user_repo_prefs";
+    private static final String PREFS_UID = "uid";
 
     private Context context;
     private WellnestDatabaseHelper helper;
@@ -36,10 +42,21 @@ public class SnapTaskRepositoryInstrumentedTest {
     private SnapTaskRepository repo;
 
     /**
-     * Simple fake remote manager that avoids hitting Firestore in tests and returns
-     * a deterministic small set of tasks.
+     * Fake remote manager that avoids hitting Firestore in tests and returns
+     * a deterministic small set of tasks, plus score storage for sync testing.
      */
     private static class FakeRemoteManager extends FirebaseSnapTaskManager {
+        private int fakeScore = 0;
+        private String fakeUid = "test_uid";
+
+        public void setFakeScore(int score) {
+            this.fakeScore = score;
+        }
+
+        public int getFakeScore() {
+            return fakeScore;
+        }
+
         @Override
         public List<SnapTaskModels.Task> getTasks() {
             List<SnapTaskModels.Task> tasks = new ArrayList<>();
@@ -51,6 +68,21 @@ public class SnapTaskRepositoryInstrumentedTest {
                     false
             ));
             return tasks;
+        }
+
+        @Override
+        public SnapTaskModels.SnapTaskScore getScore(String uid) {
+            return new SnapTaskModels.SnapTaskScore(uid != null ? uid : fakeUid, fakeScore);
+        }
+
+        @Override
+        public boolean upsertScore(SnapTaskModels.SnapTaskScore snapTaskScore) {
+            if (snapTaskScore != null) {
+                this.fakeScore = snapTaskScore.getScore();
+                this.fakeUid = snapTaskScore.getUid();
+                return true;
+            }
+            return false;
         }
     }
 
@@ -75,6 +107,17 @@ public class SnapTaskRepositoryInstrumentedTest {
         if (helper != null) {
             helper.close();
         }
+        // Clean up UserRepository prefs to avoid test pollution
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().clear().apply();
+    }
+
+    /**
+     * Helper method to seed the uid in UserRepository's SharedPreferences
+     */
+    private void seedUserRepoUid(String uid) {
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().putString(PREFS_UID, uid).apply();
     }
 
     /**
@@ -168,5 +211,120 @@ public class SnapTaskRepositoryInstrumentedTest {
         int s = repo.addToSnapTaskScore(0);
         assertEquals(25, s);
         assertEquals(25, repo.getSnapTaskScore().intValue());
+    }
+
+    // ============================================================
+    // Once-Daily Score Sync Tests
+    // ============================================================
+
+    /**
+     * Test that syncSnapTaskScoreOnceDaily syncs scores when due (past sync date).
+     * Verifies that max(local, remote) reconciliation and date update occur.
+     */
+    @Test
+    public void syncSnapTaskScoreOnceDaily_whenDue_syncsScoresAndRecordsDate() {
+        String testUid = "sync_test_uid_1";
+        FakeRemoteManager fakeRemote = (FakeRemoteManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Clear any existing sync date by setting it to a past day
+        SharedPreferences prefs = context.getSharedPreferences("snapTask_repo_prefs", Context.MODE_PRIVATE);
+        String key = "last_sync_snap_task_score_epoch_day_" + testUid;
+        prefs.edit().putLong(key, LocalDate.now().toEpochDay() - 1).apply();
+
+        // Set up: local=10, remote=20 => expected final=20
+        repo.upsertSnapTaskScore(10);
+        fakeRemote.setFakeScore(20);
+
+        // Act
+        repo.syncSnapTaskScoreOnceDaily();
+
+        // Assert: local should be updated to 20, remote should still be 20
+        assertEquals("Local score should be max(10,20)=20", 20, repo.getSnapTaskScore().intValue());
+        assertEquals("Remote score should be 20", 20, fakeRemote.getFakeScore());
+
+        // Assert: sync date should be updated to today
+        long storedEpochDay = prefs.getLong(key, Long.MIN_VALUE);
+        assertEquals("Sync date should be today", LocalDate.now().toEpochDay(), storedEpochDay);
+    }
+
+    /**
+     * Test that syncSnapTaskScoreOnceDaily is skipped when already synced today.
+     * Verifies that scores remain unchanged and no reconciliation happens.
+     */
+    @Test
+    public void syncSnapTaskScoreOnceDaily_whenAlreadySyncedToday_skipsSync() {
+        String testUid = "sync_test_uid_2";
+        FakeRemoteManager fakeRemote = (FakeRemoteManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Set sync date to today
+        SharedPreferences prefs = context.getSharedPreferences("snapTask_repo_prefs", Context.MODE_PRIVATE);
+        String key = "last_sync_snap_task_score_epoch_day_" + testUid;
+        prefs.edit().putLong(key, LocalDate.now().toEpochDay()).apply();
+
+        // Set up: local=5, remote=50 => should NOT sync because already done today
+        repo.upsertSnapTaskScore(5);
+        fakeRemote.setFakeScore(50);
+
+        // Act
+        repo.syncSnapTaskScoreOnceDaily();
+
+        // Assert: local score unchanged (no sync happened)
+        assertEquals("Local score should remain 5 (no sync)", 5, repo.getSnapTaskScore().intValue());
+        // Remote should also be unchanged
+        assertEquals("Remote score should remain 50", 50, fakeRemote.getFakeScore());
+    }
+
+    /**
+     * Test that syncSnapTaskScoreOnceDaily handles local > remote correctly.
+     * When local is higher, remote should be updated.
+     */
+    @Test
+    public void syncSnapTaskScoreOnceDaily_localHigher_updatesRemote() {
+        String testUid = "sync_test_uid_3";
+        FakeRemoteManager fakeRemote = (FakeRemoteManager) remoteManager;
+
+        // Pre-seed UserRepository's SharedPreferences with test uid
+        seedUserRepoUid(testUid);
+
+        // Clear sync date
+        SharedPreferences prefs = context.getSharedPreferences("snapTask_repo_prefs", Context.MODE_PRIVATE);
+        String key = "last_sync_snap_task_score_epoch_day_" + testUid;
+        prefs.edit().remove(key).apply();
+
+        // Set up: local=100, remote=30 => expected final=100
+        repo.upsertSnapTaskScore(100);
+        fakeRemote.setFakeScore(30);
+
+        // Act
+        repo.syncSnapTaskScoreOnceDaily();
+
+        // Assert: both should be 100
+        assertEquals("Local score should be 100", 100, repo.getSnapTaskScore().intValue());
+        assertEquals("Remote score should be updated to 100", 100, fakeRemote.getFakeScore());
+    }
+
+    /**
+     * Test that syncSnapTaskScoreOnceDaily handles null/empty uid gracefully.
+     */
+    @Test
+    public void syncSnapTaskScoreOnceDaily_nullUid_doesNotCrash() {
+        // Clear the uid from UserRepository prefs to simulate null/empty uid
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().remove(PREFS_UID).apply();
+        
+        // Should not throw, just return early
+        repo.syncSnapTaskScoreOnceDaily();
+        
+        // Test with empty uid
+        context.getSharedPreferences(USER_REPO_PREFS, Context.MODE_PRIVATE)
+                .edit().putString(PREFS_UID, "").apply();
+        repo.syncSnapTaskScoreOnceDaily();
+        // No assertions needed - just verifying no crash
     }
 }

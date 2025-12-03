@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.code.wlu.cp470.wellnest.data.ActivityJarModels;
 import com.code.wlu.cp470.wellnest.data.UserModels.Friend;
 import com.code.wlu.cp470.wellnest.data.UserModels.UserProfile;
 import com.code.wlu.cp470.wellnest.data.local.contracts.UserContract;
@@ -197,7 +198,7 @@ public class FirebaseUserManager {
         Number n = (Number) d.get(UserContract.GlobalScore.Col.SCORE);
         return (n == null) ? null : n.intValue();
     }
-
+ 
     public boolean setGlobalScore(@NonNull String uid, int score) {
         if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
         DocumentReference userDoc = db.collection("users").document(uid);
@@ -205,14 +206,14 @@ public class FirebaseUserManager {
         data.put(UserContract.GlobalScore.Col.SCORE, score);
         return awaitOk(userDoc.set(data, SetOptions.merge()));
     }
-
+ 
     public Integer getStreak(@NonNull String uid) throws ExecutionException, InterruptedException {
         DocumentSnapshot d = Tasks.await(db.collection("users").document(uid).get());
         if (d == null || !d.exists()) return null;
         Number n = (Number) d.get(UserContract.Streak.Col.COUNT);
         return (n == null) ? null : n.intValue();
     }
-
+ 
     public boolean setStreak(@NonNull String uid, int count) {
         if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
         DocumentReference userDoc = db.collection("users").document(uid);
@@ -221,6 +222,70 @@ public class FirebaseUserManager {
         return awaitOk(userDoc.set(data, SetOptions.merge()));
     }
 
+    /**
+     * Checks if a user document exists in Firebase for the given UID.
+     * Returns true if the document exists, false otherwise.
+     */
+    public boolean userDocumentExists(@NonNull String uid) throws ExecutionException, InterruptedException {
+        if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+        DocumentSnapshot userDoc = Tasks.await(db.collection("users").document(uid).get());
+        return userDoc != null && userDoc.exists();
+    }
+
+    // ---------------------------------------------------------------------
+    // Micro-app scores: users/{uid}/microapp_scores
+    // ---------------------------------------------------------------------
+
+    public boolean upsertActivityJarScore(@NonNull ActivityJarModels.ActivityJarScore activityJarScore) {
+        if (activityJarScore == null) {
+            throw new IllegalArgumentException("activityJarScore == null");
+        }
+        String uid = activityJarScore.getUid();
+        if (uid == null || uid.isEmpty()) {
+            throw new IllegalArgumentException("activityJarScore.uid is null or empty");
+        }
+
+        DocumentReference ref = db
+                .collection("users")
+                .document(uid)
+                .collection("microapp_scores")
+                .document("activity_jar");
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("score", activityJarScore.getScore());
+
+        return awaitOk(ref.set(data));
+    }
+
+    @Nullable
+    public ActivityJarModels.ActivityJarScore getActivityJarScore(@NonNull String uid) {
+        if (uid.isEmpty()) throw new IllegalArgumentException("uid cannot be empty");
+
+        DocumentReference ref = db
+                .collection("users")
+                .document(uid)
+                .collection("microapp_scores")
+                .document("activity_jar");
+
+        try {
+            Task<DocumentSnapshot> task = ref.get();
+            if (!awaitOk(task)) {
+                return null;
+            }
+
+            DocumentSnapshot snap = task.getResult();
+            if (snap != null && snap.exists()) {
+                Long val = snap.getLong("score");
+                int score = val != null ? val.intValue() : 0;
+                return new ActivityJarModels.ActivityJarScore(uid, score);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "getActivityJarScore failed", e);
+        }
+
+        return null;
+    }
+ 
     // ---------------------------------------------------------------------
     // Friends: users/{ownerUid}/friends/{friendUid}
     // ---------------------------------------------------------------------
