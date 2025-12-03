@@ -1,0 +1,1555 @@
+@startuml
+class com.code.wlu.cp470.wellnest.viewmodel.SnapTaskViewModel {
+- SnapTaskRepository repo
+- WellnestDatabaseHelper dbHelper
+- SQLiteDatabase db
+- ExecutorService io
++ List<SnapTaskModels.Task> getTasks()
++ int getScore()
++ void completeTaskAndApplyScore(String,int)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.profile.ProfileFragment {
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void showHelpDialog()
+- void showDeleteAccountDialog(AuthViewModel)
+- void setupAccordionSection(View,TextView,ImageView,int)
+- void updateAccordionAccessibility(View,int,boolean)
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract {
+}
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Roamio_Score {
++ {static} String TABLE
++ {static} String SQL_CREATE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Roamio_Score$Col {
++ {static} String UID
++ {static} String SCORE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Walk_Sessions {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Walk_Sessions$Col {
++ {static} String _ID
++ {static} String UID
++ {static} String STARTED_AT
++ {static} String ENDED_AT
++ {static} String STEPS
++ {static} String DISTANCE_METERS
++ {static} String POINTS_AWARDED
++ {static} String STATUS
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Current_Walk {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Current_Walk$Col {
++ {static} String _ID
++ {static} String UID
++ {static} String STATUS
++ {static} String STARTED_AT
++ {static} String START_STEP_COUNT
++ {static} String START_ELAPSED_REALTIME_MS
++ {static} String LAST_UPDATED_MS
++ {static} String LAST_KNOWN_STEPS
++ {static} String LAST_KNOWN_DISTANCE_METERS
+}
+
+class com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView {
+- ViewPager2 viewPager
+- int pageMargin
+- int offscreenLimit
+- float sideScale
+- float sideAlpha
+- boolean blurEnabled
+- boolean autoPlay
+- int autoPlayDelay
+- int effectType
+- Timer timer
+- int currentPage
+- Handler handler
+- void init(Context,AttributeSet)
+- void setupViewPager()
++ void setAdapter(RecyclerView.Adapter)
++ void setOffscreenPageLimit(int)
++ ViewPager2 getViewPager()
+- void startAutoPlay()
++ void stopAutoPlay()
+# void onDetachedFromWindow()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView$CarouselPageTransformer {
++ void transformPage(View,float)
+}
+
+class com.code.wlu.cp470.wellnest.utils.ActivityJarPrefetcher {
+- {static} String TAG
+- {static} LocalTime MORNING_START
+- {static} LocalTime AFTERNOON_START
+- {static} LocalTime EVENING_START
+- {static} LocalTime NIGHT_END
++ {static} void prefetchActivities(Context)
+- {static} boolean shouldPrefetch(ActivityJarCacheManager)
+- {static} boolean isSameTimeWindow(long,long)
+- {static} int getTimeWindowIndex(LocalTime)
+- {static} String serializeActivitiesToJson(Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>>)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.effects.UiShakes {
++ {static} void shakeX(View)
+}
+
+class com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskActivity {
++ {static} int REQUEST_TASK_DETAIL
+- SnapTaskViewModel snapTaskViewModel
+- RecyclerView recyclerView
+- SnapTaskAdapter adapter
+- TextView snapTaskScore
+- ImageView character
+- CardView backButton
+- WellnestProgressBar progressBar
+# void onCreate(Bundle)
+- void initializeViewModel()
+- void bindViews()
+- void setupRecycler()
+- void loadTasks()
+- void refreshTasks()
+- void refreshScoreAndCharacter()
+# void onActivityResult(int,int,Intent)
++ void onBackPressed()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.friends.FriendsPendingFragment {
+~ Context context
+- FriendViewModel viewModel
+- RecyclerView recyclerView
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onResume()
+}
+
+
+class com.code.wlu.cp470.wellnest.MainActivity {
++ {static} String ACTION_SCORE_SYNC_COMPLETE
+- {static} String TAG
+- {static} String PREFS
+- {static} String KEY_LAST_STREAK_DATE
+- SharedPreferences prefs
+- WellnestDatabaseHelper dbHelper
+- SQLiteDatabase db
+- UserRepository userRepository
+- SnapTaskRepository snapTaskRepository
+- RoamioRepository roamioRepository
+- ActivityJarRepository activityJarRepository
+- FirebaseAuth firebaseAuth
+- boolean userServicesInitialized
+# void onCreate(Bundle)
+- void initializeUserDependentServices(LocalDate)
+# void onStart()
+# void onPause()
+# void onResume()
+# void onStop()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.effects.UiTextEffects {
++ {static} void applyVerticalGradient(TextView,int,int)
++ {static} void applyHorizontalGradient(TextView,int,int)
++ {static} void applyDiagonalGradient(TextView,int,int)
++ {static} void clearGradient(TextView)
+}
+
+class com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseRoamioManager {
+- {static} String TAG
+- FirebaseFirestore db
+- {static} boolean awaitOk(Task<?>)
++ boolean upsertScore(RoamioModels.RoamioScore)
++ RoamioModels.RoamioScore getScore(String)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper {
+- {static} String DATABASE_NAME
+- {static} int DATABASE_VERSION
++ void onConfigure(SQLiteDatabase)
++ void onCreate(SQLiteDatabase)
++ void onUpgrade(SQLiteDatabase,int,int)
++ void cleanDatabase(SQLiteDatabase)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarFragment {
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.code.wlu.cp470.wellnest.data.auth.AuthRepository {
++ {static} String PREFS
++ {static} String USER_REPO_PREFS
+- {static} String PREFS_UID
+- FirebaseAuth auth
+- Context context
+- FirebaseFirestore db
+- UserRepository userRepo
+~ SharedPreferences prefs
+- String mapAuthError(Exception)
++ void signIn(String,String,Callback<FirebaseUser>)
++ void signUp(String,String,String,Callback<FirebaseUser>)
+- void persistLocalUser(String,String,String)
+- void saveUidToBothPrefs(String)
+- void bootstrapUserDocument(String,String,String,Callback<Void>)
++ FirebaseUser currentUser()
++ void signOut()
++ void deleteAccount()
++ void deleteAccountWithPassword(String,Callback<Void>)
+}
+
+
+interface com.code.wlu.cp470.wellnest.data.auth.AuthRepository$Callback {
+~ void onResult(T,Exception)
+}
+
+class com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter {
+- Context context
+- Activity activity
+- SnapTaskViewModel viewModel
+- List<SnapTaskModels.Task> items
+- String TAG
++ SnapTaskAdapter.MyViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(SnapTaskAdapter.MyViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter$MyViewHolder {
+~ TextView task_points
+~ ImageView task_bg
+}
+
+class com.code.wlu.cp470.wellnest.data.local.managers.RoamioManager {
+- {static} int SCORE_ROW_ID
+- SQLiteDatabase db
+- void ensureSingletonRows()
++ RoamioModels.RoamioScore getRoamioScore()
++ boolean upsertRoamioScore(int)
++ void addToRoamioScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.WellnestAiClient {
+- {static} String VERCEL_BASE_URL
+- {static} String OPENAI_PROXY_URL
+- {static} String TAVILY_PROXY_URL
+- {static} String OPEN_METEO_URL
+- {static} MediaType JSON
+- {static} int GPT_RETRY_MAX
+- {static} long GPT_RETRY_DELAY_MS
+- {static} String TAG
+- {static} OkHttpClient http
+- {static} SnapTaskEvaluationOverride snapTaskEvaluationOverride
++ {static} void setSnapTaskEvaluationOverride(SnapTaskEvaluationOverride)
++ {static} String evaluateSnapTask(String,byte[],byte[])
++ {static} Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>> planThingsToDo(Context)
++ {static} RoamioModels.Walk pickWalkAndStory(Context,ProgressCallback)
++ {static} RoamioModels.Walk pickWalkAndStory(Context)
++ {static} String getWeatherSummary(double,double)
++ {static} String pretty(String)
+- {static} String callOpenAIText(JSONObject)
+- {static} String callOpenAITextWithRetry(JSONObject,int)
+- {static} String askNanoForQuery(String)
+- {static} String askNanoForStrictJson(String)
+- {static} JSONObject tavilySearch(String)
+- {static} String fetchWeatherSummary(double,double)
+- {static} String normalizePassFail(String)
+- {static} String weatherCodeToText(int)
+- {static} String safeBody(Response)
+- {static} JSONObject createImageUrlPart(byte[])
+- {static} boolean hasLocationPermission(Context)
+- {static} Location getCurrentLocation(Context)
+- {static} String getLocationName(Context,double,double)
+- {static} double[] geocodeAddress(Context,String)
+- {static} float calculateDistance(double,double,double,double)
+}
+
+
+interface com.code.wlu.cp470.wellnest.data.WellnestAiClient$SnapTaskEvaluationOverride {
+~ String evaluate(String,byte[],byte[])
+}
+
+interface com.code.wlu.cp470.wellnest.data.WellnestAiClient$ProgressCallback {
+~ void onProgress(int,String)
+}
+
+class com.code.wlu.cp470.wellnest.ui.roamio.RoamioActivity {
+- {static} String TAG
+- {static} int LOCATION_PERMISSION_REQUEST_CODE
+- {static} float COMPLETION_RADIUS_METERS
+- {static} boolean DISABLE_LOCATION_CHECK
+~ Context context
+- TextView scoreText
+- ImageView characterImage
+- Button primaryButton
+- CardView homeButton
+- View difficultyDot1
+- RoamioViewModel roamioViewModel
+- RoamioModels.Walk currentWalk
+- boolean walkStarted
+- int currentDifficulty
+- FusedLocationProviderClient fusedLocationClient
+- View loadingOverlay
+- TextView loadingMessage
+- WellnestProgressBar loadingProgressBar
+- TextView progressPercentage
+- Handler loadingMessageHandler
++ void onCreate(Bundle)
+- int calculateDifficulty(float)
+- int getPointsForDifficulty(int)
+- void updateDifficultyDisplay(int)
+- void handleWalkButtonClick()
+- void launchMapsNavigation()
+- void checkLocationAndCompleteWalk()
+- float calculateDistanceToDestination(Location)
+- void completeWalk()
++ void onRequestPermissionsResult(int,String[],int[])
+- void showInfoDialog()
+- void showLoadingOverlay()
+- void updateLoadingProgress(int,String)
+- void hideLoadingOverlay()
+# void onDestroy()
+}
+
+
+class com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel {
+- RoamioRepository repo
+- WellnestDatabaseHelper dbHelper
+- SQLiteDatabase db
+- ExecutorService io
+- Handler mainHandler
++ void syncScore()
++ RoamioModels.RoamioScore getScore()
++ void addToScore(int)
++ void generateWalk(RoamioCallback<RoamioModels.Walk>)
+}
+
+
+interface com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel$RoamioCallback {
+~ void onSuccess(T)
+~ void onError(String)
+~ void onProgress(int,String)
+}
+
+class com.code.wlu.cp470.wellnest.ui.home.MicroAppCardFragment {
+- {static} String ARG_TITLE
+- {static} String ARG_SUBTITLE
+- {static} String ARG_BG_RES
+- {static} String ARG_DEEPLINK
++ {static} MicroAppCardFragment newInstance(String,String,int,String)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.friends.FriendsFragment {
+~ Context context
+- FriendViewModel viewModel
+- RecyclerView recyclerView
+- TextView pendingFriendsNotificationNumber
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onResume()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract {
+}
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$UserProfile {
++ {static} String TABLE
++ {static} String SQL_CREATE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$UserProfile$Col {
++ {static} String UID
++ {static} String NAME
++ {static} String EMAIL
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$GlobalScore {
++ {static} String TABLE
++ {static} String SQL_CREATE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$GlobalScore$Col {
++ {static} String UID
++ {static} String SCORE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Streak {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Streak$Col {
++ {static} String ID
++ {static} String COUNT
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Friends {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Friends$Col {
++ {static} String FRIEND_UID
++ {static} String FRIEND_NAME
++ {static} String FRIEND_STATUS
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Badges {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Badges$Col {
++ {static} String BADGE_ID
+}
+
+class com.code.wlu.cp470.wellnest.data.local.managers.SnapTaskManager {
+- {static} int SCORE_ROW_ID
+- SQLiteDatabase db
+- void ensureSingletonRows()
++ boolean upsertTask(String,String,int,String,Boolean)
++ Task getSnapTask(String,String)
++ List<Task> getTasks()
++ boolean setTaskCompleted(String)
++ Integer getSnapTaskScore()
++ boolean upsertSnapTaskScore(int)
++ int addToSnapTaskScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity {
+# void onCreate(Bundle)
+}
+
+class com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoItem {
+~ String emoji
+~ String title
+~ String description
+~ int imageResId
+}
+
+class com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter {
+- List<DemoItem> items
++ ViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter$ViewHolder {
+~ TextView emojiTv
+~ TextView titleTv
+~ TextView descriptionTv
+~ ImageView backgroundImg
+}
+
+class com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBarDemoFragment {
+- {static} String TAG
+- WellnestProgressBar progressDefault
+- WellnestProgressBar progressLarge
+- WellnestProgressBar progressSmall
+- WellnestProgressBar progressAccent
+- WellnestProgressBar progressSuccess
+- WellnestProgressBar progressLight
+- WellnestProgressBar progressIndeterminate
+- WellnestProgressBar progressCustom
+- WellnestProgressBar progressInteractive
+- Button btnDecrease
+- Button btnIncrease
+- Button btnReset
+- Button btnComplete
+- Button btnPulse
+- Button btnBounce
+- Button btnIndeterminate
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void initProgressBars(View)
+- void initControlButtons(View)
+- void setupButtonListeners()
+- void checkMilestoneEffects(int)
+- void startDemoAnimations()
++ void onDestroyView()
+- void simulateFileDownload()
+- void simulateDataLoading()
+- void setupWithViewModel()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarActivity {
+- ActivityJarViewModel viewModel
+- TextView txtScore
+# void onCreate(Bundle)
+- void openSelection(int)
+- void updateScoreWithAnimation(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseUserManager {
+- {static} String TAG
+- FirebaseFirestore db
+- {static} boolean awaitOk(Task<?>)
+- {static} void awaitOrThrow(String,Task<?>)
+- {static} void logAwaitFailure(String,ExecutionException)
++ boolean upsertUserProfile(String,String,String)
++ boolean hasUserProfile(String,String)
++ UserProfile getUser(String,String)
++ boolean deleteUserProfile(String)
++ Integer getGlobalScore(String)
++ boolean setGlobalScore(String,int)
++ Integer getStreak(String)
++ boolean setStreak(String,int)
++ boolean userDocumentExists(String)
++ boolean upsertActivityJarScore(ActivityJarModels.ActivityJarScore)
++ ActivityJarModels.ActivityJarScore getActivityJarScore(String)
++ void addFriendRequest(String,String,String,String)
++ boolean acceptFriend(String,String)
++ boolean denyFriend(String,String)
++ boolean removeFriend(String,String)
++ List<Friend> getFriends(String)
++ String findUidByEmail(String)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.remote.managers.FirebaseSnapTaskManager {
+- {static} String TAG
+- FirebaseFirestore db
+- {static} boolean awaitOk(Task<?>)
++ List<SnapTaskModels.Task> getTasks()
++ boolean upsertScore(SnapTaskModels.SnapTaskScore)
++ SnapTaskModels.SnapTaskScore getScore(String)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.SnapTaskModels {
+}
+class com.code.wlu.cp470.wellnest.data.SnapTaskModels$Task {
+- String uid
+- String name
+- int points
+- String description
+- Boolean completed
++ String getUid()
++ void setUid(String)
++ String getName()
++ void setName(String)
++ int getPoints()
++ void setPoints(int)
++ String getDescription()
++ void setDescription(String)
++ Boolean getCompleted()
++ void setCompleted(Boolean)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.SnapTaskModels$SnapTaskScore {
+- String uid
+- int score
++ String getUid()
++ void setUid(String)
++ int getScore()
++ void setScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.RoamioModels {
+}
+class com.code.wlu.cp470.wellnest.data.RoamioModels$Walk {
+- String uid
+- String name
+- String story
+- String start_address
+- String end_address
+- float distanceMeters
+- boolean completed
++ String getUid()
++ void setUid(String)
++ String getName()
++ void setName(String)
++ String getStory()
++ void setStory(String)
++ String getStartAddress()
++ void setStartAddress(String)
++ String getEndAddress()
++ void setEndAddress(String)
++ float getDistanceMeters()
++ void setDistanceMeters(float)
++ boolean isCompleted()
++ void setCompleted(boolean)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.RoamioModels$RoamioScore {
+- String uid
+- int score
++ String getUid()
++ void setUid(String)
++ int getScore()
++ void setScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarManager {
+- {static} int SCORE_ROW_ID
+- SQLiteDatabase db
+- void ensureSingletonRows()
++ Integer getActivityJarScore()
++ boolean upsertRoamioScore(int)
++ int addToActivityJarScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter {
+- List<ActivityJarModels.Activity> activities
+- OnActivityClickListener listener
++ void setActivities(List<ActivityJarModels.Activity>)
++ ActivityJarModels.Activity getItem(int)
++ ActivityViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ActivityViewHolder,int)
++ int getItemCount()
+}
+
+
+interface com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter$OnActivityClickListener {
+~ void onActivityClick(ActivityJarModels.Activity)
+}
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter$ActivityViewHolder {
+- TextView emojiTv
+- TextView titleTv
+- TextView descriptionTv
+- ImageView bgImage
++ void bind(ActivityJarModels.Activity,OnActivityClickListener)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskFragment {
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel {
+- AuthRepository repo
+- WellnestDatabaseHelper dbHelper
+- SQLiteDatabase db
+- MutableLiveData<FirebaseUser> user
+- MutableLiveData<String> error
+- MutableLiveData<Boolean> loading
+- MutableLiveData<Boolean> loginResult
+~ Context context
+~ UserManager local
+~ FirebaseUserManager remote
++ LiveData<Boolean> getLoginResult()
++ LiveData<FirebaseUser> user()
++ LiveData<String> error()
++ LiveData<Boolean> loading()
++ void signIn(String,String)
++ void signUp(String,String,String)
++ void signOut()
++ boolean deleteAccount()
++ void deleteAccountWithPassword(String,DeleteAccountCallback)
+# void onCleared()
+}
+
+
+interface com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel$DeleteAccountCallback {
+~ void onComplete(boolean,Exception)
+}
+
+class com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel {
+- {static} String TAG
+- UserRepository userRepository
+- WellnestDatabaseHelper databaseHelper
+- SQLiteDatabase writableDatabase
+- ExecutorService ioExecutor
+- MutableLiveData<List<Friend>> acceptedFriendsLiveData
+- MutableLiveData<List<Friend>> pendingFriendsLiveData
+- MutableLiveData<FriendRequestUiState> friendRequestStateLiveData
++ LiveData<List<Friend>> getAcceptedFriends()
++ LiveData<List<Friend>> getPendingFriends()
++ LiveData<FriendRequestUiState> getFriendRequestState()
++ void addFriend(String)
++ boolean removeFriend(String)
++ boolean acceptFriend(String)
++ boolean denyFriend(String)
++ String getUidFromEmail(String)
++ int getFriendScore(String)
++ void syncAndRefreshFriends()
+- void refreshFriends()
+- void refreshFriendsFromLocal()
+# void onCleared()
+}
+
+
+class com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel$FriendRequestUiState {
+- boolean hasResult
+- FriendRequestResult.Status status
+- String message
+- String target
++ {static} FriendRequestUiState idle()
++ {static} FriendRequestUiState fromResult(String,FriendRequestResult)
++ boolean hasResult()
++ FriendRequestResult.Status getStatus()
++ String getMessage()
++ String getTarget()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract {
+}
+class com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$Activity_Jar_Score {
++ {static} String TABLE
++ {static} String SQL_CREATE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$Activity_Jar_Score$Col {
++ {static} String UID
++ {static} String SCORE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$ActivityJarCache {
++ {static} String TABLE
++ {static} String SQL_CREATE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$ActivityJarCache$Col {
++ {static} String ID
++ {static} String JSON_DATA
++ {static} String TIMESTAMP
++ {static} String WEATHER_SUMMARY
+}
+
+class com.code.wlu.cp470.wellnest.ui.welcome.WelcomeFragment {
+- int current
+- List<Slide> slides
+- ImageView carouselImage
+- TextView carouselText
+- LinearLayout dotsContainer
+- View touchSurface
++ void onStart()
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void next()
+- void prev()
+- void applySlide(int)
+- void buildDots(int)
+- void updateDots(int)
+- int dp(int)
+- void setupDragSwipe()
+- void springBack()
+- void animateOffAndSwap(boolean,float)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.welcome.WelcomeFragment$Slide {
+~ int imageRes
+~ int textRes
+}
+
+class com.code.wlu.cp470.wellnest.ui.splash.SplashFragment {
+- FirebaseAuth.AuthStateListener listener
+- FirebaseAuth auth
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onStart()
++ void onStop()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar {
+- {static} int DEFAULT_ANIMATION_DURATION
+- {static} int INDETERMINATE_ANIMATION_DURATION
+- {static} float DEFAULT_CORNER_RADIUS_DP
+- {static} float DEFAULT_HEIGHT_DP
+- int progress
+- int max
+- boolean isIndeterminate
+- ValueAnimator progressAnimator
+- ValueAnimator indeterminateAnimator
+- float animatedProgress
+- float indeterminateOffset
+- int animationDuration
+- Paint trackPaint
+- Paint progressPaint
+- Paint shadowPaint
+- RectF trackRect
+- RectF progressRect
+- int trackColor
+- int progressColor
+- int shadowColor
+- float cornerRadius
+- float progressHeight
+- int lastAnnouncedProgress
+- {static} int ACCESSIBILITY_ANNOUNCE_THRESHOLD
+- void init(Context,AttributeSet)
+- void initPaints()
+# void onMeasure(int,int)
+# void onSizeChanged(int,int,int,int)
+- void updateRects()
+# void onDraw(Canvas)
+- void drawDeterminateProgress(Canvas)
+- void drawIndeterminateProgress(Canvas)
++ void setProgress(int)
++ void setProgressAnimated(int)
+- void setProgress(int,boolean)
+- void animateProgressChange(float,float)
++ void setIndeterminate(boolean)
+- void startIndeterminateAnimation()
+- void stopIndeterminateAnimation()
++ void setMax(int)
++ void setProgressColor(int)
++ void setTrackColor(int)
++ void setCornerRadius(float)
++ void setAnimationDuration(int)
++ int getProgress()
++ int getMax()
++ boolean isIndeterminate()
+- void announceProgressChange(int,int)
+- String getProgressDescription()
++ void onInitializeAccessibilityEvent(AccessibilityEvent)
+# void onAttachedToWindow()
+# void onDetachedFromWindow()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.roamio.RoamioFragment {
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+}
+
+class com.code.wlu.cp470.wellnest.data.SnapTaskRepository {
+- {static} String PREFS
+- {static} String USER_REPO_PREFS
+- {static} String PREFS_UID
+- SharedPreferences prefs
+- Context context
+- FirebaseSnapTaskManager remote
+- SnapTaskManager local
++ void syncSnapTasks()
++ boolean upsertTask(String,String,int,String,Boolean)
++ Task getSnapTask(String,String)
++ List<SnapTaskModels.Task> getTasks()
++ boolean setTaskCompleted(String)
++ Integer getSnapTaskScore()
++ boolean upsertSnapTaskScore(int)
++ int addToSnapTaskScore(int)
+- void syncScoreToFirebaseAsync(int)
++ SnapTaskModels.SnapTaskScore getSnapTaskScoreRemote(String)
++ boolean upsertSnapTaskScoreRemote(SnapTaskModels.SnapTaskScore)
++ void syncSnapTaskScoreOnceDaily()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.nav.NavFragment {
+- View friendsButton
+- View homeButton
+- View profileButton
+- String page
+- NavController navController
++ void onCreate(Bundle)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void setActive(View)
+- void setInactive(View)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.home.HomeFragment {
+- FriendViewModel friendViewModel
+- TextView scoreText
+- String uid
+- UserManager userManager
+- SnapTaskManager snapTaskManager
+- ActivityJarManager activityJarManager
+- RoamioManager roamioManager
+- BroadcastReceiver scoreSyncReceiver
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void addCardView(ViewGroup,String,String,int,String)
++ void onDestroyView()
++ void onResume()
+- void refreshGlobalScore()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.UserModels {
+}
+class com.code.wlu.cp470.wellnest.data.UserModels$Friend {
+- String uid
+- String name
+- String status
+- int score
++ String getUid()
++ void setUid(String)
++ String getName()
++ void setName(String)
++ String getStatus()
++ void setStatus(String)
++ int getScore()
++ void setScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.UserModels$UserProfile {
+- String uid
+- String name
+- String email
++ String getUid()
++ void setUid(String)
++ String getName()
++ void setName(String)
++ String getEmail()
++ void setEmail(String)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.UserModels$Score {
+- String uid
+- int score
++ String getUid()
++ void setUid(String)
++ int getScore()
++ void setScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.managers.UserManager {
+- SQLiteDatabase db
+- void ensureSingletons()
++ boolean upsertUserProfile(String,String,String)
++ String currentUid()
++ boolean hasUserProfile(String,String)
++ String getUserName(String)
++ String getUserEmail(String)
++ UserProfile getUserProfile(String,String)
++ boolean deleteUserProfile()
+- Integer queryScoreByUid(String)
+- boolean upsertScore(String,int)
++ int getGlobalScore()
++ Integer getGlobalScore(String)
++ boolean createGlobalScore(int)
++ boolean createGlobalScore(String,int)
++ boolean ensureGlobalScore(String)
++ boolean setGlobalScore(int)
++ boolean setGlobalScore(String,int)
++ int addToGlobalScore(int)
++ int addToGlobalScore(String,int)
++ boolean deleteGlobalScore()
++ boolean deleteGlobalScore(String)
++ java.util.Map<String,Integer> getGlobalScores(java.util.Collection<String>)
++ java.util.List<Score> listAllGlobalScores()
++ int deleteGlobalScores(java.util.Collection<String>)
++ int getStreakCount()
++ boolean setStreakCount(int)
++ int incrementStreak()
++ boolean resetStreak()
++ boolean upsertFriend(String,String)
++ boolean upsertFriend(String,String,String)
++ boolean removeFriend(String)
++ boolean acceptFriend(String)
++ boolean denyFriend(String)
++ boolean isFriend(String)
++ List<Friend> getFriends()
++ boolean addBadge(String)
++ boolean removeBadge(String)
++ boolean hasBadge(String)
++ List<String> listBadges()
+- Integer queryInt(String,String,String,String[])
+- String queryString(String,String,String,String[])
+}
+
+
+class com.code.wlu.cp470.wellnest.data.UserRepository {
+- {static} String TAG
+- {static} String PREFS
+- {static} String PREFS_UID
+- {static} String KEY_LAST_GLOBAL_PUSH_DAY
+- UserManager local
+- FirebaseUserManager remote
+- SharedPreferences prefs
+- Context context
+- Handler mainHandler
++ void syncGlobalScore()
++ void syncStreak()
++ boolean userDocumentExists(String)
++ boolean upsertUserProfile(String,String,String)
++ boolean hasUserProfile(String,String)
++ boolean firebaseHasUserProfile(String,String)
++ String getUserName()
++ String getUserEmail()
++ UserProfile getUser(String,String)
++ void deleteUserProfile()
++ int getGlobalScore()
++ int getGlobalScore(String)
++ int getGlobalScoreRemote(String)
++ Map<String,Integer> getGlobalScores(Collection<String>)
++ List<Score> listAllGlobalScores()
++ boolean createGlobalScore(int)
++ boolean createGlobalScore(String,int)
++ boolean ensureGlobalScore(String)
++ boolean setGlobalScore(int)
++ boolean setGlobalScore(String,int)
++ int addToGlobalScore(int)
++ int addToGlobalScore(String,int)
++ boolean deleteGlobalScore()
++ boolean deleteGlobalScore(String)
++ int deleteGlobalScores(Collection<String>)
++ int getStreakCount()
++ boolean setStreakCount(int)
++ int incrementStreak()
++ boolean resetStreak()
++ FriendRequestResult addFriendByEmail(String)
++ boolean upsertFriend(String,String)
++ boolean upsertFriend(String,String,String)
++ boolean syncFriendsFromFirebase()
++ FriendRequestResult addFriend(String)
++ boolean removeFriend(String)
++ boolean acceptFriend(String)
++ boolean denyFriend(String)
++ boolean isFriend(String)
++ List<Friend> getFriends()
++ boolean addBadge(String)
++ boolean removeBadge(String)
++ boolean hasBadge(String)
++ List<String> listBadges()
+- void postToast(int)
+- FriendRequestResult ensurePlayServicesReady()
+- FriendRequestResult persistFriendAndSend(String,String,String,String)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.RoamioRepository {
+- {static} String PREFS
+- {static} String USER_REPO_PREFS
+- {static} String PREFS_UID
+- {static} String TAG
+- {static} String KEY_LAST_SYNC_ROAMIO_SCORE_DAY_PREFIX
+- Context context
+- SharedPreferences prefs
+- FirebaseRoamioManager remote
+- RoamioManager local
++ void syncScore()
++ void syncRoamioScoreOnceDaily()
+- void syncScoreInternal(String)
++ RoamioModels.RoamioScore getRoamioScore()
++ boolean upsertRoamioScore(int)
++ RoamioModels.RoamioScore getRoamioScoreRemote(String)
++ boolean upsertRoamioScoreRemote(RoamioModels.RoamioScore)
++ void addToRoamioScore(int)
+- void syncScoreToFirebaseAsync()
++ RoamioModels.Walk generateWalk(WellnestAiClient.ProgressCallback)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityDetailFragment {
+- {static} String ARG_INDEX
++ {static} ActivityDetailFragment newInstance(int)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract {
+}
+class com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$SnapTask_Score {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$SnapTask_Score$Col {
++ {static} String UID
++ {static} String SCORE
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$Tasks {
++ {static} String TABLE
++ {static} String SQL_CREATE
++ {static} String SQL_INDEXES
+}
+
+class com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$Tasks$Col {
++ {static} String UID
++ {static} String NAME
++ {static} String POINTS
++ {static} String DESCRIPTION
++ {static} String COMPLETED
+}
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.FiltersBottomSheetDialog {
+- Filter current
+- ImageView iconFriends
+- TextView txtDescription
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- void updateUi()
++ void onStart()
+}
+
+
+enum com.code.wlu.cp470.wellnest.ui.activityjar.Filter {
++  FRIENDS
++  SOLO
++  FAMILY
+}
+
+class com.code.wlu.cp470.wellnest.ui.effects.UiProgressEffects {
+- {static} int TAG_SHIMMER_ANIMATOR
+- {static} int TAG_PULSE_ANIMATOR
++ {static} void pulseOnComplete(View)
++ {static} void shimmerEffect(WellnestProgressBar)
++ {static} void stopShimmer(WellnestProgressBar)
++ {static} void bounceOnMilestone(WellnestProgressBar,int)
++ {static} void scaleOnProgress(WellnestProgressBar)
++ {static} void celebrateCompletion(WellnestProgressBar)
++ {static} void pulseIndeterminate(WellnestProgressBar)
++ {static} void stopPulseIndeterminate(WellnestProgressBar)
++ {static} void rubberBandEffect(WellnestProgressBar)
++ {static} void fadeIn(WellnestProgressBar,long)
++ {static} void fadeOut(WellnestProgressBar,long)
++ {static} void slideInFromLeft(WellnestProgressBar)
++ {static} void slideOutToRight(WellnestProgressBar)
++ {static} void waveEffect(WellnestProgressBar)
+}
+
+
+class com.code.wlu.cp470.wellnest.utils.MusicService {
++ {static} String ACTION_PAUSE
++ {static} String ACTION_RESUME
+- MediaPlayer player
+- int[] playlist
+- int index
++ int onStartCommand(Intent,int,int)
+- void startSong()
++ void onDestroy()
++ IBinder onBind(Intent)
++ void pauseMusic()
++ void resumeMusic()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.WellnestApp {
++ void onCreate()
+}
+
+class com.code.wlu.cp470.wellnest.viewmodel.ActivityJarViewModel {
+- {static} String TAG
+- MutableLiveData<Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>>> activities
+- MutableLiveData<Boolean> isLoading
+- MutableLiveData<String> error
+- MutableLiveData<Integer> score
+- ExecutorService executor
+- ActivityJarCacheManager cacheManager
+- ActivityJarRepository repository
++ LiveData<Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>>> getActivities()
++ LiveData<Boolean> getIsLoading()
++ LiveData<String> getError()
++ LiveData<Integer> getScore()
+- void loadScore()
++ void acceptActivity(ActivityJarModels.Activity)
+- void removeActivity(ActivityJarModels.Activity)
++ void loadActivities()
+- Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>> parseActivitiesFromJson(String)
+- String serializeActivitiesToJson(Map<ActivityJarModels.Category,List<ActivityJarModels.Activity>>)
+# void onCleared()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.model.FriendRequestResult {
+- Status status
+- String message
+- Exception exception
++ Status getStatus()
++ boolean isSuccess()
++ boolean isLocalFailure()
++ boolean isRemoteFailure()
++ boolean isPlayServicesUnavailable()
++ String getMessage()
++ Exception getException()
++ {static} FriendRequestResult success()
++ {static} FriendRequestResult success(String)
++ {static} FriendRequestResult localFailure(String,Exception)
++ {static} FriendRequestResult remoteFailure(String,Exception)
++ {static} FriendRequestResult playServicesUnavailable(String,Exception)
+}
+
+
+enum com.code.wlu.cp470.wellnest.data.model.Status {
++  SUCCESS
++  LOCAL_FAILURE
++  REMOTE_FAILURE
++  PLAY_SERVICES_UNAVAILABLE
+}
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivityInfoDialog {
+- {static} String ARG_EMOJI
+- {static} String ARG_TITLE
+- {static} String ARG_DESCRIPTION
+- {static} String ARG_ADDRESS
+- {static} String ARG_TAGS
+- OnActivityAcceptListener listener
++ {static} ActivityInfoDialog newInstance(ActivityJarModels.Activity)
++ void setOnActivityAcceptListener(OnActivityAcceptListener)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
++ void onStart()
+}
+
+
+interface com.code.wlu.cp470.wellnest.ui.activityjar.ActivityInfoDialog$OnActivityAcceptListener {
+~ void onActivityAccepted()
+}
+
+class com.code.wlu.cp470.wellnest.data.ActivityJarModels {
+}
+enum com.code.wlu.cp470.wellnest.data.Category {
++  Explore
++  Nightlife
++  Play
++  Cozy
++  Culture
+}
+
+class com.code.wlu.cp470.wellnest.data.ActivityJarModels$ActivityJarScore {
+- String uid
+- int score
++ String getUid()
++ void setUid(String)
++ int getScore()
++ void setScore(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.ActivityJarModels$Activity {
+- String category
+- String emoji
+- String title
+- String description
+- String address
+- String[] tags
+- String url
++ String getCategory()
++ void setCategory(String)
++ String getEmoji()
++ void setEmoji(String)
++ String getTitle()
++ void setTitle(String)
++ String getDescription()
++ void setDescription(String)
++ String getAddress()
++ void setAddress(String)
++ String[] getTags()
++ void setTags(String[])
++ String getUrl()
++ void setUrl(String)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.effects.UiClickEffects {
+- {static} String TAG
++ {static} void setOnClickWithPulse(View,int,View.OnClickListener)
++ {static} void bounceOnce(View)
++ {static} void applyPulse(View)
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarCacheManager {
+- SQLiteDatabase db
++ void saveCache(String,String)
++ CacheEntry getCachedData()
++ boolean hasValidCache()
+}
+
+
+class com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarCacheManager$CacheEntry {
++ String jsonData
++ String weatherSummary
++ long timestamp
+}
+
+class com.code.wlu.cp470.wellnest.data.ActivityJarRepository {
+- {static} String TAG
+- {static} String PREFS
+- {static} String USER_REPO_PREFS
+- {static} String PREFS_UID
+- {static} String KEY_LAST_SYNC_ACTIVITY_JAR_SCORE_DAY_PREFIX
+- ActivityJarManager activityJarManager
+- ExecutorService executor
+- Context context
+- SharedPreferences prefs
+- FirebaseUserManager remote
++ void addScore(int,ScoreCallback)
+- void syncScoreToFirebaseAsync(int)
++ void getScore(ScoreCallback)
++ Integer getActivityJarScore()
++ boolean upsertActivityJarScore(int)
++ ActivityJarModels.ActivityJarScore getActivityJarScoreRemote(String)
++ boolean upsertActivityJarScoreRemote(ActivityJarModels.ActivityJarScore)
++ void syncActivityJarScoreOnceDaily()
++ void shutdown()
+}
+
+
+interface com.code.wlu.cp470.wellnest.data.ActivityJarRepository$ScoreCallback {
+~ void onScoreUpdated(int)
+~ void onError(Exception)
+}
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.activityJarSelection {
+- {static} String ARG_START_INDEX
+- WellnestCarouselView carouselView
+- ActivityCarouselAdapter adapter
+- ActivityJarViewModel viewModel
+- ProgressBar loadingProgressBar
++ {static} activityJarSelection newInstance(int)
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
+- ActivityJarModels.Category getCategoryByIndex(int)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.effects.UiTouchEffects {
++ {static} View.OnTouchListener attachPressScale(View,float)
+}
+
+class com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter {
+- Context context
+- List<Friend> friends
++ ScoreboardAdapter.MyViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(ScoreboardAdapter.MyViewHolder,int)
++ int getItemCount()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter$MyViewHolder {
+~ TextView rankNumber
+~ ImageView rankIcon
+}
+
+class com.code.wlu.cp470.wellnest.ui.auth.AuthFragment {
+- boolean signUpMode
++ View onCreateView(LayoutInflater,ViewGroup,Bundle)
++ void onViewCreated(View,Bundle)
+- void applyMode(boolean,TextView,TextView,EditText,Button,TextView,TextView)
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter {
+- List<Integer> cardResIds
+- LayoutInflater inflater
+- OnCardClickListener clickListener
++ CardViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(CardViewHolder,int)
++ int getItemCount()
+}
+
+
+interface com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter$OnCardClickListener {
+~ void onCardClick(int)
+}
+
+class com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter$CardViewHolder {
+~ ImageView imgBackground
+}
+
+class com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter {
+- Context context
+- String mode
+- FriendViewModel viewModel
+- List<Friend> items
++ MyViewHolder onCreateViewHolder(ViewGroup,int)
++ void onBindViewHolder(MyViewHolder,int)
++ void updateData(List<Friend>)
++ int getItemCount()
+}
+
+
+class com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter$MyViewHolder {
+~ TextView name
+~ ImageButton accept_friend_button
+}
+
+class com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailActivity {
++ {static} String EXTRA_MODE
++ {static} String EXTRA_TASK_UID
++ {static} String EXTRA_TASK_NAME
++ {static} String EXTRA_TASK_DESCRIPTION
++ {static} String EXTRA_TASK_POINTS
++ {static} String EXTRA_TASK_COMPLETED
+- {static} String TAG
+- {static} String ACTIVE_COLOUR
+- {static} String INACTIVE_COLOUR
+- {static} String ACTIVE_TEXT_COLOUR
+- {static} String INACTIVE_TEXT_COLOUR
+- SnapTaskViewModel snapTaskViewModel
+- String mode
+- String taskUid
+- String taskName
+- String taskDescription
+- int taskPoints
+- boolean taskCompleted
+- byte[] beforeImage
+- TextView taskNameView
+- ImageView heroImage
+- CardView exitButton
+- View loadingOverlay
+- WellnestProgressBar loadingProgressBar
++ {static} Intent createIntent(Context,String,String,String,String,int,boolean)
+# void onCreate(Bundle)
+- void initializeViewModel()
+- boolean extractExtras(Intent)
+- void bindViews()
+- void wireUi()
+- void updateUIForMode()
++ void onActivityResult(int,int,Intent)
+- void evaluateTask()
+- Bitmap downscale(Bitmap,int)
+- void showInfoDialog(String)
+- void showLoadingOverlay()
+- void hideLoadingOverlay()
+- void handleTaskCompletionSuccess()
+- void showSuccessDialog()
+- void showFailureDialog()
+- void finishWithExitAnim()
++ void onBackPressed()
+}
+
+
+class com.code.wlu.cp470.wellnest.viewmodel.ProfileViewModel {
+- UserRepository repo
+- WellnestDatabaseHelper dbHelper
+- SQLiteDatabase db
+- ExecutorService io
+- MutableLiveData<List<UserModels.Friend>> acceptedFriends
+- MutableLiveData<List<UserModels.Friend>> pendingFriends
++ String getName()
++ String getEmail()
+}
+
+
+
+
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.SnapTaskViewModel
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.profile.ProfileFragment
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Roamio_Score
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Roamio_Score +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Roamio_Score$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Walk_Sessions
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Walk_Sessions +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Walk_Sessions$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Current_Walk
+com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Current_Walk +.. com.code.wlu.cp470.wellnest.data.local.contracts.RoamioContract$Current_Walk$Col
+android.widget.FrameLayout <|-- com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView
+com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView +.. com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView$CarouselPageTransformer
+com.code.wlu.cp470.wellnest.ui.components.PageTransformer <|.. com.code.wlu.cp470.wellnest.ui.components.WellnestCarouselView$CarouselPageTransformer
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskActivity
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.friends.FriendsPendingFragment
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.MainActivity
+android.database.sqlite.SQLiteOpenHelper <|-- com.code.wlu.cp470.wellnest.data.local.WellnestDatabaseHelper
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarFragment
+com.code.wlu.cp470.wellnest.data.auth.AuthRepository +.. com.code.wlu.cp470.wellnest.data.auth.AuthRepository$Callback
+com.code.wlu.cp470.wellnest.ui.snaptask.Adapter <|-- com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter
+com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter +.. com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter$MyViewHolder
+com.code.wlu.cp470.wellnest.ui.snaptask.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskAdapter$MyViewHolder
+com.code.wlu.cp470.wellnest.data.WellnestAiClient +.. com.code.wlu.cp470.wellnest.data.WellnestAiClient$SnapTaskEvaluationOverride
+com.code.wlu.cp470.wellnest.data.WellnestAiClient +.. com.code.wlu.cp470.wellnest.data.WellnestAiClient$ProgressCallback
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.ui.roamio.RoamioActivity
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel
+com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel +.. com.code.wlu.cp470.wellnest.viewmodel.RoamioViewModel$RoamioCallback
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.home.MicroAppCardFragment
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.friends.FriendsFragment
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$UserProfile
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$UserProfile +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$UserProfile$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$GlobalScore
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$GlobalScore +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$GlobalScore$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Streak
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Streak +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Streak$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Friends
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Friends +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Friends$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Badges
+com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Badges +.. com.code.wlu.cp470.wellnest.data.local.contracts.UserContract$Badges$Col
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity
+com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity +.. com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoItem
+com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity +.. com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter
+com.code.wlu.cp470.wellnest.ui.components.Adapter <|-- com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter
+com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter +.. com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter$ViewHolder
+com.code.wlu.cp470.wellnest.ui.components.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.components.CarouselDemoActivity$DemoAdapter$ViewHolder
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBarDemoFragment
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityJarActivity
+com.code.wlu.cp470.wellnest.data.SnapTaskModels +.. com.code.wlu.cp470.wellnest.data.SnapTaskModels$Task
+com.code.wlu.cp470.wellnest.data.SnapTaskModels +.. com.code.wlu.cp470.wellnest.data.SnapTaskModels$SnapTaskScore
+com.code.wlu.cp470.wellnest.data.RoamioModels +.. com.code.wlu.cp470.wellnest.data.RoamioModels$Walk
+com.code.wlu.cp470.wellnest.data.RoamioModels +.. com.code.wlu.cp470.wellnest.data.RoamioModels$RoamioScore
+com.code.wlu.cp470.wellnest.ui.activityjar.Adapter <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter
+com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter +.. com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter$OnActivityClickListener
+com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter +.. com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter$ActivityViewHolder
+com.code.wlu.cp470.wellnest.ui.activityjar.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityCarouselAdapter$ActivityViewHolder
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskFragment
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel
+com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel +.. com.code.wlu.cp470.wellnest.viewmodel.AuthViewModel$DeleteAccountCallback
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel
+com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel +.. com.code.wlu.cp470.wellnest.viewmodel.FriendViewModel$FriendRequestUiState
+com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$Activity_Jar_Score
+com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$Activity_Jar_Score +.. com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$Activity_Jar_Score$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$ActivityJarCache
+com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$ActivityJarCache +.. com.code.wlu.cp470.wellnest.data.local.contracts.ActivityJarContract$ActivityJarCache$Col
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.welcome.WelcomeFragment
+com.code.wlu.cp470.wellnest.ui.welcome.WelcomeFragment +.. com.code.wlu.cp470.wellnest.ui.welcome.WelcomeFragment$Slide
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.splash.SplashFragment
+android.view.View <|-- com.code.wlu.cp470.wellnest.ui.components.WellnestProgressBar
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.roamio.RoamioFragment
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.nav.NavFragment
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.home.HomeFragment
+com.code.wlu.cp470.wellnest.data.UserModels +.. com.code.wlu.cp470.wellnest.data.UserModels$Friend
+com.code.wlu.cp470.wellnest.data.UserModels +.. com.code.wlu.cp470.wellnest.data.UserModels$UserProfile
+com.code.wlu.cp470.wellnest.data.UserModels +.. com.code.wlu.cp470.wellnest.data.UserModels$Score
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityDetailFragment
+com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$SnapTask_Score
+com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$SnapTask_Score +.. com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$SnapTask_Score$Col
+com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract +.. com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$Tasks
+com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$Tasks +.. com.code.wlu.cp470.wellnest.data.local.contracts.SnapTaskContract$Tasks$Col
+com.google.android.material.bottomsheet.BottomSheetDialogFragment <|-- com.code.wlu.cp470.wellnest.ui.activityjar.FiltersBottomSheetDialog
+android.app.Service <|-- com.code.wlu.cp470.wellnest.utils.MusicService
+android.app.Application <|-- com.code.wlu.cp470.wellnest.data.WellnestApp
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.ActivityJarViewModel
+androidx.fragment.app.DialogFragment <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivityInfoDialog
+com.code.wlu.cp470.wellnest.ui.activityjar.ActivityInfoDialog +.. com.code.wlu.cp470.wellnest.ui.activityjar.ActivityInfoDialog$OnActivityAcceptListener
+com.code.wlu.cp470.wellnest.data.ActivityJarModels +.. com.code.wlu.cp470.wellnest.data.ActivityJarModels$ActivityJarScore
+com.code.wlu.cp470.wellnest.data.ActivityJarModels +.. com.code.wlu.cp470.wellnest.data.ActivityJarModels$Activity
+com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarCacheManager +.. com.code.wlu.cp470.wellnest.data.local.managers.ActivityJarCacheManager$CacheEntry
+com.code.wlu.cp470.wellnest.data.ActivityJarRepository +.. com.code.wlu.cp470.wellnest.data.ActivityJarRepository$ScoreCallback
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.activityjar.activityJarSelection
+com.code.wlu.cp470.wellnest.ui.home.Adapter <|-- com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter
+com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter +.. com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter$MyViewHolder
+com.code.wlu.cp470.wellnest.ui.home.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.home.ScoreboardAdapter$MyViewHolder
+androidx.fragment.app.Fragment <|-- com.code.wlu.cp470.wellnest.ui.auth.AuthFragment
+com.code.wlu.cp470.wellnest.ui.activityjar.Adapter <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter
+com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter +.. com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter$OnCardClickListener
+com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter +.. com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter$CardViewHolder
+com.code.wlu.cp470.wellnest.ui.activityjar.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.activityjar.ActivitiesPagerAdapter$CardViewHolder
+com.code.wlu.cp470.wellnest.ui.friends.Adapter <|-- com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter
+com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter +.. com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter$MyViewHolder
+com.code.wlu.cp470.wellnest.ui.friends.ViewHolder <|-- com.code.wlu.cp470.wellnest.ui.friends.FriendAdapter$MyViewHolder
+androidx.appcompat.app.AppCompatActivity <|-- com.code.wlu.cp470.wellnest.ui.snaptask.SnapTaskDetailActivity
+androidx.lifecycle.AndroidViewModel <|-- com.code.wlu.cp470.wellnest.viewmodel.ProfileViewModel
+@enduml
